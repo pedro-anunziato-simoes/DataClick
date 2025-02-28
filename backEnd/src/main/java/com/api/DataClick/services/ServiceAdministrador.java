@@ -1,10 +1,10 @@
 package com.api.DataClick.services;
 
 import com.api.DataClick.entities.Administrador;
-import com.api.DataClick.entities.Formulario;
 import com.api.DataClick.entities.Recrutador;
 import com.api.DataClick.repository.AdministradorRepository;
 import com.api.DataClick.repository.RecrutadorRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,11 +12,17 @@ import java.util.List;
 @Service
 public class ServiceAdministrador {
 
+    @Autowired
     private AdministradorRepository administradorRepository;
+    @Autowired
     private RecrutadorRepository recrutadorRepository;
 
+    public List<Administrador> listarAdministradores(){
+        return administradorRepository.findAll();
+    }
     public Administrador adicionarAdministrador(Administrador administrador){
-        return administradorRepository.save(administrador);
+        administradorRepository.save(administrador);
+        return administrador;
     }
 
     public void deletarAdministrador(Long id){
@@ -30,7 +36,6 @@ public class ServiceAdministrador {
     public void removerRecrutador(Long id){
         recrutadorRepository.deleteById(id);
     }
-
 
     //criar relação 1-n com o Administrador
     public Recrutador adicionarRecrutador(Recrutador recrutador) {
