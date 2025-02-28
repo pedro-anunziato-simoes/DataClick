@@ -3,7 +3,7 @@ package com.api.DataClick.entities;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "recrutador")
+@Document(collection = "recrutadores")
 public class Recrutador {
 
     @Id
