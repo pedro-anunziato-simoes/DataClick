@@ -2,6 +2,7 @@ package com.api.DataClick.controllers;
 
 import com.api.DataClick.entities.Formulario;
 import com.api.DataClick.services.ServiceRecrutador;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/recrutadores")
+@Tag(name = "Recrutadores", description = "Funcionalidades dos Recrutadores")
 public class ControllerRecrutador {
 
     @Autowired
