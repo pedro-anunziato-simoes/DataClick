@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Recrutador {
 
     @Id
-    private Long id;
+    private String id;
     private String nome;
     private String email;
     private String telefone;
@@ -25,7 +25,7 @@ public class Recrutador {
         this.token = token;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 

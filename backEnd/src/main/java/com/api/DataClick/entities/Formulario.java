@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Formulario {
 
     @Id
-    private Long id;
+    private String id;
     private String campo;
 
     public Formulario() {
@@ -19,7 +19,7 @@ public class Formulario {
         this.campo = campo;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 

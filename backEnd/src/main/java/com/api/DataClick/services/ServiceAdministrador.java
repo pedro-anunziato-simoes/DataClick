@@ -33,9 +33,9 @@ public class ServiceAdministrador {
         return recrutadorRepository.findAll();
     }
 
-    public void removerRecrutador(Long id){
-        recrutadorRepository.deleteById(id);
-    }
+    /*public void removerRecrutador(String id){
+        recrutadorRepository.deleteBy(id);
+    }*/
 
     //criar relação 1-n com o Administrador
     public Recrutador adicionarRecrutador(Recrutador recrutador) {
