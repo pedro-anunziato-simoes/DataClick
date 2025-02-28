@@ -1,10 +1,13 @@
 package com.api.DataClick.entities;
 
+import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 
-@Document(collection = "administrador")
+
+@Data
+@Document(collection = "administradores")
 public class Administrador {
 
     @Id
