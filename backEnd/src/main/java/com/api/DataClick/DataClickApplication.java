@@ -1,4 +1,4 @@
-package com.api.DataClick;
+package com.API.DataClick;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
