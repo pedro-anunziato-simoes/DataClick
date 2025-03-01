@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Administrador {
 
     @Id
-    private Long id;
+    private String id;
     private String cnpj;
     private String senha;
     private String email;
@@ -25,7 +25,7 @@ public class Administrador {
         this.cnpj = cnpj;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 

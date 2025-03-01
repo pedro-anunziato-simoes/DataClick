@@ -20,6 +20,4 @@ public class ServiceRecrutador {
         return formularioRepository.findAll();
     }
 
-
-
 }
