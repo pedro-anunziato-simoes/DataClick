@@ -18,10 +18,11 @@ public class ControllerAdministrador {
     @Autowired
     private ServiceAdministrador serviceAdministrador;
 
+    /*
     @GetMapping
     public List<EntityAdministrador> listarAdministradores(){
         return serviceAdministrador.listarAdminitradores();
-    }
+    }*/
 
     // Criar um recrutador vinculado a um administrador
     @PostMapping("/{administradorId}/recrutadores")
