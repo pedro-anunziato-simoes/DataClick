@@ -1,4 +1,4 @@
-package com.API.DataClick.entities;
+package com.api.DataClick.entities;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;

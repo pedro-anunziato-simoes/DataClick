@@ -1,4 +1,4 @@
-package com.API.DataClick.entities;
+package com.api.DataClick.entities;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;
