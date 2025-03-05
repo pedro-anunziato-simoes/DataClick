@@ -16,14 +16,14 @@ public class EntityRecrutador {
     private String telefone;
     private String token;
     @DBRef
-    private EntityAdministrador administrador;
+    private String administradorId;
 
-    public EntityRecrutador(String nome, String email, String telefone, String token, EntityAdministrador administrador) {
+    public EntityRecrutador(String nome, String email, String telefone, String token, String administradorId) {
         this.nome = nome;
         this.email = email;
         this.telefone = telefone;
         this.token = token;
-        this.administrador = administrador;
+        this.administradorId = administradorId;
     }
 
     public String getId() {
@@ -62,11 +62,11 @@ public class EntityRecrutador {
         this.token = token;
     }
 
-    public EntityAdministrador getAdministrador() {
-        return administrador;
+    public String getAdministradorId() {
+        return administradorId;
     }
 
-    public void setAdministrador(EntityAdministrador administrador) {
-        this.administrador = administrador;
+    public void setAdministradorId(String administradorId) {
+        this.administradorId = administradorId;
     }
 }
