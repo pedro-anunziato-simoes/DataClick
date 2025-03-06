@@ -8,11 +8,13 @@ import java.util.List;
 public class EntityFormulario {
     @Id
     private String id;
+    private String titulo;
     @DBRef
     private EntityAdministrador administrador;
     private List<String> campos;
 
-    public EntityFormulario(EntityAdministrador administrador, List<String> campos) {
+    public EntityFormulario(EntityAdministrador administrador, List<String> campos,String titulo) {
+        this.titulo = titulo;
         this.administrador = administrador;
         this.campos = campos;
     }
@@ -36,4 +38,8 @@ public class EntityFormulario {
     public void setCampos(List<String> campos) {
         this.campos = campos;
     }
+
+    public String getTitulo() { return titulo; }
+
+    public void setTitulo(String titulo) { this.titulo = titulo; }
 }
