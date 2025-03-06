@@ -21,6 +21,10 @@ public class ServiceAdministrador {
     private RepositoryRecrutador repositoryRecrutador;
 
 
+    public EntityAdministrador adicionarAdministrador(EntityAdministrador administrador){
+        return repositoryAdministrador.save(administrador);
+    }
+
     public List<EntityRecrutador> lsitarRecrutadores(String adminId){
         return repositoryRecrutador.findByAdministradorId(adminId);
     }
