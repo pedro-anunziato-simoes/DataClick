@@ -13,59 +13,25 @@ import java.util.Set;
 
 @Data
 @Document(collection = "Administradores")
-public class EntityAdministrador {
+public class EntityAdministrador extends Usuario{
 
-    @Id
-    private String id;
     @Setter
     private String cnpj;
-    private String senha;
-    private String email;
-    private String telefone;
     @DBRef
     private List<EntityRecrutador> listaRecrutadores = new ArrayList<>();
 
     public EntityAdministrador() {
     }
 
-    public EntityAdministrador(String cnpj, String senha, String email, String telefone, List<EntityRecrutador> listaRecrutadores) {
+    public EntityAdministrador(String cnpj, String nome, String email, String senha, String telefone, List<EntityRecrutador> listaRecrutadores) {
+        super(null, nome, email, senha, telefone);
         this.cnpj = cnpj;
-        this.senha = senha;
-        this.email = email;
-        this.telefone = telefone;
         this.listaRecrutadores = listaRecrutadores;
     }
 
-    public String getId() {
-        return id;
-    }
 
     public String getCnpj() {
         return cnpj;
-    }
-
-    public String getSenha() {
-        return senha;
-    }
-
-    public void setSenha(String senha) {
-        this.senha = senha;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getTelefone() {
-        return telefone;
-    }
-
-    public void setTelefone(String telefone) {
-        this.telefone = telefone;
     }
 
     public List<EntityRecrutador> getListaRecrutadores() {
