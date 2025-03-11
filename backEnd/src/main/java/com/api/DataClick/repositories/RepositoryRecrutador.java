@@ -8,5 +8,4 @@ import java.util.List;
 
 @Repository
 public interface RepositoryRecrutador extends MongoRepository<EntityRecrutador,String> {
-    List<EntityRecrutador> findByAdministradorId(String administradorId);
 }
