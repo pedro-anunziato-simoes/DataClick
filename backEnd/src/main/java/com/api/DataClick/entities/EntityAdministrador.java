@@ -1,10 +1,15 @@
 package com.api.DataClick.entities;
 
 import lombok.Data;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Document(collection = "Administradores")
@@ -12,13 +17,18 @@ public class EntityAdministrador {
 
     @Id
     private String id;
+    @Setter
     private String cnpj;
     private String senha;
     private String email;
     private String telefone;
-    private List<EntityRecrutador> listaRecrutadores;
+    @DBRef
+    private List<EntityRecrutador> listaRecrutadores = new ArrayList<>();
 
-    public EntityAdministrador(String cnpj, String senha, String email, String telefone,List<EntityRecrutador> listaRecrutadores) {
+    public EntityAdministrador() {
+    }
+
+    public EntityAdministrador(String cnpj, String senha, String email, String telefone, List<EntityRecrutador> listaRecrutadores) {
         this.cnpj = cnpj;
         this.senha = senha;
         this.email = email;
@@ -32,10 +42,6 @@ public class EntityAdministrador {
 
     public String getCnpj() {
         return cnpj;
-    }
-
-    public void setCnpj(String cnpj) {
-        this.cnpj = cnpj;
     }
 
     public String getSenha() {

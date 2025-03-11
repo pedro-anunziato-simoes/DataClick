@@ -1,17 +1,15 @@
 package com.api.DataClick.controllers;
 
 import com.api.DataClick.entities.EntityAdministrador;
-import com.api.DataClick.entities.EntityRecrutador;
 import com.api.DataClick.services.ServiceAdministrador;
+import com.api.DataClick.services.ServiceRecrutador;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/administradores")
@@ -20,6 +18,8 @@ public class ControllerAdministrador {
 
     @Autowired
     private ServiceAdministrador serviceAdministrador;
+    @Autowired
+    private ServiceRecrutador serviceRecrutador;
 
     @GetMapping
     @Operation(summary = "Listar todos os adminitradores", description = "Retorna uma lista de adminitradores")
@@ -30,30 +30,12 @@ public class ControllerAdministrador {
     @PostMapping
     @Operation(summary = "Adicionar um novo Adminitrador", description = "Retorna o adminitrador que foi criado")
     public EntityAdministrador adicionarAdministrador(EntityAdministrador administrador){
-        return serviceAdministrador.adicionarAdministrador(administrador);
+        return serviceAdministrador.adicionarAdmin(administrador);
     }
 
-    @PostMapping("/{administradorId}/recrutadores")
-    @Operation(summary = "Criar recrutador", description = "Cria um recrutador apartir de um objeto(Entity Recrutador) passado pelo Body e um id d tipo string passado por parametro na URL")
-    public ResponseEntity<EntityRecrutador> criarRecrutador(
-            @PathVariable String administradorId,
-            @RequestBody EntityRecrutador recrutador) {
-        EntityRecrutador novoRecrutador = serviceAdministrador.criarRecrutador(administradorId, recrutador);
-        return ResponseEntity.status(HttpStatus.CREATED).body(novoRecrutador);
-    }
-
-    @DeleteMapping("/{administradorId}/recrutadores/{recrutadorId}")
-    @Operation(summary = "Remover recrutador", description = "remove um recrutador pelo id do adminitrador e pelo id do recrutador que deseja ser excluido")
-    public ResponseEntity<Void> removerRecrutador(
-            @PathVariable String administradorId,
-            @PathVariable String recrutadorId) {
-        serviceAdministrador.removerRecrutador(administradorId, recrutadorId);
-        return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/{adminitradorId}/listRecrutadores")
-    @Operation(summary = "Listar todos os recrutadores", description = "Retorna uma lista de recrutadores")
-    public List<EntityRecrutador> listarRecrutadores(@PathVariable String adminitradorId){
-        return serviceAdministrador.lsitarRecrutadores(adminitradorId);
+    @DeleteMapping("/{id}/remover")
+    @Operation(summary = "Remove um Adminitrador", description = "Não retorna nada")
+    public void removerAdm(@PathVariable String id){
+        serviceAdministrador.removerAdm(id);
     }
 }
