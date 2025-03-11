@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/administradores")
-@Tag(name = "Administrador", description = "Endpoints de funcionalidades de administradores")
+@Tag(name = "Administradores", description = "Endpoints de funcionalidades de administradores")
 public class ControllerAdministrador {
 
     @Autowired

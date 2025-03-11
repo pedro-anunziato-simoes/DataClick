@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -23,8 +26,10 @@ public class ControllerRecrutador {
     @Autowired
     private ServiceAdministrador serviceAdministrador;
 
+
+    @GetMapping("/formularios")
     @Operation(summary = "Listar todos os formularios", description = "Retorna uma lista de forularios")
-    public List<EntityFormulario> listarFormualrios(){
+    public List<EntityFormulario> listarFormularios(){
         return serviceRecrutador.listarFormulario();
     }
 
