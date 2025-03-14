@@ -24,20 +24,18 @@ public class ServiceRecrutador {
     @Autowired
     private RepositoryRecrutador repositoryRecrutador;
 
-    public List<EntityFormulario> listarFormulario(){
-        return repositoryFormulario.findAll();
-    }
 
     public EntityRecrutador criarRecrutador(String administradorId, EntityRecrutador recrutador) {
         EntityAdministrador administrador = repositoryAdministrador.findById(administradorId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Administrador não encontrado"));
 
-        if (administrador.getListaRecrutadores().stream().anyMatch(r -> r.getId().equals(recrutador.getId()))) {
+        if (administrador.getRecrutadores().stream().anyMatch(r -> r.getId().equals(recrutador.getId()))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Recrutador já está vinculado a este administrador");
         }
 
         EntityRecrutador recrutadorSalvo = repositoryRecrutador.save(recrutador);
-        administrador.getListaRecrutadores().add(recrutadorSalvo);
+        recrutadorSalvo.setAdminId(administradorId);
+        administrador.getRecrutadores().add(recrutadorSalvo);
         repositoryAdministrador.save(administrador);
         return recrutadorSalvo;
     }
@@ -46,12 +44,12 @@ public class ServiceRecrutador {
         EntityAdministrador administrador = repositoryAdministrador.findById(administradorId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Administrador não encontrado"));
 
-        EntityRecrutador recrutador = administrador.getListaRecrutadores().stream()
+        EntityRecrutador recrutador = administrador.getRecrutadores().stream()
                 .filter(r -> r.getId().equals(recrutadorId))
                 .findFirst()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Recrutador não encontrado ou não vinculado a este administrador"));
 
-        administrador.getListaRecrutadores().remove(recrutador);
+        administrador.getRecrutadores().remove(recrutador);
         repositoryAdministrador.save(administrador);
         repositoryRecrutador.deleteById(recrutadorId);
     }
@@ -61,7 +59,7 @@ public class ServiceRecrutador {
         EntityAdministrador administrador = repositoryAdministrador.findById(administradorId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Administrador não encontrado"));
 
-        return administrador.getListaRecrutadores();
+        return administrador.getRecrutadores();
     }
 
     /*

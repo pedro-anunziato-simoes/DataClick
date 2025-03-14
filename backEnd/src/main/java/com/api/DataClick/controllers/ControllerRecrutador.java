@@ -27,12 +27,6 @@ public class ControllerRecrutador {
     private ServiceAdministrador serviceAdministrador;
 
 
-    @GetMapping("/formularios")
-    @Operation(summary = "Listar todos os formularios", description = "Retorna uma lista de forularios")
-    public List<EntityFormulario> listarFormularios(){
-        return serviceRecrutador.listarFormulario();
-    }
-
     @PostMapping("/{administradorId}/add")
     @Operation(summary = "Criar recrutador", description = "Cria um recrutador apartir de um objeto(Entity Recrutador) passado pelo Body e um id d tipo string passado por parametro na URL")
     public ResponseEntity<EntityRecrutador> criarRecrutador(

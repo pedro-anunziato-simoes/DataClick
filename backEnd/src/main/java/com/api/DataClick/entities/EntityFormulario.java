@@ -1,21 +1,26 @@
 package com.api.DataClick.entities;
 
+import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
+@Data
+@Document(collection = "Formularios")
 public class EntityFormulario {
+
     @Id
     private String id;
     private String titulo;
-    @DBRef
-    private EntityAdministrador administrador;
-    private List<String> campos;
+    private String adminId;
+    private List<EntityCampos> campos;
 
-    public EntityFormulario(EntityAdministrador administrador, List<String> campos,String titulo) {
+    public EntityFormulario(String id, String adminId, List<EntityCampos> campos, String titulo) {
+        this.id = id;
+        this.adminId = adminId;
         this.titulo = titulo;
-        this.administrador = administrador;
         this.campos = campos;
     }
 
@@ -23,19 +28,19 @@ public class EntityFormulario {
         return id;
     }
 
-    public EntityAdministrador getAdministrador() {
-        return administrador;
+    public String getAdminId() {
+        return adminId;
     }
 
-    public void setAdministrador(EntityAdministrador administrador) {
-        this.administrador = administrador;
+    public void setAdminId(String adminId) {
+        this.adminId = adminId;
     }
 
-    public List<String> getCampos() {
+    public List<EntityCampos> getCampos() {
         return campos;
     }
 
-    public void setCampos(List<String> campos) {
+    public void setCampos(List<EntityCampos> campos) {
         this.campos = campos;
     }
 
