@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: const Color(0xFF26A69A),
         scaffoldBackgroundColor: const Color(0xFF26A69A),
-        fontFamily: 'Roboto',
+        fontFamily: 'SfProDisplay',
       ),
       home: const LoginScreen(),
       routes: {
@@ -72,7 +72,10 @@ class LoginScreen extends StatelessWidget {
                   onPressed: () {},
                   child: const Text(
                     'Esqueci minha senha',
-                    style: TextStyle(color: Colors.white70),
+                    style: TextStyle(
+                      fontFamily: 'SfProDisplay',
+                      color: Colors.white70),
+                    
                   ),
                 ),
               ),
