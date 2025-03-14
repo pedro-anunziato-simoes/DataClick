@@ -5,7 +5,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: const Color(0xFF26A69A),
         scaffoldBackgroundColor: const Color(0xFF26A69A),
-        fontFamily: 'Roboto',
+        fontFamily: 'SfProDisplay',
       ),
       home: const LoginScreen(),
       routes: {
@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
 }
 
 class LoginScreen extends StatelessWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +72,10 @@ class LoginScreen extends StatelessWidget {
                   onPressed: () {},
                   child: const Text(
                     'Esqueci minha senha',
-                    style: TextStyle(color: Colors.white70),
+                    style: TextStyle(
+                      fontFamily: 'SfProDisplay',
+                      color: Colors.white70),
+                    
                   ),
                 ),
               ),
@@ -114,7 +117,7 @@ class LoginScreen extends StatelessWidget {
 }
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -220,7 +223,7 @@ class HomeScreen extends StatelessWidget {
 }
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -322,8 +325,7 @@ class MenuCard extends StatelessWidget {
   final String title;
   final VoidCallback onTap;
 
-  const MenuCard({Key? key, required this.title, required this.onTap})
-    : super(key: key);
+  const MenuCard({super.key, required this.title, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -355,7 +357,7 @@ class MenuCard extends StatelessWidget {
 }
 
 class LogoWidget extends StatelessWidget {
-  const LogoWidget({Key? key}) : super(key: key);
+  const LogoWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
