@@ -44,8 +44,6 @@ public class EntityFormulario {
     }
 
     public void setCampos(List<EntityCampo> campos) {
-        this.campos = campos;
-    }
 
     public String getTitulo() { return titulo; }
 

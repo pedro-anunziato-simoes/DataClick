@@ -2,6 +2,7 @@ package com.api.DataClick.services;
 
 import com.api.DataClick.entities.EntityAdministrador;
 import com.api.DataClick.entities.EntityFormulario;
+import com.api.DataClick.entities.EntityRecrutador;
 import com.api.DataClick.repositories.RepositoryAdministrador;
 import com.api.DataClick.repositories.RepositoryFormulario;
 import org.springframework.beans.factory.annotation.Autowired;

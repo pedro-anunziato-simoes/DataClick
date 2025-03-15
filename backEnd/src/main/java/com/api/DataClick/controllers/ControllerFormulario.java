@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/formulario")
-@Tag(name = "Formulario", description = "Endpoints de funcionalidades de formulario")
+@RequestMapping("/formularios")
+@Tag(name = "Formularios", description = "Endpoints de funcionalidades de formularios")
 public class ControllerFormulario {
 
     @Autowired
@@ -38,7 +38,7 @@ public class ControllerFormulario {
     @GetMapping("/{id}")
     @Operation(summary = "Busca um formulario pelo id-formulario", description = "Retorna um formaulario cujo id foi inserido")
     public EntityFormulario buscarForm(String formId){
-        return serviceFormulario.bucarFormPorId(formId);
+       return serviceFormulario.bucarFormPorId(formId);
     }
 
     @GetMapping("/findByAdmin/{id}")
