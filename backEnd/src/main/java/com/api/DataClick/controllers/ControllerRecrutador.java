@@ -27,6 +27,12 @@ public class ControllerRecrutador {
     private ServiceAdministrador serviceAdministrador;
 
 
+   @GetMapping
+   @Operation(summary = "Listar todos os recrutadores",description = "Retorna todos os recrutadores")
+   public List<EntityRecrutador> listarRecrutadores(){
+       return serviceRecrutador.listarTodosRecrutadores();
+   }
+
     @PostMapping("/{administradorId}/add")
     @Operation(summary = "Criar recrutador", description = "Cria um recrutador apartir de um objeto(Entity Recrutador) passado pelo Body e um id d tipo string passado por parametro na URL")
     public ResponseEntity<EntityRecrutador> criarRecrutador(
@@ -36,12 +42,11 @@ public class ControllerRecrutador {
         return ResponseEntity.status(HttpStatus.CREATED).body(novoRecrutador);
     }
 
-    @DeleteMapping("/{administradorId}/remover/{recrutadorId}")
+    @DeleteMapping("/remover/{recrutadorId}")
     @Operation(summary = "Remover recrutador", description = "remove um recrutador pelo id do adminitrador e pelo id do recrutador que deseja ser excluido")
     public ResponseEntity<Void> removerRecrutador(
-            @PathVariable String administradorId,
             @PathVariable String recrutadorId) {
-        serviceRecrutador.removerRecrutador(administradorId, recrutadorId);
+        serviceRecrutador.removerRecrutador(recrutadorId);
         return ResponseEntity.noContent().build();
     }
 

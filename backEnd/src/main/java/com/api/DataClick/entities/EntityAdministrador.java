@@ -16,6 +16,7 @@ public class EntityAdministrador extends Usuario{
     private String cnpj;
     @DBRef
     private List<EntityRecrutador> recrutadores = new ArrayList<>();
+    @DBRef
     private List<EntityFormulario> formularios = new ArrayList<>();
 
 

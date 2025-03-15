@@ -25,32 +25,22 @@ public class ServiceRecrutador {
     private RepositoryRecrutador repositoryRecrutador;
 
 
+    public List<EntityRecrutador> listarTodosRecrutadores(){
+        return repositoryRecrutador.findAll();
+    }
+
     public EntityRecrutador criarRecrutador(String administradorId, EntityRecrutador recrutador) {
         EntityAdministrador administrador = repositoryAdministrador.findById(administradorId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Administrador não encontrado"));
-
-        if (administrador.getRecrutadores().stream().anyMatch(r -> r.getId().equals(recrutador.getId()))) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Recrutador já está vinculado a este administrador");
-        }
-
-        EntityRecrutador recrutadorSalvo = repositoryRecrutador.save(recrutador);
-        recrutadorSalvo.setAdminId(administradorId);
-        administrador.getRecrutadores().add(recrutadorSalvo);
+        repositoryRecrutador.save(recrutador);
+        recrutador.setAdminId(administradorId);
+        repositoryRecrutador.save(recrutador);
+        administrador.getRecrutadores().add(recrutador);
         repositoryAdministrador.save(administrador);
-        return recrutadorSalvo;
+        return recrutador;
     }
 
-    public void removerRecrutador(String administradorId, String recrutadorId) {
-        EntityAdministrador administrador = repositoryAdministrador.findById(administradorId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Administrador não encontrado"));
-
-        EntityRecrutador recrutador = administrador.getRecrutadores().stream()
-                .filter(r -> r.getId().equals(recrutadorId))
-                .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Recrutador não encontrado ou não vinculado a este administrador"));
-
-        administrador.getRecrutadores().remove(recrutador);
-        repositoryAdministrador.save(administrador);
+    public void removerRecrutador(String recrutadorId) {
         repositoryRecrutador.deleteById(recrutadorId);
     }
 
