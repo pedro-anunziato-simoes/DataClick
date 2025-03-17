@@ -40,6 +40,14 @@ class FormsScreen extends StatelessWidget {
                     onTap: () {
                       // Navegação para o formulário específico
                     },
+                    onEdit: () {
+                      // Navegação para a tela de edição do formulário
+                      Navigator.pushNamed(context, '/edit-form');
+                    },
+                    onUseTemplate: () {
+                      // Ação para usar o formulário como modelo
+                      _useTemplate(context, 'Formulário de Cadastro');
+                    },
                   ),
                   const SizedBox(height: 16),
                   _buildFormCard(
@@ -48,6 +56,14 @@ class FormsScreen extends StatelessWidget {
                     onTap: () {
                       // Navegação para o formulário específico
                     },
+                    onEdit: () {
+                      // Navegação para a tela de edição do formulário
+                      Navigator.pushNamed(context, '/edit-form');
+                    },
+                    onUseTemplate: () {
+                      // Ação para usar o formulário como modelo
+                      _useTemplate(context, 'Pesquisa de Satisfação');
+                    },
                   ),
                   const SizedBox(height: 16),
                   _buildFormCard(
@@ -55,6 +71,14 @@ class FormsScreen extends StatelessWidget {
                     description: 'Registre suas atividades diárias',
                     onTap: () {
                       // Navegação para o formulário específico
+                    },
+                    onEdit: () {
+                      // Navegação para a tela de edição do formulário
+                      Navigator.pushNamed(context, '/edit-form');
+                    },
+                    onUseTemplate: () {
+                      // Ação para usar o formulário como modelo
+                      _useTemplate(context, 'Relatório de Atividades');
                     },
                   ),
                 ],
@@ -65,9 +89,10 @@ class FormsScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Ação para criar um novo formulário
+          // Navegação para a tela de criação de formulários
+          Navigator.pushNamed(context, '/create-form');
         },
-        backgroundColor: Colors.white,
+        backgroundColor: const Color.from(alpha: 1, red: 0.906, green: 0.906, blue: 0.906),
         child: const Icon(Icons.add, color: Color(0xFF26A69A)),
       ),
     );
@@ -77,6 +102,8 @@ class FormsScreen extends StatelessWidget {
     required String title,
     required String description,
     required VoidCallback onTap,
+    required VoidCallback onEdit,
+    required VoidCallback onUseTemplate,
   }) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
@@ -98,7 +125,18 @@ class FormsScreen extends StatelessWidget {
                       color: Colors.black87,
                     ),
                   ),
-                  const Icon(Icons.arrow_forward_ios, size: 16),
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit, size: 20, color: Colors.black54),
+                        onPressed: onEdit,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.content_copy, size: 20, color: Colors.black54),
+                        onPressed: onUseTemplate,
+                      ),
+                    ],
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
@@ -121,6 +159,39 @@ class FormsScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  void _useTemplate(BuildContext context, String formTitle) {
+    // Lógica para usar o formulário como modelo
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Usar Modelo'),
+          content: Text('Deseja criar um novo formulário com base em "$formTitle"?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Fechar o diálogo
+              },
+              child: Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                // Navegar para a tela de criação de formulário com o modelo selecionado
+                Navigator.pop(context); // Fechar o diálogo
+                Navigator.pushNamed(
+                  context,
+                  '/create-form',
+                  arguments: formTitle, // Passar o título como argumento
+                );
+              },
+              child: Text('Usar Modelo'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
