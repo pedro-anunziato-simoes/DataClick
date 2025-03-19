@@ -1,0 +1,11 @@
+/* src/pages/Home.css */
+.home-container {
+    display: flex;
+  }
+  
+  .content {
+    margin-left: 250px; /* Para não sobrepor a Sidebar */
+    padding: 20px;
+    width: 100%;
+  }
+  
