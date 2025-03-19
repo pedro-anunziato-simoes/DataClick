@@ -5,6 +5,7 @@ import com.api.DataClick.entities.EntityFormulario;
 import com.api.DataClick.entities.EntityRecrutador;
 import com.api.DataClick.repositories.RepositoryAdministrador;
 import com.api.DataClick.repositories.RepositoryFormulario;
+import com.api.DataClick.repositories.RepositoryRecrutador;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,7 @@ public class ServiceFormulario {
     @Autowired
     RepositoryAdministrador repositoryAdministrador;
     @Autowired
-    ServiceRecrutador serviceRecrutador;
+    RepositoryRecrutador repositoryRecrutador;
 
     public EntityFormulario criarFormulario(EntityFormulario formulario, String adminId){
         EntityAdministrador admin = repositoryAdministrador.findById(adminId)
@@ -30,6 +31,12 @@ public class ServiceFormulario {
         repositoryFormulario.save(formulario);
         admin.getFormularios().add(formulario);
         repositoryAdministrador.save(admin);
+        List<EntityRecrutador> listaRecrutadores = admin.getRecrutadores();
+        for(EntityRecrutador recrutador : listaRecrutadores){
+            recrutador.getFormularios().add(formulario);
+            repositoryRecrutador.save(recrutador);
+        }
+
         return formulario;
     }
 

@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -15,13 +16,13 @@ public class EntityFormulario {
     private String id;
     private String titulo;
     private String adminId;
-    private List<EntityCampos> campos;
+    @DBRef
+    private List<EntityCampo> campos = new ArrayList<>();
 
-    public EntityFormulario(String id, String adminId, List<EntityCampos> campos, String titulo) {
+    public EntityFormulario(String id, String adminId, String titulo) {
         this.id = id;
         this.adminId = adminId;
         this.titulo = titulo;
-        this.campos = campos;
     }
 
     public String getId() {
@@ -36,15 +37,19 @@ public class EntityFormulario {
         this.adminId = adminId;
     }
 
-    public List<EntityCampos> getCampos() {
+    public List<EntityCampo> getCampos() {
         return campos;
     }
 
-    public void setCampos(List<EntityCampos> campos) {
+    public void setCampos(List<EntityCampo> campos) {
         this.campos = campos;
     }
 
-    public String getTitulo() { return titulo; }
+    public String getTitulo() {
+        return titulo;
+    }
 
-    public void setTitulo(String titulo) { this.titulo = titulo; }
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
+    }
 }
