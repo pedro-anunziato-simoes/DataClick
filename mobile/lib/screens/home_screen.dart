@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../widgets/logo_widget.dart';
 import '../widgets/menu_card.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -11,6 +10,7 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xFF26A69A),
         elevation: 0,
+
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {},
@@ -26,7 +26,9 @@ class HomeScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
-          const LogoWidget(),
+          const SizedBox(height: 30),
+          // Logo principal no corpo da tela
+          Image.asset('assets/images/Logo DataClick.jpg', height: 100),
           const SizedBox(height: 30),
           Expanded(
             child: Container(
