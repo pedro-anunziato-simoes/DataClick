@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../widgets/logo_widget.dart';
 
 class FormsScreen extends StatelessWidget {
   const FormsScreen({super.key});
@@ -27,8 +26,7 @@ class FormsScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
-          const LogoWidget(),
-          const SizedBox(height: 20),
+          // Removido o LogoWidget e a imagem arredondada
           Expanded(
             child: Container(
               padding: const EdgeInsets.all(16.0),
@@ -37,15 +35,11 @@ class FormsScreen extends StatelessWidget {
                   _buildFormCard(
                     title: 'Formulário de Cadastro',
                     description: 'Formulário para cadastro de novos usuários',
-                    onTap: () {
-                      // Navegação para o formulário específico
-                    },
+                    onTap: () {},
                     onEdit: () {
-                      // Navegação para a tela de edição do formulário
                       Navigator.pushNamed(context, '/edit-form');
                     },
                     onUseTemplate: () {
-                      // Ação para usar o formulário como modelo
                       _useTemplate(context, 'Formulário de Cadastro');
                     },
                   ),
@@ -53,15 +47,11 @@ class FormsScreen extends StatelessWidget {
                   _buildFormCard(
                     title: 'Pesquisa de Satisfação',
                     description: 'Avalie nossos serviços',
-                    onTap: () {
-                      // Navegação para o formulário específico
-                    },
+                    onTap: () {},
                     onEdit: () {
-                      // Navegação para a tela de edição do formulário
                       Navigator.pushNamed(context, '/edit-form');
                     },
                     onUseTemplate: () {
-                      // Ação para usar o formulário como modelo
                       _useTemplate(context, 'Pesquisa de Satisfação');
                     },
                   ),
@@ -69,15 +59,11 @@ class FormsScreen extends StatelessWidget {
                   _buildFormCard(
                     title: 'Relatório de Atividades',
                     description: 'Registre suas atividades diárias',
-                    onTap: () {
-                      // Navegação para o formulário específico
-                    },
+                    onTap: () {},
                     onEdit: () {
-                      // Navegação para a tela de edição do formulário
                       Navigator.pushNamed(context, '/edit-form');
                     },
                     onUseTemplate: () {
-                      // Ação para usar o formulário como modelo
                       _useTemplate(context, 'Relatório de Atividades');
                     },
                   ),
@@ -89,11 +75,10 @@ class FormsScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Navegação para a tela de criação de formulários
           Navigator.pushNamed(context, '/create-form');
         },
-        backgroundColor: const Color.from(alpha: 1, red: 0.906, green: 0.906, blue: 0.906),
-        child: const Icon(Icons.add, color: Color(0xFF26A69A)),
+        backgroundColor: const Color(0xFF26A69A),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
@@ -128,11 +113,19 @@ class FormsScreen extends StatelessWidget {
                   Row(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.edit, size: 20, color: Colors.black54),
+                        icon: const Icon(
+                          Icons.edit,
+                          size: 20,
+                          color: Colors.black54,
+                        ),
                         onPressed: onEdit,
                       ),
                       IconButton(
-                        icon: const Icon(Icons.content_copy, size: 20, color: Colors.black54),
+                        icon: const Icon(
+                          Icons.content_copy,
+                          size: 20,
+                          color: Colors.black54,
+                        ),
                         onPressed: onUseTemplate,
                       ),
                     ],
@@ -163,31 +156,31 @@ class FormsScreen extends StatelessWidget {
   }
 
   void _useTemplate(BuildContext context, String formTitle) {
-    // Lógica para usar o formulário como modelo
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Usar Modelo'),
-          content: Text('Deseja criar um novo formulário com base em "$formTitle"?'),
+          title: const Text('Usar Modelo'),
+          content: Text(
+            'Deseja criar um novo formulário com base em "$formTitle"?',
+          ),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(context); // Fechar o diálogo
+                Navigator.pop(context);
               },
-              child: Text('Cancelar'),
+              child: const Text('Cancelar'),
             ),
             TextButton(
               onPressed: () {
-                // Navegar para a tela de criação de formulário com o modelo selecionado
-                Navigator.pop(context); // Fechar o diálogo
+                Navigator.pop(context);
                 Navigator.pushNamed(
                   context,
                   '/create-form',
-                  arguments: formTitle, // Passar o título como argumento
+                  arguments: formTitle,
                 );
               },
-              child: Text('Usar Modelo'),
+              child: const Text('Usar Modelo'),
             ),
           ],
         );

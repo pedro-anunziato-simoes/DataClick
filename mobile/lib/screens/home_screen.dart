@@ -10,7 +10,6 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xFF26A69A),
         elevation: 0,
-
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {},
@@ -27,12 +26,30 @@ class HomeScreen extends StatelessWidget {
       body: Column(
         children: [
           const SizedBox(height: 30),
-          // Logo principal no corpo da tela
-          Image.asset('assets/images/Logo DataClick.jpg', height: 100),
+
+          Center(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20.0),
+              child: Image.asset(
+                'assets/images/Logo DataClick.jpg',
+                height: 100,
+                width: 100,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
           const SizedBox(height: 30),
+
           Expanded(
             child: Container(
               padding: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.8),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(20.0),
+                  bottom: Radius.circular(20.0),
+                ),
+              ),
               child: GridView.count(
                 crossAxisCount: 1,
                 childAspectRatio: 3.5,
