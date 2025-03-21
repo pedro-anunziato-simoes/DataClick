@@ -14,6 +14,7 @@ public class EntityAdministrador extends Usuario{
 
     @Setter
     private String cnpj;
+    private String senha;
     @DBRef
     private List<EntityRecrutador> recrutadores = new ArrayList<>();
     @DBRef
@@ -21,8 +22,13 @@ public class EntityAdministrador extends Usuario{
 
 
     public EntityAdministrador(String cnpj, String nome, String email, String senha, String telefone) {
-        super(null, nome, email, senha,telefone);
+        super(null, nome, email,telefone);
+        this.senha = senha;
         this.cnpj = cnpj;
+    }
+
+    public String getSenha() {
+        return senha;
     }
 
     public String getCnpj() {
@@ -39,9 +45,5 @@ public class EntityAdministrador extends Usuario{
 
     public List<EntityFormulario> getFormularios() {
         return formularios;
-    }
-
-    public void setFormularios(List<EntityFormulario> formularios) {
-        this.formularios = formularios;
     }
 }

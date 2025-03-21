@@ -1,31 +1,16 @@
 package com.api.DataClick.entities;
 
-import lombok.Data;
+import com.api.DataClick.enums.TipoCampo;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-@Data
-@Document(collection = "Respostas")
+@Getter
 public class EntityResposta {
+
     @Id
     private String id;
-    private EntityFormulario formulario;
-
-    public EntityResposta(EntityFormulario formulario) {
-        this.formulario = formulario;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public EntityFormulario getFormulario() {
-        return formulario;
-    }
-
-    public void setFormulario(EntityFormulario formulario) {
-        this.formulario = formulario;
-    }
+    @Setter
+    private TipoCampo tipo;
 
 }

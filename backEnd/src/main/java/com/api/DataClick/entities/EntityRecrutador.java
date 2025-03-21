@@ -14,8 +14,8 @@ public class EntityRecrutador extends Usuario{
     @DBRef
     private List<EntityFormulario> formularios;
 
-    public EntityRecrutador(String nome, String email, String senha, String telefone,String adminId,List<EntityFormulario> formularios) {
-        super(null, nome, email, senha, telefone);
+    public EntityRecrutador(String nome, String email, String telefone,String adminId,List<EntityFormulario> formularios) {
+        super(null, nome, email, telefone);
         this.adminId = adminId;
         this.formularios = formularios;
     }
