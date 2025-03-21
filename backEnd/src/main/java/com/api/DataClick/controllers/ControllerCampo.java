@@ -2,6 +2,7 @@ package com.api.DataClick.controllers;
 
 
 import com.api.DataClick.entities.EntityCampo;
+import com.api.DataClick.entities.EntityResposta;
 import com.api.DataClick.repositories.RepositoryCampo;
 import com.api.DataClick.services.ServiceCampo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,7 +48,7 @@ public class ControllerCampo {
 
     @PostMapping("/preencher/{CampoId}")
     @Operation(summary = "Preenche um campo de um formulario", description = "retorna o campo preenchido ")
-    public EntityCampo preencherCampo(@PathVariable String CampoId,@RequestBody String resposta){
+    public EntityCampo preencherCampo(@PathVariable String CampoId,@RequestBody EntityResposta resposta){
         return serviceCampo.preencherCampo(CampoId,resposta);
     }
 }

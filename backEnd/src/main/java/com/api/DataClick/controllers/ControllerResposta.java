@@ -19,21 +19,14 @@ public class ControllerResposta {
     ServiceResposta serviceResposta;
 
     @GetMapping
-    @Operation(summary = "Listar respostas", description = "retorna todos as respostas salvas no banco")
-    public List<EntityResposta> listarTodasRespostas(){
-        return serviceResposta.listarTodasRepostas();
+    @Operation(summary = "Lista todas as respostas", description = "retorna a lista de respostas")
+    public List<EntityResposta> listarRespostas(){
+        return serviceResposta.listarRespostas();
     }
 
-    @PostMapping("/add")
-    @Operation(summary = "Salva uma resposta no banco", description = "retorna a reposta salva no banco")
-    public void SubirRespostas(@RequestBody List<EntityFormulario> formulariosPreenchidos){
-        serviceResposta.SubirRespostas(formulariosPreenchidos);
+    @DeleteMapping
+    @Operation(summary = "deleta uma resposta", description = "deleta uma resposta")
+    public void deletarRespostas(String id){
+        serviceResposta.removerResposta(id);
     }
-
-    @DeleteMapping("/remove/{respostaId}")
-    @Operation(summary = "remover resposta", description = "Remove a resposta do banco")
-    public void removerResposta(@PathVariable String respostaId){
-        serviceResposta.removerResposta(respostaId);
-    }
-
 }
