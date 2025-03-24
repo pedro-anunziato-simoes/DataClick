@@ -4,7 +4,6 @@ package com.api.DataClick.entities;
 import com.api.DataClick.enums.TipoCampo;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
@@ -12,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class EntityCampo {
 
     @Id
-    private String id;
+    private String campoId;
     private String titulo;
     private TipoCampo tipo;
     private EntityResposta resposta;
@@ -21,22 +20,6 @@ public class EntityCampo {
         this.titulo = titulo;
         this.tipo = tipo;
         this.resposta = resposta;
-    }
-
-    public EntityResposta getResposta() {
-        return resposta;
-    }
-
-    public TipoCampo getTipo() {
-        return tipo;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public String getTitulo() {
-        return titulo;
     }
 
 }

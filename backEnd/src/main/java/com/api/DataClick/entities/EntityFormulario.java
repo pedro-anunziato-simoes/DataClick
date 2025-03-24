@@ -13,43 +13,19 @@ import java.util.List;
 public class EntityFormulario {
 
     @Id
-    private String id;
+    private String formId;
     private String titulo;
     private String adminId;
     @DBRef
     private List<EntityCampo> campos = new ArrayList<>();
 
-    public EntityFormulario(String id, String adminId, String titulo) {
-        this.id = id;
+    public EntityFormulario( String adminId, String titulo) {
         this.adminId = adminId;
         this.titulo = titulo;
     }
 
     public String getId() {
-        return id;
+        return formId;
     }
 
-    public String getAdminId() {
-        return adminId;
-    }
-
-    public void setAdminId(String adminId) {
-        this.adminId = adminId;
-    }
-
-    public List<EntityCampo> getCampos() {
-        return campos;
-    }
-
-    public void setCampos(List<EntityCampo> campos) {
-        this.campos = campos;
-    }
-
-    public String getTitulo() {
-        return titulo;
-    }
-
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
-    }
 }

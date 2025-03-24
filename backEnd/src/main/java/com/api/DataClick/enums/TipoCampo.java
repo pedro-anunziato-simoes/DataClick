@@ -1,5 +1,11 @@
 package com.api.DataClick.enums;
 
 public enum TipoCampo {
-    CHECKBOX,TEXTO
+    TEXTO,
+    NUMERO,
+    DATA,
+    SELECIONE,
+    CHECKBOX,
+    RADIO,
+    EMAIL
 }

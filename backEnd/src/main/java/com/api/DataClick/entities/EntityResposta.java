@@ -9,8 +9,9 @@ import org.springframework.data.annotation.Id;
 public class EntityResposta {
 
     @Id
-    private String id;
+    private String respostaId;
     @Setter
     private TipoCampo tipo;
+    private Object resposta;
 
 }

@@ -14,7 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "usuarios")
 public abstract class Usuario {
     @Id
-    private String id;
+    private String usuarioId;
     private String nome;
     private String telefone;
     private String email;
