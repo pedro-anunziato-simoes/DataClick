@@ -3,6 +3,8 @@ package com.api.DataClick.services;
 import com.api.DataClick.entities.EntityAdministrador;
 import com.api.DataClick.entities.EntityFormulario;
 import com.api.DataClick.entities.EntityRecrutador;
+import com.api.DataClick.exeptions.ExeceptionsMensage;
+import com.api.DataClick.exeptions.ExeptionNaoEncontrado;
 import com.api.DataClick.repositories.RepositoryAdministrador;
 import com.api.DataClick.repositories.RepositoryFormulario;
 import com.api.DataClick.repositories.RepositoryRecrutador;
@@ -31,7 +33,7 @@ public class ServiceRecrutador {
 
     public EntityRecrutador criarRecrutador(String administradorId, EntityRecrutador recrutador) {
         EntityAdministrador administrador = repositoryAdministrador.findById(administradorId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Administrador não encontrado"));
+                .orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.ADM_NAO_ENCONTRADO));
         repositoryRecrutador.save(recrutador);
         recrutador.setAdminId(administradorId);
         repositoryRecrutador.save(recrutador);
@@ -47,14 +49,8 @@ public class ServiceRecrutador {
 
     public List<EntityRecrutador> listarRecrutadores(String administradorId) {
         EntityAdministrador administrador = repositoryAdministrador.findById(administradorId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Administrador não encontrado"));
+                .orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.ADM_NAO_ENCONTRADO));
 
         return administrador.getRecrutadores();
     }
-
-    /*
-    public ?? preencherFormualrio(String formularioId){
-
-    }
-    */
 }
