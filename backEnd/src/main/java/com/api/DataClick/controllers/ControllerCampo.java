@@ -45,9 +45,9 @@ public class ControllerCampo {
         serviceCampo.removerCampo(campoId);
     }
 
-    @PostMapping("/preencher/{CampoId}")
-    @Operation(summary = "Preenche um campo de um formulario", description = "retorna o campo preenchido ")
-    public EntityCampo preencherCampo(@PathVariable String CampoId,@RequestBody String resposta){
-        return serviceCampo.preencherCampo(CampoId,resposta);
-    }
+//    @PostMapping("/preencher/{CampoId}")
+//    @Operation(summary = "Preenche um campo de um formulario", description = "retorna o campo preenchido ")
+//    public EntityCampo preencherCampo(@PathVariable String CampoId,@RequestBody EntityResposta resposta){
+//        return serviceCampo.preencherCampo(CampoId,resposta);
+//    }
 }

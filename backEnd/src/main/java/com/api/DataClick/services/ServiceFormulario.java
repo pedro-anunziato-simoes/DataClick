@@ -3,6 +3,8 @@ package com.api.DataClick.services;
 import com.api.DataClick.entities.EntityAdministrador;
 import com.api.DataClick.entities.EntityFormulario;
 import com.api.DataClick.entities.EntityRecrutador;
+import com.api.DataClick.exeptions.ExeceptionsMensage;
+import com.api.DataClick.exeptions.ExeptionNaoEncontrado;
 import com.api.DataClick.repositories.RepositoryAdministrador;
 import com.api.DataClick.repositories.RepositoryFormulario;
 import com.api.DataClick.repositories.RepositoryRecrutador;
@@ -25,7 +27,7 @@ public class ServiceFormulario {
 
     public EntityFormulario criarFormulario(EntityFormulario formulario, String adminId){
         EntityAdministrador admin = repositoryAdministrador.findById(adminId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Administrador não encontrado"));
+                .orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.ADM_NAO_ENCONTRADO));
 
         formulario.setAdminId(adminId);
         repositoryFormulario.save(formulario);
@@ -45,21 +47,21 @@ public class ServiceFormulario {
     }
 
     public void removerFormulario(String formId){
-        EntityFormulario form = repositoryFormulario.findById(formId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Formulario não encontrado"));
+        EntityFormulario form = repositoryFormulario.findById(formId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.FORM_NAO_ENCONTRADO));
         String adminId = form.getAdminId();
-        EntityAdministrador admin = repositoryAdministrador.findById(adminId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Adminitrador não encontrado"));
+        EntityAdministrador admin = repositoryAdministrador.findById(adminId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.ADM_NAO_ENCONTRADO));
         admin.getFormularios().remove(form);
         repositoryFormulario.delete(form);
         repositoryAdministrador.save(admin);
     }
 
     public EntityFormulario bucarFormPorId(String id){
-        return repositoryFormulario.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Formulario não encontrado"));
+        return repositoryFormulario.findById(id).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.FORM_NAO_ENCONTRADO));
 
     }
 
     public List<EntityFormulario> buscarFormPorAdminId(String adminId){
-        EntityAdministrador admin = repositoryAdministrador.findById(adminId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Formulario não encontrado"));;
+        EntityAdministrador admin = repositoryAdministrador.findById(adminId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.ADM_NAO_ENCONTRADO));
         return admin.getFormularios();
     }
 }
