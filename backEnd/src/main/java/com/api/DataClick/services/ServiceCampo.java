@@ -29,7 +29,7 @@ public class ServiceCampo {
     }
 
     public List<EntityCampo> listarCamposByFormularioId(String formId){
-        return repositoryCampo.findAllByid(formId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.CAMPO_NAO_ENCONTRADO));
+        return repositoryCampo.findAllBycampoId(formId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.CAMPO_NAO_ENCONTRADO));
     }
 
     public EntityCampo adicionarCampo(EntityCampo campo, String formId) {
