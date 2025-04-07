@@ -9,13 +9,11 @@ class FormularioService {
 
   FormularioService(this._apiClient);
 
-  // Método para buscar todos os formulários (versão simplificada)
   Future<void> fetchFormularios() async {
     try {
       final response = await _apiClient.get(Endpoints.formularios);
       if (response.statusCode == 200) {
         print(response.body);
-        // Processar dados aqui
       } else {
         print('Erro ${response.statusCode}: ${response.body}');
       }
@@ -24,7 +22,6 @@ class FormularioService {
     }
   }
 
-  // Método para buscar formulários que retorna uma lista tipada
   Future<List<Formulario>> listarFormulariosPorAdmin(String adminId) async {
     try {
       final response = await _apiClient.get(
@@ -42,10 +39,9 @@ class FormularioService {
         }
         throw Exception('Formato de resposta inesperado');
       }
-      // Em caso de falha, tente usar o backup local
+
       return listarFormulariosLocalBackup(adminId);
     } catch (e) {
-      // Em caso de exceção, use o backup local
       return listarFormulariosLocalBackup(adminId);
     }
   }
@@ -118,7 +114,6 @@ class FormularioService {
   }
 
   Future<List<Formulario>> listarFormulariosLocalBackup(String adminId) async {
-    // Simulação de dados locais, substitua por uma implementação real
     return [];
   }
 }
