@@ -37,8 +37,8 @@ public class ControllerFormulario {
 
     @GetMapping("/{id}")
     @Operation(summary = "Busca um formulario pelo id-formulario", description = "Retorna um formaulario cujo id foi inserido")
-    public EntityFormulario buscarForm(String formId){
-       return serviceFormulario.bucarFormPorId(formId);
+    public EntityFormulario buscarForm(@PathVariable String id){
+       return serviceFormulario.bucarFormPorId(id);
     }
 
     @GetMapping("/findByAdmin/{id}")

@@ -29,12 +29,14 @@ public class ServiceCampo {
     }
 
     public List<EntityCampo> listarCamposByFormularioId(String formId){
-        return repositoryCampo.findAllBycampoId(formId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.CAMPO_NAO_ENCONTRADO));
+        return repositoryCampo.findAllByformId(formId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.CAMPO_NAO_ENCONTRADO));
     }
 
     public EntityCampo adicionarCampo(EntityCampo campo, String formId) {
         EntityFormulario form = repositoryFormulario.findById(formId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.CAMPO_NAO_ENCONTRADO));
         serviceResposta.registrarResposta(campo);
+        String idForm = form.getId();
+        campo.setFormId(idForm);
         repositoryCampo.save(campo);
         form.getCampos().add(campo);
         repositoryFormulario.save(form);
@@ -45,6 +47,10 @@ public class ServiceCampo {
         EntityCampo campo = repositoryCampo.findById(campoId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.CAMPO_NAO_ENCONTRADO));
         repositoryCampo.delete(campo);
     }
+
+    public EntityCampo buscarCampoById(String id){
+        return repositoryCampo.findById(id).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.CAMPO_NAO_ENCONTRADO));
+    };
 
 //    public EntityCampo preencherCampo(String campoId, EntityResposta resposta){
 //        EntityCampo campo = repositoryCampo.findById(campoId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.CAMPO_NAO_ENCONTRADO));
