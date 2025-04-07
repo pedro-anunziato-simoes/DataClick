@@ -12,6 +12,7 @@ public class EntityCampo {
 
     @Id
     private String campoId;
+    private String formId;
     private String titulo;
     private TipoCampo tipo;
     private EntityResposta resposta;

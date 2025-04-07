@@ -8,8 +8,6 @@ import org.springframework.data.annotation.Id;
 @Getter
 public class EntityResposta {
 
-    @Id
-    private String respostaId;
     @Setter
     private TipoCampo tipo;
     private Object resposta;
