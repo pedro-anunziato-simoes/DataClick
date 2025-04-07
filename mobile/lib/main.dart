@@ -58,7 +58,37 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: _buildAppTheme(),
       initialRoute: '/login',
-      routes: _buildAppRoutes(),
+      routes: {
+        '/login': (context) => const LoginScreen(),
+        '/home': (context) => const HomeScreen(),
+        '/profile': (context) => const ProfileScreen(),
+        '/settings': (context) => const SettingsScreen(),
+      },
+      onGenerateRoute: (settings) {
+        if (settings.name == '/forms') {
+          final args = settings.arguments as Map<String, dynamic>?;
+          return MaterialPageRoute(
+            builder:
+                (context) => FormsScreen(
+                  adminId: args?['adminId'],
+                  formularioService: context.read<FormularioService>(),
+                ),
+          );
+        }
+
+        if (settings.name == '/create-form') {
+          final args = settings.arguments as Map<String, dynamic>;
+          return MaterialPageRoute(
+            builder:
+                (context) => CreateFormScreen(
+                  adminId: args['adminId'],
+                  formularioExistente: args['formularioExistente'],
+                  formularioService: context.read<FormularioService>(),
+                ),
+          );
+        }
+        return null;
+      },
       onUnknownRoute:
           (settings) =>
               MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -69,17 +99,6 @@ class MyApp extends StatelessWidget {
         );
       },
     );
-  }
-
-  Map<String, WidgetBuilder> _buildAppRoutes() {
-    return {
-      '/login': (context) => const LoginScreen(),
-      '/home': (context) => const HomeScreen(),
-      '/profile': (context) => const ProfileScreen(),
-      '/forms': (context) => const FormsScreen(),
-      '/create-form': (context) => const CreateFormScreen(),
-      '/settings': (context) => const SettingsScreen(),
-    };
   }
 
   ThemeData _buildAppTheme() {

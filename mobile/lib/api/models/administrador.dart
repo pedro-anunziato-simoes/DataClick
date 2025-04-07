@@ -2,53 +2,55 @@ import 'recrutador.dart';
 import 'formulario.dart';
 
 class Administrador {
-  final String id;
+  final String usuarioId;
   final String nome;
   final String telefone;
-  final String senha;
   final String email;
   final String cnpj;
+  final String senha;
   final List<Recrutador> recrutadores;
   final List<Formulario> formularios;
 
   Administrador({
-    required this.id,
+    required this.usuarioId,
     required this.nome,
     required this.telefone,
-    required this.senha,
     required this.email,
     required this.cnpj,
+    required this.senha,
     required this.recrutadores,
     required this.formularios,
   });
 
   factory Administrador.fromJson(Map<String, dynamic> json) {
     return Administrador(
-      id: json['id'],
-      nome: json['nome'],
-      telefone: json['telefone'],
-      senha: json['senha'],
-      email: json['email'],
-      cnpj: json['cnpj'],
+      usuarioId: json['usuarioId'] ?? '',
+      nome: json['nome'] ?? '',
+      telefone: json['telefone'] ?? '',
+      email: json['email'] ?? '',
+      cnpj: json['cnpj'] ?? '',
+      senha: json['senha'] ?? '',
       recrutadores:
-          (json['recrutadores'] as List)
-              .map((e) => Recrutador.fromJson(e))
-              .toList(),
+          (json['recrutadores'] as List<dynamic>?)
+              ?.map((e) => Recrutador.fromJson(e))
+              .toList() ??
+          [],
       formularios:
-          (json['formularios'] as List)
-              .map((e) => Formulario.fromJson(e))
-              .toList(),
+          (json['formularios'] as List<dynamic>?)
+              ?.map((e) => Formulario.fromJson(e))
+              .toList() ??
+          [],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      'usuarioId': usuarioId,
       'nome': nome,
       'telefone': telefone,
-      'senha': senha,
       'email': email,
       'cnpj': cnpj,
+      'senha': senha,
       'recrutadores': recrutadores.map((e) => e.toJson()).toList(),
       'formularios': formularios.map((e) => e.toJson()).toList(),
     };
