@@ -1,19 +1,33 @@
-class Campo {
-  final String id;
-  final String titulo;
-  final String resposta;
+import 'resposta.dart';
 
-  Campo({required this.id, required this.titulo, this.resposta = ''});
+class Campo {
+  final String campoId;
+  final String titulo;
+  final String tipo;
+  final Resposta resposta;
+
+  Campo({
+    required this.campoId,
+    required this.titulo,
+    required this.tipo,
+    required this.resposta,
+  });
 
   factory Campo.fromJson(Map<String, dynamic> json) {
     return Campo(
-      id: json['id'],
-      titulo: json['titulo'],
-      resposta: json['resposta'] ?? '',
+      campoId: json['campoId'] ?? '',
+      titulo: json['titulo'] ?? '',
+      tipo: json['tipo'] ?? 'TEXTO',
+      resposta: Resposta.fromJson(json['resposta'] ?? {}),
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'id': id, 'titulo': titulo, 'resposta': resposta};
+    return {
+      'campoId': campoId,
+      'titulo': titulo,
+      'tipo': tipo,
+      'resposta': resposta.toJson(),
+    };
   }
 }

@@ -1,19 +1,17 @@
 import 'formulario.dart';
 
 class Recrutador {
-  final String id;
+  final String usuarioId;
   final String nome;
   final String telefone;
-  final String senha;
   final String email;
   final String adminId;
   final List<Formulario> formularios;
 
   Recrutador({
-    required this.id,
+    required this.usuarioId,
     required this.nome,
     required this.telefone,
-    required this.senha,
     required this.email,
     required this.adminId,
     required this.formularios,
@@ -21,28 +19,27 @@ class Recrutador {
 
   factory Recrutador.fromJson(Map<String, dynamic> json) {
     return Recrutador(
-      id: json['id'],
-      nome: json['nome'],
-      telefone: json['telefone'],
-      senha: json['senha'],
-      email: json['email'],
-      adminId: json['adminId'],
+      usuarioId: json['usuarioId'] ?? '',
+      nome: json['nome'] ?? '',
+      telefone: json['telefone'] ?? '',
+      email: json['email'] ?? '',
+      adminId: json['adminId'] ?? '',
       formularios:
-          (json['formularios'] as List)
-              .map((e) => Formulario.fromJson(e))
-              .toList(),
+          (json['formularios'] as List<dynamic>?)
+              ?.map((e) => Formulario.fromJson(e))
+              .toList() ??
+          [],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      'usuarioId': usuarioId,
       'nome': nome,
       'telefone': telefone,
-      'senha': senha,
       'email': email,
       'adminId': adminId,
-      'formularios': formularios.map((form) => form.toJson()).toList(),
+      'formularios': formularios.map((e) => e.toJson()).toList(),
     };
   }
 }
