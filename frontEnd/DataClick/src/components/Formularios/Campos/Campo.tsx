@@ -2,17 +2,33 @@ import React, { useEffect, useState } from "react";
 import { CampoService } from "../../../api/CampoService";
 import { EntityCampo } from "../../../types/entityes/EntityCampo";
 
-
+import {
+  Box,
+  Typography,
+  Paper,
+  TextField,
+  Checkbox,
+  Radio,
+  RadioGroup,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
+  CircularProgress,
+  Grid
+} from "@mui/material";
 
 const Campo = () => {
+  const [campo, setCampo] = useState<EntityCampo | null>(null);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const campoService = CampoService();
     const fetchCampo = async () => {
       try {
-        const campos: EntityCampo[] = await campoService.getCamposByFormId('67f451a58df2d24afb2e45d4');
-        setCampos(campos);
+        const campoUnico: EntityCampo = await campoService.getCampoById("67f451cb8df2d24afb2e45d5");
+        setCampo(campoUnico);
       } catch (error) {
-        console.error("Erro ao buscar campos:", error);
+        console.error("Erro ao buscar campo:", error);
       } finally {
         setLoading(false);
       }
@@ -20,28 +36,26 @@ const Campo = () => {
     fetchCampo();
   }, []);
 
-  const [campos, setCampos] = useState<EntityCampo[]>([]);
-  const [loading, setLoading] = useState(true);
-  
-  const handleRespostaChange = (index: number, e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleRespostaChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    if (!campo) return;
+
     const { value, type } = e.target;
+    const resposta =
+      type === "checkbox" && e.target instanceof HTMLInputElement
+        ? e.target.checked
+        : value;
 
-    const resposta = type === 'checkbox' && e.target instanceof HTMLInputElement
-      ? e.target.checked
-      : value;
-
-    const novosCampos = [...campos];
-    novosCampos[index] = {
-      ...novosCampos[index],
+    setCampo({
+      ...campo,
       resposta: {
-        tipo: resposta
-      }
-    };
-
-    setCampos(novosCampos);
+        tipo: resposta,
+      },
+    });
   };
 
-  const renderCampoResposta = (campo: EntityCampo, index: number) => {
+  const renderCampoResposta = (campo: EntityCampo) => {
     const tipo = campo.tipo;
 
     switch (tipo) {
@@ -50,67 +64,84 @@ const Campo = () => {
       case "DATA":
       case "EMAIL":
         return (
-          <input
+          <TextField
+            fullWidth
             type={tipo === "NUMERO" ? "number" : tipo.toLowerCase()}
-            value={typeof campo.resposta.tipo === 'boolean'
-              ? campo.resposta.tipo ? 'true' : 'false'
-              : campo.resposta.tipo}
-            onChange={(e) => handleRespostaChange(index, e)}
+            label={campo.titulo}
+            variant="outlined"
+            value={
+              typeof campo.resposta?.tipo === "boolean"
+                ? campo.resposta.tipo
+                  ? "true"
+                  : "false"
+                : campo.resposta?.tipo || ""
+            }
+            onChange={handleRespostaChange}
           />
         );
+
       case "CHECKBOX":
         return (
-          <label>
-            <input
-              type="checkbox"
-              checked={campo.resposta?.tipo === true}
-              onChange={(e) => handleRespostaChange(index, e)}
-            />
-            Marcar
-          </label>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={campo.resposta?.tipo === true}
+                onChange={handleRespostaChange}
+              />
+            }
+            label="Marcar"
+          />
         );
+
       case "RADIO":
         return (
-          <>
-            <label>
-              <input
-                type="radio"
-                value="sim"
-                checked={campo.resposta.tipo === "sim"}
-                onChange={(e) => handleRespostaChange(index, e)}
-              />
-              Sim
-            </label>
-            <label>
-              <input
-                type="radio"
-                value="nao"
-                checked={campo.resposta.tipo === "nao"}
-                onChange={(e) => handleRespostaChange(index, e)}
-              />
-              Não
-            </label>
-          </>
+          <FormControl component="fieldset">
+            <FormLabel component="legend">{campo.titulo}</FormLabel>
+            <RadioGroup
+              row
+              value={campo.resposta?.tipo || ""}
+              onChange={handleRespostaChange}
+            >
+              <FormControlLabel value="sim" control={<Radio />} label="Sim" />
+              <FormControlLabel value="nao" control={<Radio />} label="Não" />
+            </RadioGroup>
+          </FormControl>
         );
+
       default:
-        return <p>Tipo de campo não suportado</p>;
+        return <Typography color="error">Tipo de campo não suportado</Typography>;
     }
   };
-  // Aqui você tem certeza que `campo` não é mais null
-  if (loading) return <p>Carregando campos...</p>;
-  if (!campos.length) return <p>Nenhum campo encontrado</p>;
+
+  if (loading)
+    return (
+      <Box display="flex" justifyContent="center" mt={4}>
+        <CircularProgress />
+      </Box>
+    );
+
+  if (!campo)
+    return (
+      <Typography variant="body1" align="center" mt={4}>
+        Nenhum campo encontrado
+      </Typography>
+    );
 
   return (
-    <form>
-      {campos.map((campo, index) => (
-        <div key={campo.campoId || index}>
-          <h3>{campo.titulo}</h3>
-          {renderCampoResposta(campo, index)}
-          <br />
-        </div>
-      ))}
-
-    </form>
+    <Box p={3}>
+      <form>
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <Paper elevation={2} style={{ padding: 16 }}>
+              <Typography variant="h6" gutterBottom>
+                {campo.titulo}
+              </Typography>
+              {renderCampoResposta(campo)}
+            </Paper>
+          </Grid>
+        </Grid>
+      </form>
+    </Box>
   );
 };
 

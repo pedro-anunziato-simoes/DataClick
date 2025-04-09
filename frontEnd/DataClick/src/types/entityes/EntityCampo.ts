@@ -1,5 +1,4 @@
 export interface EntityCampo {
-    campoId:string
     titulo: string;
     tipo: string;
     resposta: {

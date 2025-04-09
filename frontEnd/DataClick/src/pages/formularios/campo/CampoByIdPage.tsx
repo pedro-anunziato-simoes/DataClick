@@ -1,13 +1,12 @@
 import Campo from "../../../components/Formularios/Campos/Campo";
-import ListarCampos from "../../../components/Formularios/Campos/ListaCampos";
 
-const ListarCampoPage = () => {  
+const CampoByIdPage = () => {  
     return (
       <div>
-        <h1>Listando campos</h1>
+        <h1>Campo</h1>
         <Campo/>
       </div>
     );
   };
 
-export default ListarCampoPage;
+export default CampoByIdPage;
