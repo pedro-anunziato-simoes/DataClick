@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { FormularioService } from "../../api/FormularioService";
-import Campo from "./Campos/Campo";
-
+import { useNavigate } from "react-router-dom";
+import CamposViewForm from "./Campos/CamposViewForm";
 
 const Formularios = () => {
     const [formularios, setFormularios] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-
+    const navigate = useNavigate();
     useEffect(() => {
         const formularioService = FormularioService();
         const fetchFormularios = async () => {
@@ -23,28 +23,24 @@ const Formularios = () => {
         fetchFormularios();
     }, []);
 
-    const handleCampoChange = (formIndex: number, campoIndex: number, valor: any) => {
-        const novosFormularios = [...formularios];
-        novosFormularios[formIndex].campos[campoIndex].resposta.tipo = valor;
-        setFormularios(novosFormularios);
+    const handleEditarForms = (formId: string) => {
+        navigate(`/campos/${formId}`);
     };
 
     if (loading) return <p>Carregando formulários...</p>;
 
     return (
-        <div>
-            {formularios.map((formulario, formIndex) => (
-                <form key={formulario.id}>
+        <div className="formularios-container">
+            {formularios.map((formulario) => (
+                <form key={formulario.id} className="formulario-item">
                     <h2>{formulario.titulo}</h2>
-                    {formulario.campos.map((campo: any, campoIndex: number) => (
-                        <div key={campo.campoId}>
-                            {campo.tipo !== "CHECKBOX" && <p>{campo.titulo}</p>}
-                            <Campo
-                            />
-                        </div>
-                    ))}
-                    <br />
-                    <button type="submit">Enviar</button>
+                    <CamposViewForm formId={formulario.id} />
+                    <button
+                        type="button"
+                        onClick={() => handleEditarForms(formulario.id)}
+                    >
+                        Editar Formulário
+                    </button>
                     <hr />
                 </form>
             ))}
