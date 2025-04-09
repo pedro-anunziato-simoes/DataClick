@@ -1,4 +1,20 @@
 import { useState } from "react";
+import { CampoService } from "../../../api/CampoService";
+import { EntityCampo } from "../../../types/entityes/EntityCampo"; // Importe a interface EntityCampo
+import {
+  Box,
+  TextField,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
+  Button,
+  FormControlLabel,
+  Checkbox,
+  RadioGroup,
+  Radio,
+  FormLabel
+} from "@mui/material";
 
 const tipos = [
   "TEXTO",
@@ -9,10 +25,15 @@ const tipos = [
   "EMAIL",
 ];
 
-const CriarCampo = (Campos: any) => {
-  const [formData, setFormData] = useState(Campos);
+const CriarCampo = ({ formId }: { formId: string }) => { // Adicionando formId como prop
+  const [formData, setFormData] = useState<EntityCampo>({
+    titulo: "",
+    tipo: "",
+    resposta: { tipo: "" },
+    // Removendo o campoId que será gerado pelo banco de dados
+  });
 
-  const handleTipoChange = (e: { target: { value: any; }; }) => {
+  const handleTipoChange = (e: { target: { value: any } }) => {
     const tipoSelecionado = e.target.value;
     setFormData({
       ...formData,
@@ -23,7 +44,7 @@ const CriarCampo = (Campos: any) => {
     });
   };
 
-  const handleRespostaChange = (e: { target: { checked: any; value: any; }; }) => {
+  const handleRespostaChange = (e: { target: { checked: any; value: any } }) => {
     const value =
       formData.tipo === "CHECKBOX" ? e.target.checked : e.target.value;
 
@@ -41,68 +62,72 @@ const CriarCampo = (Campos: any) => {
     switch (tipo) {
       case "TEXTO":
         return (
-          <input
-            type="text"
+          <TextField
+            label="Resposta"
             value={formData.resposta.tipo}
             onChange={handleRespostaChange}
+            fullWidth
+            variant="outlined"
           />
         );
       case "NUMERO":
         return (
-          <input
+          <TextField
             type="number"
+            label="Resposta"
             value={formData.resposta.tipo}
             onChange={handleRespostaChange}
+            fullWidth
+            variant="outlined"
           />
         );
       case "DATA":
         return (
-          <input
+          <TextField
             type="date"
+            label="Resposta"
             value={formData.resposta.tipo}
             onChange={handleRespostaChange}
+            fullWidth
+            variant="outlined"
+            InputLabelProps={{ shrink: true }}
           />
         );
       case "CHECKBOX":
         return (
-          <label>
-            <input
-              type="checkbox"
-              checked={formData.resposta.tipo === true}
-              onChange={handleRespostaChange}
-            />
-            Marcar
-          </label>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={formData.resposta.tipo === true}
+                onChange={handleRespostaChange}
+              />
+            }
+            label="Marcar"
+          />
         );
       case "RADIO":
         return (
-          <>
-            <label>
-              <input
-                type="radio"
-                value="sim"
-                checked={formData.resposta.tipo === "sim"}
-                onChange={handleRespostaChange}
-              />
-              Sim
-            </label>
-            <label>
-              <input
-                type="radio"
-                value="nao"
-                checked={formData.resposta.tipo === "nao"}
-                onChange={handleRespostaChange}
-              />
-              Não
-            </label>
-          </>
+          <FormControl component="fieldset">
+            <FormLabel component="legend">Resposta</FormLabel>
+            <RadioGroup
+              value={formData.resposta.tipo}
+              onChange={handleRespostaChange}
+              row
+            >
+              <FormControlLabel value="sim" control={<Radio />} label="Sim" />
+              <FormControlLabel value="nao" control={<Radio />} label="Não" />
+            </RadioGroup>
+          </FormControl>
         );
       case "EMAIL":
         return (
-          <input
+          <TextField
             type="email"
+            label="Resposta"
             value={formData.resposta.tipo}
             onChange={handleRespostaChange}
+            fullWidth
+            variant="outlined"
           />
         );
       default:
@@ -110,36 +135,64 @@ const CriarCampo = (Campos: any) => {
     }
   };
 
-    return (
-    <form>
-      <div>
-        <label>Título:</label>
-        <input
-          type="text"
-          value={formData.titulo}
-          onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
-        />
-      </div>
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-      <div>
-        <label>Tipo:</label>
-        <select value={formData.tipo} onChange={handleTipoChange}>
-          <option value="">Selecione o tipo</option>
+    // Validar se o formulário está preenchido corretamente
+    if (!formData.titulo || !formData.tipo || !formData.resposta.tipo) {
+      alert("Por favor, preencha todos os campos.");
+      return;
+    }
+
+    try {
+      const campoService = CampoService();
+      // Não enviamos campoId, pois ele será gerado automaticamente pelo banco de dados
+      await campoService.adicionarCampo('67f451a58df2d24afb2e45d4', formData); // Passando formId e formData (sem campoId)
+      alert("Campo adicionado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao adicionar campo:", error);
+      alert("Erro ao adicionar campo.");
+    }
+  };
+
+  return (
+    <Box component="form" onSubmit={handleSubmit} p={3}>
+      <TextField
+        label="Título"
+        value={formData.titulo}
+        onChange={(e) =>
+          setFormData({ ...formData, titulo: e.target.value })
+        }
+        fullWidth
+        variant="outlined"
+        margin="normal"
+      />
+
+      <FormControl fullWidth margin="normal">
+        <InputLabel>Tipo</InputLabel>
+        <Select
+          value={formData.tipo}
+          onChange={handleTipoChange}
+          label="Tipo"
+        >
+          <MenuItem value="">Selecione o tipo</MenuItem>
           {tipos.map((tipo) => (
-            <option key={tipo} value={tipo}>
+            <MenuItem key={tipo} value={tipo}>
               {tipo}
-            </option>
+            </MenuItem>
           ))}
-        </select>
-      </div>
+        </Select>
+      </FormControl>
 
-      <div>
-        <label>Resposta:</label>
+      <FormControl fullWidth margin="normal">
+        <InputLabel>Resposta</InputLabel>
         {renderCampoResposta()}
-      </div>
+      </FormControl>
 
-      <button type="submit">Enviar</button>
-    </form>
+      <Button type="submit" variant="contained" color="primary" fullWidth>
+        Adicionar Campo
+      </Button>
+    </Box>
   );
 };
 
