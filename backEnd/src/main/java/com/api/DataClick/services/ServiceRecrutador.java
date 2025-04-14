@@ -8,9 +8,11 @@ import com.api.DataClick.exeptions.ExeptionNaoEncontrado;
 import com.api.DataClick.repositories.RepositoryAdministrador;
 import com.api.DataClick.repositories.RepositoryFormulario;
 import com.api.DataClick.repositories.RepositoryRecrutador;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -31,15 +33,20 @@ public class ServiceRecrutador {
         return repositoryRecrutador.findAll();
     }
 
-    public EntityRecrutador criarRecrutador(String administradorId, EntityRecrutador recrutador) {
-        EntityAdministrador administrador = repositoryAdministrador.findById(administradorId)
-                .orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.ADM_NAO_ENCONTRADO));
-        repositoryRecrutador.save(recrutador);
-        recrutador.setAdminId(administradorId);
-        repositoryRecrutador.save(recrutador);
-        administrador.getRecrutadores().add(recrutador);
-        repositoryAdministrador.save(administrador);
-        return recrutador;
+    @Transactional
+    public EntityRecrutador criarRecrutador(EntityRecrutador recrutador) {
+
+        EntityRecrutador novoRecrutador = repositoryRecrutador.save(recrutador);
+
+        if (novoRecrutador.getAdminId() != null) {
+            EntityAdministrador administrador = repositoryAdministrador.findById(novoRecrutador.getAdminId())
+                    .orElseThrow(() -> new ExeptionNaoEncontrado("Administrador não encontrado " + novoRecrutador.getAdminId()));
+
+            administrador.getRecrutadores().add(novoRecrutador);
+            repositoryAdministrador.save(administrador);
+        }
+
+        return novoRecrutador;
     }
 
     public void removerRecrutador(String recrutadorId) {
