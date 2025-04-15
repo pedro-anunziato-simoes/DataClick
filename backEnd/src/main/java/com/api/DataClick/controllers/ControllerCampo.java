@@ -1,7 +1,9 @@
 package com.api.DataClick.controllers;
 
 
+import com.api.DataClick.DTO.CampoUpdateDTO;
 import com.api.DataClick.entities.EntityCampo;
+import com.api.DataClick.enums.TipoCampo;
 import com.api.DataClick.repositories.RepositoryCampo;
 import com.api.DataClick.services.ServiceCampo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -45,9 +47,16 @@ public class ControllerCampo {
         serviceCampo.removerCampo(campoId);
     }
 
-//    @PostMapping("/preencher/{CampoId}")
-//    @Operation(summary = "Preenche um campo de um formulario", description = "retorna o campo preenchido ")
-//    public EntityCampo preencherCampo(@PathVariable String CampoId,@RequestBody EntityResposta resposta){
-//        return serviceCampo.preencherCampo(CampoId,resposta);
-//    }
+    @GetMapping("/{campoId}")
+    @Operation(summary = "Buscar Campo por Id", description = "Busca um campo pelo Id")
+    public EntityCampo buscarCampoById(@PathVariable String campoId){
+       return serviceCampo.buscarCampoById(campoId);
+    }
+
+    @PostMapping("/alterar/{campoId}")
+    @Operation(summary = "Altera um campo", description = "Altera um campo pelo id do mesmo")
+    public EntityCampo alterarCampo(@PathVariable String campoId, @RequestBody CampoUpdateDTO dto){
+        return serviceCampo.alterarCampo(campoId, dto.getTipo() , dto.getTitulo());
+    }
+
 }

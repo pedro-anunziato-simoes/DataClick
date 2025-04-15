@@ -12,14 +12,13 @@ public class EntityCampo {
 
     @Id
     private String campoId;
+    private String formId;
     private String titulo;
     private TipoCampo tipo;
-    private EntityResposta resposta;
+    private Object resposta;
 
-    public EntityCampo(String titulo, TipoCampo tipo, EntityResposta resposta) {
+    public EntityCampo(String titulo, TipoCampo tipo) {
         this.titulo = titulo;
         this.tipo = tipo;
-        this.resposta = resposta;
     }
-
 }

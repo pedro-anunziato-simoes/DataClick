@@ -4,8 +4,6 @@ public enum TipoCampo {
     TEXTO,
     NUMERO,
     DATA,
-    SELECIONE,
     CHECKBOX,
-    RADIO,
     EMAIL
 }

@@ -9,11 +9,55 @@ class FormularioService {
 
   FormularioService(this._apiClient);
 
-  Future<List<Formulario>> listarFormularios() async {
+  Future<void> fetchFormularios() async {
     try {
       final response = await _apiClient.get(Endpoints.formularios);
-      final List<dynamic> jsonList = json.decode(response.body);
-      return jsonList.map((json) => Formulario.fromJson(json)).toList();
+      if (response.statusCode == 200) {
+        print(response.body);
+      } else {
+        print('Erro ${response.statusCode}: ${response.body}');
+      }
+    } catch (e) {
+      print('Erro na requisição: $e');
+    }
+  }
+
+  Future<List<Formulario>> listarFormulariosPorAdmin(String adminId) async {
+    try {
+      final response = await _apiClient.get(
+        Endpoints.formulariosPorAdmin(adminId),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data is List) {
+          return data.map((json) => Formulario.fromJson(json)).toList();
+        } else if (data['result'] is List) {
+          return (data['result'] as List)
+              .map((json) => Formulario.fromJson(json))
+              .toList();
+        }
+        throw Exception('Formato de resposta inesperado');
+      }
+
+      return listarFormulariosLocalBackup(adminId);
+    } catch (e) {
+      return listarFormulariosLocalBackup(adminId);
+    }
+  }
+
+  Future<List<Formulario>> listarTodosFormularios() async {
+    try {
+      final response = await _apiClient.get(Endpoints.formularios);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data is List) {
+          return data.map((json) => Formulario.fromJson(json)).toList();
+        }
+        throw Exception('Formato de resposta inesperado');
+      }
+      throw Exception('Falha ao carregar formulários: ${response.statusCode}');
     } catch (e) {
       throw Exception('Erro ao listar formulários: ${e.toString()}');
     }
@@ -25,21 +69,21 @@ class FormularioService {
     List<Campo> campos,
   ) async {
     try {
+      final body = {
+        "titulo": titulo,
+        "adminId": adminId,
+        "campos": campos.map((campo) => campo.toJson()).toList(),
+      };
+
       final response = await _apiClient.post(
         Endpoints.adicionarFormulario(adminId),
-        body: json.encode({
-          'titulo': titulo,
-          'campos': campos.map((e) => e.toJson()).toList(),
-        }),
-        headers: {'Content-Type': 'application/json'},
+        body: body,
       );
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         return Formulario.fromJson(json.decode(response.body));
       } else {
-        throw Exception(
-          'Falha ao criar formulário: ${response.statusCode} - ${response.body}',
-        );
+        throw Exception('Falha ao criar formulário: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Erro ao criar formulário: ${e.toString()}');
@@ -49,21 +93,12 @@ class FormularioService {
   Future<Formulario> obterFormularioPorId(String id) async {
     try {
       final response = await _apiClient.get(Endpoints.formularioPorId(id));
-      return Formulario.fromJson(json.decode(response.body));
+      if (response.statusCode == 200) {
+        return Formulario.fromJson(json.decode(response.body));
+      }
+      throw Exception('Falha ao obter formulário: ${response.statusCode}');
     } catch (e) {
       throw Exception('Erro ao obter formulário: ${e.toString()}');
-    }
-  }
-
-  Future<List<Formulario>> formulariosPorAdministrador(String adminId) async {
-    try {
-      final response = await _apiClient.get(
-        Endpoints.formulariosPorAdmin(adminId),
-      );
-      final List<dynamic> jsonList = json.decode(response.body);
-      return jsonList.map((json) => Formulario.fromJson(json)).toList();
-    } catch (e) {
-      throw Exception('Erro ao listar formulários por admin: ${e.toString()}');
     }
   }
 
@@ -76,5 +111,9 @@ class FormularioService {
     } catch (e) {
       throw Exception('Erro ao remover formulário: ${e.toString()}');
     }
+  }
+
+  Future<List<Formulario>> listarFormulariosLocalBackup(String adminId) async {
+    return [];
   }
 }

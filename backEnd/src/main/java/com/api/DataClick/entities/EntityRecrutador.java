@@ -1,5 +1,6 @@
 package com.api.DataClick.entities;
 
+import com.api.DataClick.enums.UserRole;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -14,8 +15,16 @@ public class EntityRecrutador extends Usuario{
     @DBRef
     private List<EntityFormulario> formularios;
 
-    public EntityRecrutador(String nome, String email, String telefone,String adminId,List<EntityFormulario> formularios) {
-        super(null, nome, email, telefone);
+    public EntityRecrutador(
+            String nome,
+            String senha,
+            String telefone,
+            String email,
+            String adminId,
+            List<EntityFormulario> formularios,
+            UserRole role
+    ) {
+        super(null, nome, senha, telefone, email, role);
         this.adminId = adminId;
         this.formularios = formularios;
     }

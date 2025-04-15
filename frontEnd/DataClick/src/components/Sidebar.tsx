@@ -1,4 +1,3 @@
-// src/components/Sidebar.tsx
 import { Link } from "react-router-dom";
 import "./Sidebar.css";
 
@@ -17,7 +16,7 @@ const Sidebar = () => {
             <Link to="/register">Cadastro</Link>
           </li>
           <li>
-            <Link to="/forms">Formulários</Link>
+            <Link to="/formularios">Formulários</Link>
           </li>
           <li>
             <Link to="/support">Suporte</Link>
