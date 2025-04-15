@@ -6,18 +6,19 @@ import ListarFormsPage from "./pages/formularios/lista_formularios/ListarFormsPa
 import ListarCampoPage from "./pages/formularios/campo/ListarCamposByFormsPage";
 import CriarCampoPage from "./pages/formularios/campo/CriarCampoPage";
 import CampoByIdPage from "./pages/formularios/campo/CampoByIdPage";
+import PrivateRoute from "./api/privateRoute";
 
 const App = () => {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/home" element={<Home />} />
+        <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
         <Route path="/register" element={<Register />} />
-        <Route path="/formularios" element={<ListarFormsPage />} />
-        <Route path="//campos/:formId" element={<ListarCampoPage />} />
-        <Route path="/campos/add" element={<CriarCampoPage />} />
-        <Route path="/campo/find" element={<CampoByIdPage />} />
+        <Route path="/formularios" element={<PrivateRoute><ListarFormsPage /></PrivateRoute>} />
+        <Route path="/campos/:formId" element={<PrivateRoute><ListarCampoPage /></PrivateRoute>} />
+        <Route path="/campos/add/:formId" element={<PrivateRoute><CriarCampoPage /></PrivateRoute>} />
+        <Route path="/campo/find" element={<PrivateRoute><CampoByIdPage /></PrivateRoute>} />
       </Routes>
     </Router>
   );

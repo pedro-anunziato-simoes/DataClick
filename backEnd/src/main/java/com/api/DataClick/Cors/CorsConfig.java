@@ -10,6 +10,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,7 +33,7 @@ public class CorsConfig implements WebMvcConfigurer {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:5173")
+                        .allowedOrigins("*")
                         .allowedMethods("*")
                         .allowedHeaders("*")
                         .exposedHeaders("Authorization");;
@@ -40,9 +41,9 @@ public class CorsConfig implements WebMvcConfigurer {
             }
     @Bean
     public SecurityFilterChain configure(HttpSecurity httpSecurity) throws Exception {
-
         return httpSecurity
-                .csrf(csrf -> csrf.disable())
+                .cors(cors -> {})
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST, "/recrutadores").hasAuthority("ROLE_ADMIN")
@@ -61,4 +62,4 @@ public class CorsConfig implements WebMvcConfigurer {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
-        };
+};

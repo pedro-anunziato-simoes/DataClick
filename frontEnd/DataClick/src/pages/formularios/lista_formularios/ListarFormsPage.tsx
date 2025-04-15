@@ -1,4 +1,4 @@
-import Formularios from "../../../components/Formularios/Formulario";
+import Formularios from "../../../components/Formularios/Formularios";
 
 const ListarFormsPage = () => {  
     return (
