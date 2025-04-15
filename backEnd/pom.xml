@@ -8,22 +8,18 @@
 		<version>3.4.3</version>
 		<relativePath/>
 	</parent>
-
 	<groupId>com.API</groupId>
 	<artifactId>DataClick</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>DataClick</name>
 	<description>Demo project for Spring Boot</description>
-
 	<properties>
 		<java.version>17</java.version>
 		<jacoco.version>0.8.9</jacoco.version>
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
 		<sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 	</properties>
-
 	<dependencies>
-		<!-- Spring Boot Starters -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-mongodb</artifactId>
@@ -43,9 +39,8 @@
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-crypto</artifactId>
+			<version>6.4.4</version>
 		</dependency>
-
-		<!-- Swagger -->
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
@@ -56,8 +51,6 @@
 			<artifactId>springfox-swagger-ui</artifactId>
 			<version>3.0.0</version>
 		</dependency>
-
-		<!-- ✅ JJWT 0.11.5 (versão estável e compatível com parserBuilder) -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
@@ -75,15 +68,11 @@
 			<version>0.11.5</version>
 			<scope>runtime</scope>
 		</dependency>
-
-		<!-- Lombok -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
-
-		<!-- Testes -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
