@@ -70,7 +70,7 @@ class HomeScreen extends StatelessWidget {
                     icon: Icons.list_alt,
                     color: Colors.greenAccent,
                     onTap: () {
-                      Navigator.pushNamed(context, '/forms');
+                      Navigator.pushNamed(context, '/forms', arguments: {'adminId': '100'});
                     },
                   ),
                   MenuCard(

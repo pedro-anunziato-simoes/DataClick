@@ -6,8 +6,7 @@ class FormsScreen extends StatefulWidget {
   final String? adminId;
   final FormularioService formularioService;
 
-  const FormsScreen({Key? key, this.adminId, required this.formularioService})
-    : super(key: key);
+  const FormsScreen({super.key, this.adminId, required this.formularioService});
 
   @override
   State<FormsScreen> createState() => _FormsScreenState();
@@ -38,6 +37,7 @@ class _FormsScreenState extends State<FormsScreen> {
               )
               : await widget.formularioService.listarTodosFormularios();
 
+
       setState(() {
         _formularios = formularios;
         _isLoading = false;
@@ -49,6 +49,8 @@ class _FormsScreenState extends State<FormsScreen> {
       });
     }
   }
+
+  void
 
   @override
   Widget build(BuildContext context) {
@@ -200,8 +202,8 @@ class _FormsScreenState extends State<FormsScreen> {
                     );
                   }
                 },
-                child: Text('Excluir'),
                 style: TextButton.styleFrom(foregroundColor: Colors.red),
+                child: Text('Excluir'),
               ),
             ],
           ),

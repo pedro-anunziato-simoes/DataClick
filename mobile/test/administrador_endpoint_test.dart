@@ -3,9 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 
-import '../lib/api/api_client.dart';
+import 'package:mobile/api/api_client.dart';
 
-import '../lib/api/models/administrador.dart';
+import 'package:mobile/api/models/administrador.dart';
 
 void main() {
   final mockAdmin = {

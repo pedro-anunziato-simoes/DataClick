@@ -81,7 +81,7 @@ class MyApp extends StatelessWidget {
           return MaterialPageRoute(
             builder:
                 (context) => CreateFormScreen(
-                  adminId: args['adminId'],
+                  adminId: args['adminId'] ?? '',
                   formularioExistente: args['formularioExistente'],
                   formularioService: context.read<FormularioService>(),
                 ),

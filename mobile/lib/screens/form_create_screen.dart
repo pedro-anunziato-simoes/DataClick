@@ -3,7 +3,6 @@ import 'package:mobile/api/models/campo.dart';
 import 'package:mobile/api/models/formulario.dart';
 import 'package:mobile/api/models/resposta.dart';
 import 'package:mobile/api/services/formulario_service.dart';
-import 'package:provider/provider.dart';
 
 class CreateFormScreen extends StatefulWidget {
   final String adminId;
