@@ -1,4 +1,3 @@
-// src/pages/Home.tsx
 import Sidebar from "../components/Sidebar";
 
 const Home = () => {
