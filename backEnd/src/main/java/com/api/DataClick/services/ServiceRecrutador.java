@@ -60,4 +60,10 @@ public class ServiceRecrutador {
 
         return administrador.getRecrutadores();
     }
+
+    public EntityRecrutador buscarRecrut(String id){
+        EntityRecrutador recrutador = repositoryRecrutador.findById(id)
+                .orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.REC_NAO_ENCONTRADO));
+        return recrutador;
+    }
 }
