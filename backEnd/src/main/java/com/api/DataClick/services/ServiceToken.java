@@ -1,6 +1,7 @@
 package com.api.DataClick.services;
 
 
+import com.api.DataClick.Security.SecurityProperties;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -20,8 +21,11 @@ import java.util.stream.Collectors;
 @Service
 public class ServiceToken {
 
+    private final String SECRET_KEY;
 
-    private static final String SECRET_KEY = "2D4A614E645267556B58703273357638792F423F4428472B4B6250655368566D";
+    public ServiceToken(SecurityProperties securityProperties) {
+        this.SECRET_KEY = securityProperties.getSECRET_KEY();
+    }
 
     public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);
