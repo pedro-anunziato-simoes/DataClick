@@ -23,7 +23,7 @@ public class ControllerFormulario {
         return serviceFormulario.listarFormularios();
     }
 
-    @PostMapping("/formularios/add/{adminId}")
+    @PostMapping("/add/{adminId}")
     @Operation(summary = "Criar formulario", description = "Retorna o formulario salvo/criado no banco de dados")
     public EntityFormulario criarFormulario(@RequestBody EntityFormulario form, @PathVariable String adminId){
         return serviceFormulario.criarFormulario(form,adminId);
