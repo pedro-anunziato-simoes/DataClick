@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { FormularioService } from "../../api/FormularioService";
 import { useNavigate } from "react-router-dom";
 import CamposViewForm from "./Campos/CamposViewForm";
+import { IconButton } from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 const Formularios = () => {
     const [formularios, setFormularios] = useState<any[]>([]);
@@ -11,7 +13,7 @@ const Formularios = () => {
         const formularioService = FormularioService();
         const fetchFormularios = async () => {
             try {
-                const data = await formularioService.getFormulariosByAdminId('67f451338df2d24afb2e45d2');
+                const data = await formularioService.getFormulariosByAdminId('67feb1578b63b62e1c0ccfe0');
                 setFormularios(data);
             } catch (error) {
                 console.error("Erro ao buscar formulários:", error);
@@ -31,6 +33,9 @@ const Formularios = () => {
 
     return (
         <div className="formularios-container">
+                <IconButton onClick={() => navigate(-1)} sx={{ alignSelf: "flex-start", mb: 2 }}>
+          <ArrowBackIcon />
+        </IconButton>
             {formularios.map((formulario) => (
                 <form key={formulario.id} className="formulario-item">
                     <h2>{formulario.titulo}</h2>
