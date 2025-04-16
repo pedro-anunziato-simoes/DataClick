@@ -1,6 +1,7 @@
 import 'dart:convert';
 import '../api_client.dart';
 import '../models/campo.dart';
+import '../models/resposta.dart';
 import '../endpoints.dart';
 
 class CampoService {
@@ -11,10 +12,19 @@ class CampoService {
   Future<List<Campo>> listarCampos() async {
     try {
       final response = await _apiClient.get(Endpoints.campos);
-      final List<dynamic> jsonList = json.decode(response.body);
-      return jsonList.map((json) => Campo.fromJson(json)).toList();
+      final data = json.decode(response.body);
+
+      if (data is List) {
+        return data.map((json) => Campo.fromJson(json)).toList();
+      } else if (data['result'] is List) {
+        return (data['result'] as List)
+            .map((json) => Campo.fromJson(json))
+            .toList();
+      }
+      throw Exception('Formato de resposta inesperado');
     } catch (e) {
-      throw Exception('Erro ao listar campos: ${e.toString()}');
+      print('Erro ao listar campos: $e');
+      rethrow;
     }
   }
 
@@ -22,35 +32,46 @@ class CampoService {
     try {
       final response = await _apiClient.post(
         Endpoints.adicionarCampo(formId),
-        body: json.encode(campo.toJson()),
-        headers: {'Content-Type': 'application/json'},
+        body: {
+          'titulo': campo.titulo,
+          'tipo': campo.tipo,
+          'resposta': campo.resposta.toJson(),
+        },
       );
 
       if (response.statusCode == 201) {
         return Campo.fromJson(json.decode(response.body));
-      } else {
-        throw Exception(
-          'Falha ao adicionar campo: ${response.statusCode} - ${response.body}',
-        );
       }
+      throw Exception('Falha ao adicionar campo: ${response.statusCode}');
     } catch (e) {
-      throw Exception('Erro ao adicionar campo: ${e.toString()}');
+      print('Erro ao adicionar campo: $e');
+      rethrow;
     }
   }
 
-  Future<void> preencherCampo(String campoId, String valor) async {
+  Future<Campo> alterarCampo(
+    String campoId, {
+    String? tipo,
+    String? status,
+  }) async {
     try {
+      final body = {
+        if (tipo != null) 'tipo': tipo,
+        if (status != null) 'status': status,
+      };
+
       final response = await _apiClient.post(
-        Endpoints.preencherCampo(campoId),
-        body: json.encode({'valor': valor}),
-        headers: {'Content-Type': 'application/json'},
+        Endpoints.alterarCampo(campoId),
+        body: body,
       );
 
-      if (response.statusCode != 200 && response.statusCode != 204) {
-        throw Exception('Falha ao preencher campo: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        return Campo.fromJson(json.decode(response.body));
       }
+      throw Exception('Falha ao alterar campo: ${response.statusCode}');
     } catch (e) {
-      throw Exception('Erro ao preencher campo: ${e.toString()}');
+      print('Erro ao alterar campo: $e');
+      rethrow;
     }
   }
 
@@ -59,10 +80,15 @@ class CampoService {
       final response = await _apiClient.get(
         Endpoints.camposPorFormulario(formId),
       );
-      final List<dynamic> jsonList = json.decode(response.body);
-      return jsonList.map((json) => Campo.fromJson(json)).toList();
+
+      final data = json.decode(response.body);
+      if (data is List) {
+        return data.map((json) => Campo.fromJson(json)).toList();
+      }
+      throw Exception('Formato de resposta inesperado');
     } catch (e) {
-      throw Exception('Erro ao listar campos do formulário: ${e.toString()}');
+      print('Erro ao listar campos do formulário: $e');
+      rethrow;
     }
   }
 
@@ -73,7 +99,8 @@ class CampoService {
         throw Exception('Falha ao remover campo: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Erro ao remover campo: ${e.toString()}');
+      print('Erro ao remover campo: $e');
+      rethrow;
     }
   }
 }
