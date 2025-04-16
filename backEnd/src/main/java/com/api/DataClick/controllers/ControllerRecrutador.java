@@ -38,33 +38,58 @@ public class ControllerRecrutador {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-   @GetMapping
-   @Operation(summary = "Listar todos os recrutadores",description = "Retorna todos os recrutadores")
-   public List<EntityRecrutador> listarRecrutadores(){
-       return serviceRecrutador.listarTodosRecrutadores();
-   }
-
-
+    //Adm
     @DeleteMapping("/remover/{recrutadorId}")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Remover recrutador", description = "remove um recrutador pelo id do adminitrador e pelo id do recrutador que deseja ser excluido")
-    public ResponseEntity<Void> removerRecrutador(
-            @PathVariable String recrutadorId) {
-        serviceRecrutador.removerRecrutador(recrutadorId);
+    public ResponseEntity<Void> removerRecrutador(@PathVariable String id,   @AuthenticationPrincipal UserDetails userDetails) {
+
+        if (userDetails.getAuthorities().stream()
+                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            System.out.println("Acesso negado: usuário não é ADMIN");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        serviceRecrutador.removerRecrutador(id);
         return ResponseEntity.noContent().build();
     }
-
+    //Adm
     @GetMapping("/{adminitradorId}/list")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Listar todos os recrutadores", description = "Retorna uma lista de recrutadores")
-    public List<EntityRecrutador> listarRecrutadores(@PathVariable String adminitradorId){
-        return serviceRecrutador.listarRecrutadores(adminitradorId);
+    public ResponseEntity<List<EntityRecrutador>> listarRecrutadores(@PathVariable String adminitradorId, @AuthenticationPrincipal UserDetails userDetails){
+
+        if (userDetails.getAuthorities().stream()
+                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            System.out.println("Acesso negado: usuário não é ADMIN");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        List<EntityRecrutador> recrutadores = serviceRecrutador.listarRecrutadores(adminitradorId);
+        if (recrutadores.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        return ResponseEntity.ok(recrutadores);
     }
 
+    //Adm
     @GetMapping("/{recrutadorId}")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Buscar recrutador", description = "Buscar recrutador com base no id")
-    public EntityRecrutador buscarRecrut(@PathVariable String recrutadorId){
-        return serviceRecrutador.buscarRecrut(recrutadorId);
-    }
+    public ResponseEntity<EntityRecrutador> buscarRecrut(@PathVariable String recrutadorId, @AuthenticationPrincipal UserDetails userDetails){
+        if (userDetails.getAuthorities().stream()
+                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            System.out.println("Acesso negado: usuário não é ADMIN");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        EntityRecrutador recrutador = serviceRecrutador.buscarRecrut(recrutadorId);
+        if (recrutador == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
 
+        return ResponseEntity.ok(recrutador);
+    }
+    //Adm
     @PostMapping
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Criar recrutador", description = "Apenas Admins podem criar recrutadores")
