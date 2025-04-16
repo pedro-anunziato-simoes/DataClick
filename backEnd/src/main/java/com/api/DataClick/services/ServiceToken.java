@@ -2,6 +2,7 @@ package com.api.DataClick.services;
 
 
 import com.api.DataClick.Security.SecurityProperties;
+import com.api.DataClick.entities.Usuario;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -32,6 +33,12 @@ public class ServiceToken {
     }
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+
+
+        if (userDetails instanceof Usuario usuario) {
+            extraClaims.put("usuarioId", usuario.getUsuarioId());
+        }
+
         extraClaims.put(
                 "authorities",
                 userDetails.getAuthorities().stream()
