@@ -1,5 +1,6 @@
 package com.api.DataClick.controllers;
 
+import com.api.DataClick.DTO.RecrutadorUpdateDTO;
 import com.api.DataClick.DTO.RegisterRecrutadorDTO;
 import com.api.DataClick.entities.EntityRecrutador;
 import com.api.DataClick.entities.Usuario;
@@ -58,6 +59,12 @@ public class ControllerRecrutador {
         return serviceRecrutador.listarRecrutadores(adminitradorId);
     }
 
+    @GetMapping("/{recrutadorId}")
+    @Operation(summary = "Buscar recrutador", description = "Buscar recrutador com base no id")
+    public EntityRecrutador buscarRecrut(@PathVariable String recrutadorId){
+        return serviceRecrutador.buscarRecrut(recrutadorId);
+    }
+
     @PostMapping
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Criar recrutador", description = "Apenas Admins podem criar recrutadores")
@@ -89,5 +96,11 @@ public class ControllerRecrutador {
 
         EntityRecrutador novoRecrutador = serviceRecrutador.criarRecrutador(recrutador);
         return ResponseEntity.status(HttpStatus.CREATED).body(novoRecrutador);
+    }
+
+    @PostMapping("/alterar/{recrutadorId}")
+    @Operation(summary = "Alterar um recrutador", description = "Altera um recrutador por meio do id")
+    EntityRecrutador alterarRecrutador(@PathVariable String recrutadorId,@RequestBody RecrutadorUpdateDTO dto){
+       return serviceRecrutador.alterarRecrutador(recrutadorId,dto);
     }
 }

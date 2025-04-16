@@ -15,6 +15,7 @@ import {
   Radio,
   FormLabel
 } from "@mui/material";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 
 const tipos = [
   "TEXTO",
@@ -25,12 +26,13 @@ const tipos = [
   "EMAIL",
 ];
 
-const CriarCampo = ({ formId }: { formId: string }) => { // Adicionando formId como prop
+const CriarCampo = () => {
+  const { formId } = useParams<{ formId: string }>();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<EntityCampo>({
     titulo: "",
     tipo: "",
     resposta: { tipo: "" },
-    // Removendo o campoId que será gerado pelo banco de dados
   });
 
   const handleTipoChange = (e: { target: { value: any } }) => {
@@ -138,20 +140,18 @@ const CriarCampo = ({ formId }: { formId: string }) => { // Adicionando formId c
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validar se o formulário está preenchido corretamente
-    if (!formData.titulo || !formData.tipo || !formData.resposta.tipo) {
+    if (!formData.titulo || !formData.tipo) {
       alert("Por favor, preencha todos os campos.");
       return;
     }
-
     try {
       const campoService = CampoService();
-      // Não enviamos campoId, pois ele será gerado automaticamente pelo banco de dados
-      await campoService.adicionarCampo('67f451a58df2d24afb2e45d4', formData); // Passando formId e formData (sem campoId)
+      await campoService.adicionarCampo(formId || '', formData);
       alert("Campo adicionado com sucesso!");
+      navigate("/formularios")
     } catch (error) {
       console.error("Erro ao adicionar campo:", error);
-      alert("Erro ao adicionar campo.");
+      alert("Erro ao adicionar campo." + error);
     }
   };
 
@@ -184,7 +184,7 @@ const CriarCampo = ({ formId }: { formId: string }) => { // Adicionando formId c
         </Select>
       </FormControl>
 
-      <FormControl fullWidth margin="normal">
+      <FormControl disabled fullWidth margin="normal">
         <InputLabel>Resposta</InputLabel>
         {renderCampoResposta()}
       </FormControl>

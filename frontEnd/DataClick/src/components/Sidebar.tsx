@@ -1,10 +1,16 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Sidebar.css";
 
 const Sidebar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/");
+  };
+
   return (
     <div className="sidebar">
-      {/* Logo no topo */}
       <img src="/logo.jpeg" alt="Logo" className="logo" />
 
       <nav>
@@ -13,13 +19,18 @@ const Sidebar = () => {
             <Link to="/home">Home</Link>
           </li>
           <li>
-            <Link to="/register">Cadastro</Link>
+            <Link to="/">Cadastrar Recrutador</Link>
           </li>
           <li>
             <Link to="/formularios">Formulários</Link>
           </li>
           <li>
             <Link to="/support">Suporte</Link>
+          </li>
+          <li>
+            <button onClick={handleLogout}>
+              Logout
+            </button>
           </li>
         </ul>
       </nav>
