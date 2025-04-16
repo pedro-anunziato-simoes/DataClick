@@ -72,6 +72,7 @@ class MyApp extends StatelessWidget {
                 (context) => FormsScreen(
                   adminId: args?['adminId'],
                   formularioService: context.read<FormularioService>(),
+                  campoService: context.read<CampoService>(), // Adicionado aqui
                 ),
           );
         }
