@@ -3,6 +3,7 @@ package com.api.DataClick.controllers;
 import com.api.DataClick.entities.EntityFormulario;
 import com.api.DataClick.entities.Usuario;
 import com.api.DataClick.services.ServiceFormulario;
+import com.api.DataClick.services.ServiceRecrutador;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,8 +24,11 @@ public class ControllerFormulario {
     @Autowired
     ServiceFormulario serviceFormulario;
 
+    @Autowired
+    ServiceRecrutador serviceRecrutador;
+
     //Adm
-    @PostMapping("/add/{adminId}")
+    @PostMapping("/add")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Criar formulario", description = "Retorna o formulario salvo/criado no banco de dados")
     public ResponseEntity<EntityFormulario> criarFormulario(@RequestBody EntityFormulario form, @AuthenticationPrincipal UserDetails userDetails){
@@ -78,10 +82,10 @@ public class ControllerFormulario {
         return ResponseEntity.ok(formulario);
     }
     //Adm/Recrutador
-    @GetMapping("/findByAdmin/{id}")
+    @GetMapping("/todos-formularios")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Busca a lista de formularios pelo id-adminitrador", description = "Retorna uma lista de formularios vinculada ao adminitrador")
-    public ResponseEntity<List<EntityFormulario>> buscarFormByAdminId(@PathVariable String id, @AuthenticationPrincipal UserDetails userDetails){
+    @Operation(summary = "Busca a lista de formularios pelo id-administrador", description = "Retorna uma lista de formularios vinculada ao adminitrador")
+    public ResponseEntity<List<EntityFormulario>> buscarFormByAdminId( @AuthenticationPrincipal UserDetails userDetails){
         System.out.println("Authorities do usuário: " + userDetails.getAuthorities());
 
         if (userDetails.getAuthorities().stream()
@@ -90,12 +94,23 @@ public class ControllerFormulario {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        List<EntityFormulario> formularios = serviceFormulario.buscarFormPorAdminId(id);
-        if (formularios.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        boolean isAdmin = userDetails.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
-        return ResponseEntity.ok(formularios);
+        Usuario usuarioLogado  = (Usuario) userDetails;
+        String adminId;
+        if (isAdmin) {
+            adminId = usuarioLogado.getUsuarioId();
+        } else {
+            adminId = serviceRecrutador.buscarAdminIdPorRecrutadorId(usuarioLogado.getUsuarioId())
+                    .orElseThrow(() -> new RuntimeException("Recrutador não vinculado a um admin"));
+        }
+        List<EntityFormulario> formularios = serviceFormulario.buscarFormPorAdminId(adminId);
+
+
+        return formularios.isEmpty() ?
+                ResponseEntity.status(HttpStatus.NOT_FOUND).build() :
+                ResponseEntity.ok(formularios);
     }
 
 }

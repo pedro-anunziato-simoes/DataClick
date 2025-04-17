@@ -67,6 +67,13 @@ public class ServiceRecrutador {
                 .orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.REC_NAO_ENCONTRADO));
         return recrutador;
     }
+
+
+    public Optional<String> buscarAdminIdPorRecrutadorId(String recrutadorId) {
+        return repositoryRecrutador.findById(recrutadorId)
+                .map(EntityRecrutador::getAdminId);
+    }
+  
     public EntityRecrutador alterarRecrutador(String id, RecrutadorUpdateDTO dto){
         EntityRecrutador recrutador = repositoryRecrutador.findById(id)
                 .orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.REC_NAO_ENCONTRADO));
@@ -75,5 +82,6 @@ public class ServiceRecrutador {
         recrutador.setNome(dto.getNome());
         repositoryRecrutador.save(recrutador);
         return recrutador;
+
     }
 }

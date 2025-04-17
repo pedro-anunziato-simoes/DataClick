@@ -53,18 +53,18 @@ public class ControllerRecrutador {
         return ResponseEntity.noContent().build();
     }
     //Adm
-    @GetMapping("/{adminitradorId}/list")
+    @GetMapping("/list")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Listar todos os recrutadores", description = "Retorna uma lista de recrutadores")
-    public ResponseEntity<List<EntityRecrutador>> listarRecrutadores(@PathVariable String adminitradorId, @AuthenticationPrincipal UserDetails userDetails){
+    public ResponseEntity<List<EntityRecrutador>> listarRecrutadores(@AuthenticationPrincipal UserDetails userDetails){
 
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             System.out.println("Acesso negado: usuário não é ADMIN");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-
-        List<EntityRecrutador> recrutadores = serviceRecrutador.listarRecrutadores(adminitradorId);
+        Usuario usuarioLogado  = (Usuario) userDetails;
+        List<EntityRecrutador> recrutadores = serviceRecrutador.listarRecrutadores(usuarioLogado.getUsuarioId());
         if (recrutadores.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
@@ -125,7 +125,13 @@ public class ControllerRecrutador {
 
     @PostMapping("/alterar/{recrutadorId}")
     @Operation(summary = "Alterar um recrutador", description = "Altera um recrutador por meio do id")
-    EntityRecrutador alterarRecrutador(@PathVariable String recrutadorId,@RequestBody RecrutadorUpdateDTO dto){
-       return serviceRecrutador.alterarRecrutador(recrutadorId,dto);
+    ResponseEntity<EntityRecrutador> alterarRecrutador(@PathVariable String recrutadorId,@RequestBody RecrutadorUpdateDTO dto, @AuthenticationPrincipal UserDetails userDetails){
+        if (userDetails.getAuthorities().stream()
+                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            System.out.println("Acesso negado: usuário não é ADMIN");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        EntityRecrutador recrutadorAtualizado = serviceRecrutador.alterarRecrutador(recrutadorId, dto);
+        return ResponseEntity.ok(recrutadorAtualizado);
     }
 }
