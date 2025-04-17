@@ -125,7 +125,13 @@ public class ControllerRecrutador {
 
     @PostMapping("/alterar/{recrutadorId}")
     @Operation(summary = "Alterar um recrutador", description = "Altera um recrutador por meio do id")
-    EntityRecrutador alterarRecrutador(@PathVariable String recrutadorId,@RequestBody RecrutadorUpdateDTO dto){
-       return serviceRecrutador.alterarRecrutador(recrutadorId,dto);
+    ResponseEntity<EntityRecrutador> alterarRecrutador(@PathVariable String recrutadorId,@RequestBody RecrutadorUpdateDTO dto, @AuthenticationPrincipal UserDetails userDetails){
+        if (userDetails.getAuthorities().stream()
+                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            System.out.println("Acesso negado: usuário não é ADMIN");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        EntityRecrutador recrutadorAtualizado = serviceRecrutador.alterarRecrutador(recrutadorId, dto);
+        return ResponseEntity.ok(recrutadorAtualizado);
     }
 }

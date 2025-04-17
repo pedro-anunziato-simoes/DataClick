@@ -72,6 +72,7 @@ public class ServiceRecrutador {
     public Optional<String> buscarAdminIdPorRecrutadorId(String recrutadorId) {
         return repositoryRecrutador.findById(recrutadorId)
                 .map(EntityRecrutador::getAdminId);
+    }
   
     public EntityRecrutador alterarRecrutador(String id, RecrutadorUpdateDTO dto){
         EntityRecrutador recrutador = repositoryRecrutador.findById(id)
