@@ -66,4 +66,9 @@ public class ServiceRecrutador {
                 .orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.REC_NAO_ENCONTRADO));
         return recrutador;
     }
+
+    public Optional<String> buscarAdminIdPorRecrutadorId(String recrutadorId) {
+        return repositoryRecrutador.findById(recrutadorId)
+                .map(EntityRecrutador::getAdminId);
+    }
 }
