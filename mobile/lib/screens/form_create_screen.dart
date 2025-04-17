@@ -3,7 +3,6 @@ import 'package:mobile/api/models/campo.dart';
 import 'package:mobile/api/models/formulario.dart';
 import 'package:mobile/api/models/resposta.dart';
 import 'package:mobile/api/services/formulario_service.dart';
-import 'package:provider/provider.dart';
 
 class CreateFormScreen extends StatefulWidget {
   final String adminId;
@@ -67,7 +66,7 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
           resposta: Resposta(
             respostaId: '',
             tipo: _tipoCampoSelecionado,
-            resposta:
+            valor:
                 _tipoCampoSelecionado == 'SELECT' ||
                         _tipoCampoSelecionado == 'CHECKBOX'
                     ? _opcoes
@@ -106,18 +105,11 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
       return;
     }
 
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
     try {
       if (widget.formularioExistente != null) {
-        final formularioAtualizado = Formulario(
-          formId: widget.formularioExistente!.formId,
-          titulo: _tituloController.text,
-          adminId: widget.adminId,
-          campos: _campos,
-          id: widget.formularioExistente!.id,
-        );
-
         await widget.formularioService.criarFormulario(
           widget.adminId,
           _tituloController.text,
@@ -131,16 +123,20 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
         );
       }
 
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Formulário salvo com sucesso!')),
       );
 
+      if (!mounted) return;
       Navigator.pop(context);
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erro ao salvar formulário: ${e.toString()}')),
       );
     } finally {
+      if (!mounted) return;
       setState(() => _isLoading = false);
     }
   }
@@ -183,169 +179,8 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
                         },
                       ),
                       const SizedBox(height: 20),
-
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Adicionar Campo',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              TextFormField(
-                                controller: _campoTituloController,
-                                decoration: const InputDecoration(
-                                  labelText: 'Título do Campo',
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  border: OutlineInputBorder(),
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              DropdownButtonFormField<String>(
-                                value: _tipoCampoSelecionado,
-                                items: const [
-                                  DropdownMenuItem(
-                                    value: 'TEXTO',
-                                    child: Text('Texto'),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: 'SELECT',
-                                    child: Text('Seleção'),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: 'CHECKBOX',
-                                    child: Text('Checkbox'),
-                                  ),
-                                ],
-                                onChanged: (value) {
-                                  setState(() {
-                                    _tipoCampoSelecionado = value!;
-                                  });
-                                },
-                                decoration: const InputDecoration(
-                                  labelText: 'Tipo de Campo',
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  border: OutlineInputBorder(),
-                                ),
-                              ),
-
-                              if (_tipoCampoSelecionado == 'SELECT' ||
-                                  _tipoCampoSelecionado == 'CHECKBOX')
-                                Column(
-                                  children: [
-                                    const SizedBox(height: 16),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: TextFormField(
-                                            controller: _opcaoController,
-                                            decoration: const InputDecoration(
-                                              labelText: 'Adicionar Opção',
-                                              filled: true,
-                                              fillColor: Colors.white,
-                                              border: OutlineInputBorder(),
-                                            ),
-                                          ),
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(Icons.add),
-                                          onPressed: _adicionarOpcao,
-                                        ),
-                                      ],
-                                    ),
-                                    if (_opcoes.isNotEmpty)
-                                      Padding(
-                                        padding: const EdgeInsets.only(top: 8),
-                                        child: Wrap(
-                                          spacing: 8,
-                                          runSpacing: 8,
-                                          children:
-                                              _opcoes.map((opcao) {
-                                                return Chip(
-                                                  label: Text(opcao),
-                                                  onDeleted: () {
-                                                    setState(() {
-                                                      _opcoes.remove(opcao);
-                                                    });
-                                                  },
-                                                );
-                                              }).toList(),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-
-                              const SizedBox(height: 16),
-                              CheckboxListTile(
-                                title: const Text('Campo Obrigatório'),
-                                value: _campoObrigatorio,
-                                onChanged: (value) {
-                                  setState(() {
-                                    _campoObrigatorio = value ?? false;
-                                  });
-                                },
-                              ),
-                              const SizedBox(height: 16),
-                              ElevatedButton(
-                                onPressed: _adicionarCampo,
-                                child: const Text('Adicionar Campo'),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      if (_campos.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 20),
-                          child: Card(
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Campos do Formulário',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  ListView.builder(
-                                    shrinkWrap: true,
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    itemCount: _campos.length,
-                                    itemBuilder: (context, index) {
-                                      final campo = _campos[index];
-                                      return ListTile(
-                                        title: Text(campo.titulo),
-                                        subtitle: Text('Tipo: ${campo.tipo}'),
-                                        trailing: IconButton(
-                                          icon: const Icon(
-                                            Icons.delete,
-                                            color: Colors.red,
-                                          ),
-                                          onPressed: () => _removerCampo(index),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-
+                      _buildAdicionarCampoCard(),
+                      if (_campos.isNotEmpty) _buildListaCampos(),
                       const SizedBox(height: 20),
                       ElevatedButton(
                         onPressed: _salvarFormulario,
@@ -358,6 +193,151 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
                   ),
                 ),
               ),
+    );
+  }
+
+  Widget _buildAdicionarCampoCard() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Adicionar Campo',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _campoTituloController,
+              decoration: const InputDecoration(
+                labelText: 'Título do Campo',
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              value: _tipoCampoSelecionado,
+              items: const [
+                DropdownMenuItem(value: 'TEXTO', child: Text('Texto')),
+                DropdownMenuItem(value: 'SELECT', child: Text('Seleção')),
+                DropdownMenuItem(value: 'CHECKBOX', child: Text('Checkbox')),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  _tipoCampoSelecionado = value!;
+                });
+              },
+              decoration: const InputDecoration(
+                labelText: 'Tipo de Campo',
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(),
+              ),
+            ),
+            if (_tipoCampoSelecionado == 'SELECT' ||
+                _tipoCampoSelecionado == 'CHECKBOX')
+              _buildOpcoesCampo(),
+            const SizedBox(height: 16),
+            CheckboxListTile(
+              title: const Text('Campo Obrigatório'),
+              value: _campoObrigatorio,
+              onChanged: (value) {
+                setState(() {
+                  _campoObrigatorio = value ?? false;
+                });
+              },
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _adicionarCampo,
+              child: const Text('Adicionar Campo'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOpcoesCampo() {
+    return Column(
+      children: [
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: TextFormField(
+                controller: _opcaoController,
+                decoration: const InputDecoration(
+                  labelText: 'Adicionar Opção',
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+            IconButton(icon: const Icon(Icons.add), onPressed: _adicionarOpcao),
+          ],
+        ),
+        if (_opcoes.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children:
+                  _opcoes.map((opcao) {
+                    return Chip(
+                      label: Text(opcao),
+                      onDeleted: () {
+                        setState(() {
+                          _opcoes.remove(opcao);
+                        });
+                      },
+                    );
+                  }).toList(),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildListaCampos() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 20),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Campos do Formulário',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _campos.length,
+                itemBuilder: (context, index) {
+                  final campo = _campos[index];
+                  return ListTile(
+                    title: Text(campo.titulo),
+                    subtitle: Text('Tipo: ${campo.tipo}'),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () => _removerCampo(index),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

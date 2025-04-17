@@ -1,5 +1,6 @@
 package com.api.DataClick.controllers;
 
+import com.api.DataClick.DTO.RecrutadorUpdateDTO;
 import com.api.DataClick.DTO.RegisterRecrutadorDTO;
 import com.api.DataClick.entities.EntityRecrutador;
 import com.api.DataClick.entities.Usuario;
@@ -122,5 +123,9 @@ public class ControllerRecrutador {
         return ResponseEntity.status(HttpStatus.CREATED).body(novoRecrutador);
     }
 
-
+    @PostMapping("/alterar/{recrutadorId}")
+    @Operation(summary = "Alterar um recrutador", description = "Altera um recrutador por meio do id")
+    EntityRecrutador alterarRecrutador(@PathVariable String recrutadorId,@RequestBody RecrutadorUpdateDTO dto){
+       return serviceRecrutador.alterarRecrutador(recrutadorId,dto);
+    }
 }

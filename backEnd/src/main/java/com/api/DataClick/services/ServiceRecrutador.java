@@ -1,5 +1,6 @@
 package com.api.DataClick.services;
 
+import com.api.DataClick.DTO.RecrutadorUpdateDTO;
 import com.api.DataClick.entities.EntityAdministrador;
 import com.api.DataClick.entities.EntityFormulario;
 import com.api.DataClick.entities.EntityRecrutador;
@@ -67,8 +68,19 @@ public class ServiceRecrutador {
         return recrutador;
     }
 
+
     public Optional<String> buscarAdminIdPorRecrutadorId(String recrutadorId) {
         return repositoryRecrutador.findById(recrutadorId)
                 .map(EntityRecrutador::getAdminId);
+  
+    public EntityRecrutador alterarRecrutador(String id, RecrutadorUpdateDTO dto){
+        EntityRecrutador recrutador = repositoryRecrutador.findById(id)
+                .orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.REC_NAO_ENCONTRADO));
+        recrutador.setEmail(dto.getEmail());
+        recrutador.setTelefone(dto.getTelefone());
+        recrutador.setNome(dto.getNome());
+        repositoryRecrutador.save(recrutador);
+        return recrutador;
+
     }
 }
