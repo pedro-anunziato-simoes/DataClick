@@ -193,7 +193,6 @@ class FormularioService {
           decoded['error_description'] ??
           'Falha ao $operation: Status ${response.statusCode}';
     } catch (e) {
-      // Fallback para mensagens padrão baseadas no status code
       switch (response.statusCode) {
         case 400:
           return 'Requisição inválida ao $operation';

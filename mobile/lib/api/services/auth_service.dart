@@ -88,7 +88,6 @@ class AuthService {
         );
       }
 
-      // Após registro bem-sucedido, faz login automaticamente
       final loginSuccess = await login(email, senha);
       if (!loginSuccess) {
         throw ApiException(
@@ -107,7 +106,6 @@ class AuthService {
   }
 
   String? _extractToken(Map<String, dynamic> responseData) {
-    // Verifica se o token está no formato {"token": "valor"}
     final token = responseData['token'];
 
     if (token != null && token is String) {
@@ -121,14 +119,12 @@ class AuthService {
 
   Map<String, dynamic> _extractUserData(Map<String, dynamic> responseData) {
     try {
-      // Tenta extrair dados do usuário de várias possíveis estruturas
       final userData =
           responseData['usuario'] ??
           responseData['user'] ??
           responseData['data']?['user'] ??
           {};
 
-      // Se não encontrou dados explícitos, tenta extrair do payload JWT
       if (userData.isEmpty && responseData['token'] != null) {
         final token = responseData['token'] as String;
         final payload = _parseJwtPayload(token);

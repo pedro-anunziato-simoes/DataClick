@@ -1,14 +1,11 @@
 class Endpoints {
-  // Auth
   static const String login = '/auth/login';
   static const String register = '/auth/register';
 
-  // Administradores
   static const String administradores = '/administradores';
   static String removerAdministrador(String id) =>
       '$administradores/$id/remover';
 
-  // Recrutadores
   static const String recrutadores = '/recrutadores';
   static const String criarRecrutador = recrutadores;
   static String buscarRecrutador(String recrutadorId) =>
@@ -18,7 +15,6 @@ class Endpoints {
   static String removerRecrutador(String recrutadorId) =>
       '$recrutadores/remover/$recrutadorId';
 
-  // Formulários
   static const String formularios = '/formularios';
   static String buscarFormularioPorId(String id) => '$formularios/$id';
   static String listarFormulariosPorAdmin(String adminId) =>
@@ -27,7 +23,6 @@ class Endpoints {
   static String removerFormulario(String id) =>
       '$formularios/formualrio/remove/$id';
 
-  // Campos
   static const String campos = '/campos';
   static String alterarCampo(String campoId) => '$campos/alterar/$campoId';
   static String buscarCampoPorId(String campoId) => '$campos/$campoId';
@@ -36,7 +31,6 @@ class Endpoints {
       '$campos/findByFormId/$formId';
   static String removerCampo(String campoId) => '$campos/remover/$campoId';
 
-  // Formulários Preenchidos
   static const String formulariosPreenchidos = '/formulariosPreenchidos';
   static String adicionarFormularioPreenchido(String recrutadorId) =>
       '$formulariosPreenchidos/add/$recrutadorId';
