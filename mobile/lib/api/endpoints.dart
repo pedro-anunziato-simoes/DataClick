@@ -1,8 +1,7 @@
 class Endpoints {
-  // Autenticação
-  static const String login = '/login';
-  static const String logout = '/logout';
-  static const String perfil = '/perfil';
+  // Auth
+  static const String login = '/auth/login';
+  static const String register = '/auth/register';
 
   // Administradores
   static const String administradores = '/administradores';
@@ -11,32 +10,36 @@ class Endpoints {
 
   // Recrutadores
   static const String recrutadores = '/recrutadores';
-  static String adicionarRecrutador(String adminId) =>
-      '$recrutadores/$adminId/add';
+  static const String criarRecrutador = recrutadores;
+  static String buscarRecrutador(String recrutadorId) =>
+      '$recrutadores/$recrutadorId';
   static String listarRecrutadoresPorAdmin(String adminId) =>
       '$recrutadores/$adminId/list';
-  static String removerRecrutador(String id) => '$recrutadores/remover/$id';
+  static String removerRecrutador(String recrutadorId) =>
+      '$recrutadores/remover/$recrutadorId';
 
   // Formulários
   static const String formularios = '/formularios';
-  static String formulariosPorAdmin(String adminId) =>
-      '/admin/$adminId/formularios';
-  static String formularioPorId(String id) => '$formularios/$id';
-  static String adicionarFormulario(String adminId) =>
-      '$formularios/add/$adminId';
-  static String removerFormulario(String id) => '$formularios/remove/$id';
+  static String buscarFormularioPorId(String id) => '$formularios/$id';
+  static String listarFormulariosPorAdmin(String adminId) =>
+      '$formularios/todos-formularios/';
+  static String criarFormulario(String adminId) => '$formularios/add/';
+  static String removerFormulario(String id) =>
+      '$formularios/formualrio/remove/$id';
 
   // Campos
   static const String campos = '/campos';
-  static String alterarCampo(String campoId) => '$campos/alternr/$campoId';
-  static String preencherCampo(String campoId) => '$campos/preencher/$campoId';
+  static String alterarCampo(String campoId) => '$campos/alterar/$campoId';
+  static String buscarCampoPorId(String campoId) => '$campos/$campoId';
   static String adicionarCampo(String formId) => '$campos/add/$formId';
   static String camposPorFormulario(String formId) =>
       '$campos/findByFormId/$formId';
-  static String removerCampo(String id) => '$campos/remover/$id';
+  static String removerCampo(String campoId) => '$campos/remover/$campoId';
 
-  // Respostas
-  static const String respostas = '/resposta';
-  static String adicionarResposta() => '$respostas/add';
-  static String removerResposta(String id) => '$respostas/remove/$id';
+  // Formulários Preenchidos
+  static const String formulariosPreenchidos = '/formulariosPreenchidos';
+  static String adicionarFormularioPreenchido(String recrutadorId) =>
+      '$formulariosPreenchidos/add/$recrutadorId';
+  static String buscarFormularioPreenchidoPorRecrutador(String recrutadorId) =>
+      '$formulariosPreenchidos/$recrutadorId';
 }

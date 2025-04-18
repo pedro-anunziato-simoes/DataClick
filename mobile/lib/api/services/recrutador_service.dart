@@ -14,9 +14,8 @@ class RecrutadorService {
   ) async {
     try {
       final response = await _apiClient.post(
-        Endpoints.adicionarRecrutador(adminId),
+        Endpoints.criarRecrutador,
         body: json.encode(recrutador.toJson()),
-        headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 201) {

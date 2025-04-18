@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:mobile/api/models/formulario.dart';
-import 'package:mobile/api/models//campo.dart';
+import 'package:mobile/api/models/campo.dart';
 import 'package:mobile/api/repository/forms_repository.dart';
 
 abstract class RequestState<T> {
@@ -29,8 +29,7 @@ class FormViewModel extends ChangeNotifier {
   final IFormularioRepository _repository;
   RequestState<List<Formulario>> _formularios = const InitialState();
   RequestState<Formulario?> _formularioAtual = const InitialState();
-
-  String? _adminId;
+  bool _isAdmin = false;
 
   FormViewModel(this._repository);
 
@@ -39,10 +38,10 @@ class FormViewModel extends ChangeNotifier {
   RequestState<Formulario?> get formularioAtual => _formularioAtual;
   bool get isLoading =>
       _formularios is LoadingState || _formularioAtual is LoadingState;
-  String? get adminId => _adminId;
+  bool get isAdmin => _isAdmin;
 
-  void setAdminId(String id) {
-    _adminId = id;
+  void setIsAdmin(bool isAdmin) {
+    _isAdmin = isAdmin;
     notifyListeners();
   }
 
@@ -52,8 +51,8 @@ class FormViewModel extends ChangeNotifier {
       notifyListeners();
 
       final result =
-          _adminId != null
-              ? await _repository.listarFormulariosPorAdmin(_adminId!)
+          _isAdmin
+              ? await _repository.listarMeusFormularios()
               : await _repository.listarTodosFormularios();
 
       _formularios = SuccessState(result);
@@ -70,7 +69,6 @@ class FormViewModel extends ChangeNotifier {
       notifyListeners();
 
       final result = await _repository.obterFormularioPorId(id);
-
       _formularioAtual = SuccessState(result);
       notifyListeners();
     } catch (e) {
@@ -80,24 +78,12 @@ class FormViewModel extends ChangeNotifier {
   }
 
   Future<void> criarFormulario(String titulo, List<Campo> campos) async {
-    if (_adminId == null) {
-      _formularioAtual = const ErrorState('Administrador não autenticado');
-      notifyListeners();
-      return;
-    }
-
     try {
       _formularioAtual = const LoadingState();
       notifyListeners();
 
-      final result = await _repository.criarFormulario(
-        _adminId!,
-        titulo,
-        campos,
-      );
-
+      final result = await _repository.criarFormulario(titulo, campos);
       _formularioAtual = SuccessState(result);
-
       await carregarFormularios();
       notifyListeners();
     } catch (e) {
@@ -111,23 +97,15 @@ class FormViewModel extends ChangeNotifier {
     String titulo,
     List<Campo> campos,
   ) async {
-    if (_adminId == null) {
-      _formularioAtual = const ErrorState('Administrador não autenticado');
-      notifyListeners();
-      return;
-    }
-
     try {
       _formularioAtual = const LoadingState();
       notifyListeners();
 
       final result = await _repository.atualizarFormulario(
         formId,
-        _adminId!,
         titulo,
         campos,
       );
-
       _formularioAtual = SuccessState(result);
       await carregarFormularios();
       notifyListeners();
