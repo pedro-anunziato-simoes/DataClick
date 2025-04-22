@@ -1,13 +1,12 @@
 import axios from "axios";
 import { EntityRecrutador } from "../types/entityes/EntityRecrutador";
 
-const API_URL_PROD = "https://dataclick-backend-api.onrender.com";
-const API_URL_DEV = "https://dataclick-backend-api-dev.onrender.com"
+const API_URL = ""
 
 export const RecrutadorService = () => {
   const token = localStorage.getItem("token")
   const getRecrutadorById = async (recrutadorId: string): Promise<EntityRecrutador> => {
-      const response = await axios.get(`/${API_URL_DEV}/recrutadores/${recrutadorId}`, {
+      const response = await axios.get(`/${API_URL}/recrutadores/${recrutadorId}`, {
         headers: {
             Authorization: `Bearer ${token}`
         },
@@ -16,8 +15,8 @@ export const RecrutadorService = () => {
       return await response.data;
     };
 
-  const getRecrutadoresByAdmin = async (adminitradorId: string): Promise<EntityRecrutador[]> => {
-    const response = await axios.get(`${API_URL_DEV}/recrutadores/${adminitradorId}/list`, {
+  const getRecrutadoresByAdmin = async (): Promise<EntityRecrutador[]> => {
+    const response = await axios.get(`${API_URL}/recrutadores/list`, {
       headers: {
           Authorization: `Bearer ${token}`
       },
@@ -27,7 +26,7 @@ export const RecrutadorService = () => {
   };
 
   const criarRecrutador = async (data:EntityRecrutador): Promise<EntityRecrutador> =>{ 
-    const response = await axios.post(`${API_URL_DEV}/recrutadores`, data,{
+    const response = await axios.post(`${API_URL}/recrutadores`, data,{
       headers: {
           Authorization: `Bearer ${token}`
       },

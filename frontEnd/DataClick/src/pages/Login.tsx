@@ -40,7 +40,7 @@ const Login = () => {
           alignItems: "center"
         }}
       >
-        <img src="/logo.jpeg" alt="Logo" style={{ width: 120, marginBottom: 24 }} />
+        <img src="/logo.png" alt="Logo" style={{ width: 120, marginBottom: 24 }} />
 
         <Typography variant="h5" component="h1" gutterBottom>
           Login

@@ -13,7 +13,7 @@ const Formularios = () => {
         const formularioService = FormularioService();
         const fetchFormularios = async () => {
             try {
-                const data = await formularioService.getFormulariosByAdminId('67feb1578b63b62e1c0ccfe0');
+                const data = await formularioService.getFormulariosByAdminId();
                 setFormularios(data);
             } catch (error) {
                 console.error("Erro ao buscar formulários:", error);
