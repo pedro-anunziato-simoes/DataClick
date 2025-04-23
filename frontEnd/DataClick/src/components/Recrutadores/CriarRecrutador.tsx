@@ -34,16 +34,13 @@ const CriarRecrutador = () => {
             setLoading(false);
             return;
         }
-
-
-        try {
-            await recrutadorService.criarRecrutador({
-                nome,
-                telefone,
-                email,
-                formularios: [],
-                senha
-            });
+        try {await recrutadorService.criarRecrutador({
+            nome,
+            telefone,
+            email,
+            formularios: [],
+            senha
+        });
 
             setSucesso("Recrutador criado com sucesso!");
             navigate("/home")
