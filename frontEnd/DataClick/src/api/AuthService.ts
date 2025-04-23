@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://dataclick-backend-api.onrender.com";
+const API_URL = ""
 
 export interface RegisterRequest {
     nome: string;

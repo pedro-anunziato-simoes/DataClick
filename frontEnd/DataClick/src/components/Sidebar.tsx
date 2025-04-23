@@ -11,7 +11,7 @@ const Sidebar = () => {
 
   return (
     <div className="sidebar">
-      <img src="/logo.jpeg" alt="Logo" className="logo" />
+      <img src="/logo.png" alt="Logo" className="logo" />
 
       <nav>
         <ul>
@@ -19,7 +19,7 @@ const Sidebar = () => {
             <Link to="/home">Home</Link>
           </li>
           <li>
-            <Link to="/">Cadastrar Recrutador</Link>
+            <Link to="/cadastrarRecrutadores">Cadastrar Recrutador</Link>
           </li>
           <li>
             <Link to="/formularios">Formulários</Link>

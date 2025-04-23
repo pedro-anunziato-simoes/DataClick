@@ -1,7 +1,8 @@
 import axios from "axios";
 import { EntityCampo } from "../types/entityes/EntityCampo";
 
-const API_URL = "https://dataclick-backend-api.onrender.com";
+
+const API_URL = ""
 
 export const CampoService = () => {
     const token = localStorage.getItem("token")

@@ -3,73 +3,82 @@ import 'package:http/http.dart' as http;
 
 class ApiClient {
   final http.Client _httpClient;
-  static const String baseUrl = 'http://localhost:8080';
+  final String baseUrl;
   String? token;
 
-  ApiClient(this._httpClient);
+  ApiClient(
+    this._httpClient, {
+    this.baseUrl = 'http://localhost:8080',
+    this.token,
+  });
 
   Future<http.Response> get(
     String endpoint, {
     Map<String, String>? headers,
   }) async {
     final url = '$baseUrl$endpoint';
-    print('GET request: $url');
+    _logRequest('GET', url);
 
     try {
-      final response = await _httpClient.get(
-        Uri.parse(url),
-        headers: _buildHeaders(headers),
-      );
+      final response = await _httpClient
+          .get(Uri.parse(url), headers: _buildHeaders(headers))
+          .timeout(const Duration(seconds: 15));
+
       _logResponse(response);
       return response;
     } catch (e) {
-      print('Error in GET request: $e');
-      throw Exception('Falha na requisição: $e');
+      _logError('GET', url, e);
+      rethrow;
     }
   }
 
   Future<http.Response> post(
     String endpoint, {
     Map<String, String>? headers,
-    Object? body,
+    dynamic body,
   }) async {
     final url = '$baseUrl$endpoint';
-    print('POST request: $url');
-    print('Request body: ${jsonEncode(body)}');
+    _logRequest('POST', url, body: body);
 
     try {
-      final response = await _httpClient.post(
-        Uri.parse(url),
-        headers: _buildHeaders(headers),
-        body: jsonEncode(body),
-      );
+      final response = await _httpClient
+          .post(
+            Uri.parse(url),
+            headers: _buildHeaders(headers),
+            body: jsonEncode(body),
+          )
+          .timeout(const Duration(seconds: 15));
+
       _logResponse(response);
       return response;
     } catch (e) {
-      print('Error in POST request: $e');
-      throw Exception('Falha na requisição: $e');
+      _logError('POST', url, e);
+      rethrow;
     }
   }
 
   Future<http.Response> put(
     String endpoint, {
     Map<String, String>? headers,
-    Object? body,
+    dynamic body,
   }) async {
     final url = '$baseUrl$endpoint';
-    print('PUT request: $url');
+    _logRequest('PUT', url, body: body);
 
     try {
-      final response = await _httpClient.put(
-        Uri.parse(url),
-        headers: _buildHeaders(headers),
-        body: jsonEncode(body),
-      );
+      final response = await _httpClient
+          .put(
+            Uri.parse(url),
+            headers: _buildHeaders(headers),
+            body: jsonEncode(body),
+          )
+          .timeout(const Duration(seconds: 15));
+
       _logResponse(response);
       return response;
     } catch (e) {
-      print('Error in PUT request: $e');
-      throw Exception('Falha na requisição: $e');
+      _logError('PUT', url, e);
+      rethrow;
     }
   }
 
@@ -78,18 +87,18 @@ class ApiClient {
     Map<String, String>? headers,
   }) async {
     final url = '$baseUrl$endpoint';
-    print('DELETE request: $url');
+    _logRequest('DELETE', url);
 
     try {
-      final response = await _httpClient.delete(
-        Uri.parse(url),
-        headers: _buildHeaders(headers),
-      );
+      final response = await _httpClient
+          .delete(Uri.parse(url), headers: _buildHeaders(headers))
+          .timeout(const Duration(seconds: 15));
+
       _logResponse(response);
       return response;
     } catch (e) {
-      print('Error in DELETE request: $e');
-      throw Exception('Falha na requisição: $e');
+      _logError('DELETE', url, e);
+      rethrow;
     }
   }
 
@@ -97,15 +106,12 @@ class ApiClient {
     final headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
+      if (token != null) 'Authorization': 'Bearer $token',
     };
 
-    if (token != null) {
-      headers['Authorization'] = 'Bearer $token';
-    }
-
-    if (additionalHeaders != null) {
-      headers.addAll(additionalHeaders);
-    }
+    additionalHeaders?.forEach((key, value) {
+      headers[key] = value;
+    });
 
     return headers;
   }
@@ -114,10 +120,22 @@ class ApiClient {
     token = newToken;
   }
 
+  void _logRequest(String method, String url, {dynamic body}) {
+    print('$method request: $url');
+    if (body != null) {
+      print('Request body: ${jsonEncode(body)}');
+    }
+  }
+
   void _logResponse(http.Response response) {
     print('Response status: ${response.statusCode}');
+    final body = response.body;
     print(
-      'Response body: ${response.body.substring(0, response.body.length > 100 ? 100 : response.body.length)}...',
+      'Response body: ${body.length > 200 ? '${body.substring(0, 200)}...' : body}',
     );
+  }
+
+  void _logError(String method, String url, dynamic error) {
+    print('Error in $method request to $url: $error');
   }
 }
