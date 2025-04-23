@@ -208,7 +208,7 @@ const AlterarCamposForms = () => {
                 <Select
                   value={campo.tipo}
                   label="Tipo"
-                  onChange={(e) => handleTipoChange(index, e)}
+                  onChange={(e) => handleTipoChange(index,e)}
                 >
                   {tiposPermitidos.map((tipo) => (
                     <MenuItem key={tipo} value={tipo}>
