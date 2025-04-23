@@ -1,7 +1,6 @@
 import axios from "axios";
 import { EntityRecrutador } from "../types/entityes/EntityRecrutador";
-
-const API_URL = ""
+const API_URL = import.meta.env.VITE_API_URL;
 
 export const RecrutadorService = () => {
   const token = localStorage.getItem("token")

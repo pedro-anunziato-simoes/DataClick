@@ -19,7 +19,6 @@ import {
 
 const tiposPermitidos = ["TEXTO", "NUMERO", "DATA", "CHECKBOX", "EMAIL"];
 
-// ✅ Adicione a tipagem de props
 interface CamposViewFormProps {
   formId: string;
 }
@@ -44,7 +43,7 @@ const CamposViewForm: React.FC<CamposViewFormProps> = ({ formId }) => {
     if (formId) {
       fetchCampo();
     }
-  }, [formId]); // Reexecuta caso o formId mude
+  }, [formId]);
 
   const handleRespostaChange = (
     index: number,

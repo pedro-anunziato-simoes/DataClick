@@ -15,7 +15,7 @@ import {
   Radio,
   FormLabel
 } from "@mui/material";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import {useNavigate, useParams } from "react-router-dom";
 
 const tipos = [
   "TEXTO",

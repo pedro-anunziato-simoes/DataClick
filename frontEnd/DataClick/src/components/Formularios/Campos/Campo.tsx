@@ -16,8 +16,10 @@ import {
   CircularProgress,
   Grid
 } from "@mui/material";
+import { useParams } from "react-router-dom";
 
 const Campo = () => {
+  const { formId } = useParams<{ formId: string }>();
   const [campo, setCampo] = useState<EntityCampo | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -25,7 +27,7 @@ const Campo = () => {
     const campoService = CampoService();
     const fetchCampo = async () => {
       try {
-        const campoUnico: EntityCampo = await campoService.getCampoById("67f451cb8df2d24afb2e45d5");
+        const campoUnico: EntityCampo = await campoService.getCampoById(formId || '');
         setCampo(campoUnico);
       } catch (error) {
         console.error("Erro ao buscar campo:", error);
