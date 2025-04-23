@@ -43,7 +43,7 @@ const CriarRecrutador = () => {
                 email,
                 formularios: [],
                 senha
-      });
+            });
 
             setSucesso("Recrutador criado com sucesso!");
             navigate("/home")
@@ -58,8 +58,8 @@ const CriarRecrutador = () => {
     return (
         <Container maxWidth="sm">
             <IconButton onClick={() => navigate("/home")} sx={{ alignSelf: "flex-start", mb: 2 }}>
-          <ArrowBackIcon />
-        </IconButton>
+                <ArrowBackIcon />
+            </IconButton>
             <Paper elevation={3} sx={{ p: 4, mt: 6 }}>
                 <Typography variant="h5" gutterBottom>
                     Criar Recrutador

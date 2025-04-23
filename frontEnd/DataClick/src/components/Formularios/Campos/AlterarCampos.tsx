@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { CampoService } from "../../../api/CampoService";
 import { EntityCampo } from "../../../types/entityes/EntityCampo";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useNavigate, useParams } from "react-router-dom";
 
 import {
   Box,
@@ -15,9 +17,10 @@ import {
   Grid,
   Select,
   MenuItem,
-  InputLabel
+  InputLabel,
+  IconButton
 } from "@mui/material";
-import { useNavigate, useParams } from "react-router-dom";
+
 
 const tiposPermitidos = ["TEXTO", "NUMERO", "DATA", "CHECKBOX", "EMAIL"];
 
@@ -37,6 +40,7 @@ const AlterarCamposForms = () => {
         const campos: EntityCampo[] = await campoService.getCamposByFormId(formId);
         setCampos(campos);
       } catch (error) {
+        console.log(formId)
         console.error("Erro ao buscar campos:", error);
       } finally {
         setLoading(false);
@@ -177,16 +181,15 @@ const AlterarCamposForms = () => {
   if (!campos.length)
     return (
       <Typography variant="body1" align="center" mt={4}>
-        Nenhum campo encontrado
+        Esse formulario não possui campos
       </Typography>
     );
 
-  const HandleAdicionarCampo = (formId: string) => {
-    navigate(`/campos`);
-  };
-
   return (
     <Box p={3}>
+      <IconButton onClick={() => navigate("/formularios")} sx={{ alignSelf: "flex-start", mb: 2 }}>
+        <ArrowBackIcon />
+      </IconButton>
       <Grid container spacing={3}>
         {campos.map((campo, index) => (
           <Grid item xs={12} key={campo.campoId || index}>
@@ -238,12 +241,6 @@ const AlterarCamposForms = () => {
           </Grid>
         ))}
       </Grid>
-      <Button
-        variant="contained"
-        onClick={() => HandleAdicionarCampo('67f451a58df2d24afb2e45d4')}
-      >
-        Adicionar campo
-      </Button>
     </Box>
   );
 };

@@ -13,7 +13,7 @@ const Formularios = () => {
         const formularioService = FormularioService();
         const fetchFormularios = async () => {
             try {
-                const data = await formularioService.getFormulariosByAdminId('67feb1578b63b62e1c0ccfe0');
+                const data = await formularioService.getFormulariosByAdminId();
                 setFormularios(data);
             } catch (error) {
                 console.error("Erro ao buscar formulários:", error);
@@ -33,18 +33,15 @@ const Formularios = () => {
 
     return (
         <div className="formularios-container">
-                <IconButton onClick={() => navigate(-1)} sx={{ alignSelf: "flex-start", mb: 2 }}>
-          <ArrowBackIcon />
-        </IconButton>
+            <IconButton onClick={() => navigate("/home")} sx={{ alignSelf: "flex-start", mb: 2 }}>
+                <ArrowBackIcon />
+            </IconButton>
             {formularios.map((formulario) => (
                 <form key={formulario.id} className="formulario-item">
                     <h2>{formulario.titulo}</h2>
                     <CamposViewForm formId={formulario.id} />
-                    <button
-                        type="button"
-                        onClick={() => handleEditarForms(formulario.id)}
-                    >
-                        Editar Formulário
+                    <button type="button" onClick={() => handleEditarForms(formulario.id)}>
+                        Editar campos
                     </button>
                     <hr />
                 </form>
