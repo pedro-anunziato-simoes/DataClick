@@ -31,13 +31,13 @@ public class ControllerFormulario {
     @PostMapping("/alterar/{formId}")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "altera formulario", description = "")
-    public void alterarFormulario(@RequestBody FormularioUpdateDTO dto, @PathVariable String formId,@AuthenticationPrincipal UserDetails userDetails){
+    public ResponseEntity<EntityFormulario> alterarFormulario(@RequestBody FormularioUpdateDTO dto, @PathVariable String formId,@AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            System.out.println("Acesso negado: usuário não é ADMIN");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         serviceFormulario.alterarFormulario(dto,formId);
+        return ResponseEntity.ok(serviceFormulario.bucarFormPorId(formId));
     }
     //Adm
     @PostMapping("/add")

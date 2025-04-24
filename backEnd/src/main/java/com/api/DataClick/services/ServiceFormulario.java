@@ -62,9 +62,9 @@ public class ServiceFormulario {
         return admin.getFormularios();
     }
 
-    public void alterarFormulario(FormularioUpdateDTO dto, String id){
+    public EntityFormulario alterarFormulario(FormularioUpdateDTO dto, String id){
         EntityFormulario form = repositoryFormulario.findById(id).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.FORM_NAO_ENCONTRADO));
         form.setTituloForm(dto.getTitulo());
-        repositoryFormulario.save(form);
+        return repositoryFormulario.save(form);
     }
 }
