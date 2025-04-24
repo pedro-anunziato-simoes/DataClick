@@ -1,5 +1,6 @@
 package com.api.DataClick.services;
 
+import com.api.DataClick.DTO.FormularioUpdateDTO;
 import com.api.DataClick.entities.EntityAdministrador;
 import com.api.DataClick.entities.EntityFormulario;
 import com.api.DataClick.entities.EntityRecrutador;
@@ -42,10 +43,6 @@ public class ServiceFormulario {
         return formulario;
     }
 
-    public List<EntityFormulario> listarFormularios(){
-        return repositoryFormulario.findAll();
-    }
-
     public void removerFormulario(String formId){
         EntityFormulario form = repositoryFormulario.findById(formId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.FORM_NAO_ENCONTRADO));
         String adminId = form.getAdminId();
@@ -63,5 +60,11 @@ public class ServiceFormulario {
     public List<EntityFormulario> buscarFormPorAdminId(String adminId){
         EntityAdministrador admin = repositoryAdministrador.findById(adminId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.ADM_NAO_ENCONTRADO));
         return admin.getFormularios();
+    }
+
+    public void alterarFormulario(FormularioUpdateDTO dto, String id){
+        EntityFormulario form = repositoryFormulario.findById(id).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.FORM_NAO_ENCONTRADO));
+        form.setTituloForm(dto.getTitulo());
+        repositoryFormulario.save(form);
     }
 }

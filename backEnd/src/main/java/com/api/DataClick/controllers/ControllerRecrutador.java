@@ -42,14 +42,14 @@ public class ControllerRecrutador {
     @DeleteMapping("/remover/{recrutadorId}")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Remover recrutador", description = "remove um recrutador pelo id do adminitrador e pelo id do recrutador que deseja ser excluido")
-    public ResponseEntity<Void> removerRecrutador(@PathVariable String id,   @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<Void> removerRecrutador(@PathVariable String recrutadorId,   @AuthenticationPrincipal UserDetails userDetails) {
 
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             System.out.println("Acesso negado: usuário não é ADMIN");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        serviceRecrutador.removerRecrutador(id);
+        serviceRecrutador.removerRecrutador(recrutadorId);
         return ResponseEntity.noContent().build();
     }
     //Adm
@@ -96,9 +96,6 @@ public class ControllerRecrutador {
     public ResponseEntity<EntityRecrutador> criarRecrutador(
             @RequestBody @Valid RegisterRecrutadorDTO recrutadorDTO,
             @AuthenticationPrincipal UserDetails userDetails) {
-
-        System.out.println("Authorities do usuário: " + userDetails.getAuthorities());
-
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             System.out.println("Acesso negado: usuário não é ADMIN");

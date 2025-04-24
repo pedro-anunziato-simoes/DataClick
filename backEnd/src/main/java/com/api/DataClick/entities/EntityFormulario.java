@@ -28,4 +28,7 @@ public class EntityFormulario {
         return formId;
     }
 
+    public void setTituloForm(String titulo) {
+        this.titulo = titulo;
+    }
 }
