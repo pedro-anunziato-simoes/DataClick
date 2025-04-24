@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import '../api_client.dart';
 import '../endpoints.dart';
 import '../models/administrador.dart';
@@ -12,13 +11,32 @@ class AdministradorService {
   Future<Administrador> criarAdministrador(Administrador administrador) async {
     final response = await _apiClient.post(
       Endpoints.administradores,
-      body: administrador.toJson(),
+      body: json.encode(administrador.toJson()),
     );
-    return Administrador.fromJson(json.decode(response.body));
+
+    if (response.statusCode == 201) {
+      return Administrador.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Falha ao criar administrador: ${response.statusCode}');
+    }
   }
 
   Future<Administrador> obterPorId(String id) async {
     final response = await _apiClient.get('${Endpoints.administradores}/$id');
-    return Administrador.fromJson(json.decode(response.body));
+
+    if (response.statusCode == 200) {
+      return Administrador.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Falha ao obter administrador: ${response.statusCode}');
+    }
+  }
+
+  Future<void> removerAdministrador(String id) async {
+    final response = await _apiClient.delete(
+      Endpoints.removerAdministrador(id),
+    );
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Falha ao remover administrador: ${response.statusCode}');
+    }
   }
 }

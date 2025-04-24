@@ -1,92 +1,170 @@
-import 'package:flutter/foundation.dart';
-import 'package:mobile/api/services/administrador_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/material.dart';
+import 'package:mobile/api/models/administrador.dart';
+import 'package:mobile/api/services/auth_service.dart';
+import 'package:mobile/api/services/api_exception.dart';
 
-class AuthViewModel extends ChangeNotifier {
-  final AdministradorService _adminService;
+class AuthViewModel with ChangeNotifier {
+  final AuthService _authService;
+  bool _isLoading = false;
+  String? _errorMessage;
+  Administrador? _currentUser;
 
-  String? _adminId;
-  bool _isAuthenticated = false;
+  AuthViewModel(this._authService);
 
-  AuthViewModel(this._adminService);
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+  Administrador? get currentUser => _currentUser;
+  bool get isAuthenticated => _authService.isAuthenticated();
 
-  String? get adminId => _adminId;
-  bool get isAuthenticated => _isAuthenticated;
+  Future<bool> login(String email, String password) async {
+    try {
+      _startLoading();
+      _clearError();
+      print('[AuthViewModel] Iniciando login para $email');
 
-  // Definir adminId manualmente (principal método que será usado)
-  void setAdminId(String id) {
-    _adminId = id;
-    _isAuthenticated = true;
-    _saveToPrefs(); // Salva nas preferências para persistência
-    notifyListeners();
+      final success = await _authService.login(email, password);
+
+      if (!success) {
+        _setError('Credenciais inválidas ou serviço indisponível');
+        return false;
+      }
+
+      await _loadCurrentUser();
+
+      if (_currentUser == null) {
+        _setError('Falha ao carregar dados do usuário');
+        return false;
+      }
+
+      print(
+        '[AuthViewModel] Login realizado com sucesso para ${_currentUser?.email}',
+      );
+      return true;
+    } on ApiException catch (e) {
+      _setError(e.message);
+      print('[AuthViewModel] Erro de API: ${e.message}');
+      return false;
+    } catch (e) {
+      _setError('Ocorreu um erro inesperado durante o login');
+      print('[AuthViewModel] Erro inesperado: $e');
+      return false;
+    } finally {
+      _stopLoading();
+    }
   }
 
-  // Método para salvar o ID nas preferências compartilhadas
-  Future<void> _saveToPrefs() async {
+  Future<bool> register({
+    required String nome,
+    required String email,
+    required String telefone,
+    required String cnpj,
+    required String senha,
+  }) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      if (_adminId != null) {
-        await prefs.setString('admin_id', _adminId!);
-        await prefs.setBool('is_authenticated', true);
+      _startLoading();
+      _clearError();
+      print('[AuthViewModel] Iniciando registro para $email');
+
+      await _authService.register(
+        nome: nome,
+        email: email,
+        telefone: telefone,
+        cnpj: cnpj,
+        senha: senha,
+      );
+
+      print('[AuthViewModel] Registro realizado com sucesso');
+      return true;
+    } on ApiException catch (e) {
+      _setError(e.message);
+      print('[AuthViewModel] Erro de API: ${e.message}');
+      return false;
+    } catch (e) {
+      _setError('Ocorreu um erro inesperado durante o registro');
+      print('[AuthViewModel] Erro inesperado: $e');
+      return false;
+    } finally {
+      _stopLoading();
+    }
+  }
+
+  Future<void> _loadCurrentUser() async {
+    try {
+      _currentUser = await _authService.getCurrentUser();
+      notifyListeners();
+
+      if (_currentUser != null) {
+        print('[AuthViewModel] Usuário carregado: ${_currentUser?.email}');
       } else {
-        await prefs.remove('admin_id');
-        await prefs.setBool('is_authenticated', false);
+        print('[AuthViewModel] Nenhum usuário autenticado encontrado');
+        await _authService.logout();
       }
     } catch (e) {
-      // Apenas log, não afeta a funcionalidade principal
-      print('Erro ao salvar credenciais: $e');
+      print('[AuthViewModel] Erro ao carregar usuário: $e');
+      await _authService.logout();
+      _currentUser = null;
+      notifyListeners();
+      throw ('Falha ao carregar dados do usuário');
     }
   }
 
-  // Carrega o estado de autenticação das preferências
-  Future<bool> loadAuthState() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final savedId = prefs.getString('admin_id');
-      final savedAuth = prefs.getBool('is_authenticated') ?? false;
-
-      if (savedId != null && savedAuth) {
-        _adminId = savedId;
-        _isAuthenticated = true;
-        notifyListeners();
-        return true;
-      }
-    } catch (e) {
-      print('Erro ao carregar estado de autenticação: $e');
-    }
-    return false;
-  }
-
-  // Método de autenticação - deve ser implementado conforme sua API
-  // Este é um exemplo genérico, substitua pela implementação real
-  Future<bool> authenticate(String email, String senha) async {
-    try {
-      // Implementação fictícia - substitua pelo método real do seu serviço
-      // Por exemplo: await _adminService.login(email, senha)
-
-      // Para teste ou implementação temporária:
-      // Simula um login bem-sucedido para fins de desenvolvimento
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      // Exemplo: se for um email de administrador válido
-      if (email.contains('@admin')) {
-        final mockedId = 'admin-${DateTime.now().millisecondsSinceEpoch}';
-        setAdminId(mockedId);
-        return true;
-      }
-
-      return false;
-    } catch (e) {
-      print('Erro na autenticação: $e');
-      return false;
-    }
-  }
-
-  // Logout
   Future<void> logout() async {
-    _adminId = null;
-    _isAuthenticated = false;
-    await _saveToPrefs();
+    try {
+      _startLoading();
+      print('[AuthViewModel] Iniciando logout');
+
+      await _authService.logout();
+      _currentUser = null;
+      _clearError();
+
+      print('[AuthViewModel] Logout realizado com sucesso');
+    } catch (e) {
+      _setError('Falha ao realizar logout');
+      print('[AuthViewModel] Erro no logout: $e');
+      rethrow;
+    } finally {
+      _stopLoading();
+    }
+  }
+
+  Future<void> checkAuthStatus() async {
+    try {
+      if (isAuthenticated) {
+        print('[AuthViewModel] Verificando status de autenticação');
+        await _loadCurrentUser();
+      }
+    } catch (e) {
+      print('[AuthViewModel] Erro ao verificar status de autenticação: $e');
+    }
+  }
+
+  void _startLoading() {
+    if (!_isLoading) {
+      _isLoading = true;
+      notifyListeners();
+      print('[AuthViewModel] Loading iniciado');
+    }
+  }
+
+  void _stopLoading() {
+    if (_isLoading) {
+      _isLoading = false;
+      notifyListeners();
+      print('[AuthViewModel] Loading finalizado');
+    }
+  }
+
+  void _setError(String message) {
+    _errorMessage = message;
     notifyListeners();
+    print('[AuthViewModel] Erro definido: $message');
+  }
+
+  void _clearError() {
+    if (_errorMessage != null) {
+      _errorMessage = null;
+      notifyListeners();
+      print('[AuthViewModel] Erro limpo');
+    }
   }
 }

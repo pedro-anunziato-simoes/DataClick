@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/api/models/campo.dart';
-import 'package:mobile/api/models/formulario.dart';
-import 'package:mobile/api/models/resposta.dart';
-import 'package:mobile/api/services/formulario_service.dart';
+import '../api/models/campo.dart';
+import '../api/models/formulario.dart';
+import '../api/models/resposta.dart';
+import '../api/services/formulario_service.dart';
 
 class CreateFormScreen extends StatefulWidget {
-  final String adminId;
   final Formulario? formularioExistente;
   final FormularioService formularioService;
 
   const CreateFormScreen({
     super.key,
-    required this.adminId,
     this.formularioExistente,
     required this.formularioService,
   });
@@ -66,12 +64,14 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
           resposta: Resposta(
             respostaId: '',
             tipo: _tipoCampoSelecionado,
-            valor:
-                _tipoCampoSelecionado == 'SELECT' ||
-                        _tipoCampoSelecionado == 'CHECKBOX'
-                    ? _opcoes
-                    : '',
+            valor: '',
           ),
+          isObrigatorio: _campoObrigatorio,
+          opcoes:
+              _tipoCampoSelecionado == 'SELECT' ||
+                      _tipoCampoSelecionado == 'CHECKBOX'
+                  ? _opcoes
+                  : null,
         ),
       );
 
@@ -105,21 +105,19 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
       return;
     }
 
-    if (!mounted) return;
     setState(() => _isLoading = true);
 
     try {
       if (widget.formularioExistente != null) {
-        await widget.formularioService.criarFormulario(
-          widget.adminId,
-          _tituloController.text,
-          _campos,
+        await widget.formularioService.atualizarFormulario(
+          formId: widget.formularioExistente!.id,
+          titulo: _tituloController.text,
+          campos: _campos,
         );
       } else {
         await widget.formularioService.criarFormulario(
-          widget.adminId,
-          _tituloController.text,
-          _campos,
+          titulo: _tituloController.text,
+          campos: _campos,
         );
       }
 
@@ -128,7 +126,6 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
         const SnackBar(content: Text('Formulário salvo com sucesso!')),
       );
 
-      if (!mounted) return;
       Navigator.pop(context);
     } catch (e) {
       if (!mounted) return;
@@ -136,23 +133,21 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
         SnackBar(content: Text('Erro ao salvar formulário: ${e.toString()}')),
       );
     } finally {
-      if (!mounted) return;
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF26A69A),
       appBar: AppBar(
         title: Text(
           widget.formularioExistente != null
               ? 'Editar Formulário'
               : 'Criar Formulário',
         ),
-        backgroundColor: const Color(0xFF26A69A),
-        centerTitle: true,
       ),
       body:
           _isLoading
@@ -167,9 +162,6 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
                         controller: _tituloController,
                         decoration: const InputDecoration(
                           labelText: 'Título do Formulário',
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -184,9 +176,6 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
                       const SizedBox(height: 20),
                       ElevatedButton(
                         onPressed: _salvarFormulario,
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(double.infinity, 50),
-                        ),
                         child: const Text('Salvar Formulário'),
                       ),
                     ],
@@ -210,12 +199,7 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _campoTituloController,
-              decoration: const InputDecoration(
-                labelText: 'Título do Campo',
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(),
-              ),
+              decoration: const InputDecoration(labelText: 'Título do Campo'),
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
@@ -230,12 +214,7 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
                   _tipoCampoSelecionado = value!;
                 });
               },
-              decoration: const InputDecoration(
-                labelText: 'Tipo de Campo',
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(),
-              ),
+              decoration: const InputDecoration(labelText: 'Tipo de Campo'),
             ),
             if (_tipoCampoSelecionado == 'SELECT' ||
                 _tipoCampoSelecionado == 'CHECKBOX')
@@ -270,12 +249,7 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
             Expanded(
               child: TextFormField(
                 controller: _opcaoController,
-                decoration: const InputDecoration(
-                  labelText: 'Adicionar Opção',
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(labelText: 'Adicionar Opção'),
               ),
             ),
             IconButton(icon: const Icon(Icons.add), onPressed: _adicionarOpcao),
