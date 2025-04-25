@@ -8,9 +8,7 @@ import {
   Select,
   InputLabel,
   FormControl,
-  Button,
-  FormControlLabel,
-  Checkbox,
+  Button
 } from "@mui/material";
 import {useNavigate, useParams } from "react-router-dom";
 
