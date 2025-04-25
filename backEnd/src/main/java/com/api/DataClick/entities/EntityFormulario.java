@@ -31,4 +31,8 @@ public class EntityFormulario {
     public void setTituloForm(String titulo) {
         this.titulo = titulo;
     }
+
+    public List<EntityCampo> getCampos() {
+        return campos;
+    }
 }
