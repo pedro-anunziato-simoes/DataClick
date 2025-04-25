@@ -11,6 +11,7 @@ import {
   Button
 } from "@mui/material";
 import {useNavigate, useParams } from "react-router-dom";
+import { CampoCreateDTO } from "../../../types/entityes/DTO/CampoCreateDTO";
 
 const tipos = [
   "TEXTO",
@@ -24,7 +25,7 @@ const tipos = [
 const CriarCampo = () => {
   const { formId } = useParams<{ formId: string }>();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState<EntityCampo>({
+  const [formData, setFormData] = useState<CampoCreateDTO>({
     titulo: "",
     tipo: "",
     resposta: { tipo: "" },

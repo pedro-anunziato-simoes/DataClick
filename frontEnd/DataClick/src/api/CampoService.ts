@@ -1,5 +1,6 @@
 import axios from "axios";
 import { EntityCampo } from "../types/entityes/EntityCampo";
+import { CampoCreateDTO } from "../types/entityes/DTO/CampoCreateDTO";
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const CampoService = () => {
@@ -40,7 +41,7 @@ export const CampoService = () => {
         return response.data;
     }
 
-    async function adicionarCampo(formId: string, campo: EntityCampo): Promise<EntityCampo> {
+    async function adicionarCampo(formId: string, campo: CampoCreateDTO): Promise<EntityCampo> {
         const response = await axios.post(`${API_URL}/campos/add/${formId}`, campo,{
             headers: {
                 Authorization: `Bearer ${token}`
