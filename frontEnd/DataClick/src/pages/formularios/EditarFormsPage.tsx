@@ -1,11 +1,11 @@
-import CriarCampo from "../../components/Formularios/Campos/CriarCampo";
+import EditarFormulario from "../../components/Formularios/EditarFormulario";
 import Sidebar from "../../components/Sidebar";
 
 const EditarFormPage = () => {  
     return (
       <div>
-        <h1>Criando campos</h1>
-        <CriarCampo />
+        <h1>Editando formulário</h1>
+        < EditarFormulario/>
         <Sidebar />
       </div>
     );

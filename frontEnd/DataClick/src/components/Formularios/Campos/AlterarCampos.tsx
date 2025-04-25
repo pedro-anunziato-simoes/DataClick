@@ -40,7 +40,6 @@ const AlterarCamposForms = () => {
         const campos: EntityCampo[] = await campoService.getCamposByFormId(formId);
         setCampos(campos);
       } catch (error) {
-        console.log(formId)
         console.error("Erro ao buscar campos:", error);
       } finally {
         setLoading(false);
@@ -97,7 +96,7 @@ const AlterarCamposForms = () => {
 
   const handleSalvarCampo = async (campoId: string, tipo: string, titulo: string, index: number) => {
     const campoService = CampoService();
-
+    navigate("/formularios")
     try {
       await campoService.alterarCampo(campoId, tipo, titulo);
       alert("Campo salvo com sucesso!");

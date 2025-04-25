@@ -2,55 +2,142 @@ import { useEffect, useState } from "react";
 import { FormularioService } from "../../api/FormularioService";
 import { useNavigate } from "react-router-dom";
 import CamposViewForm from "./Campos/CamposViewForm";
-import { IconButton } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Paper,
+  Button,
+  CircularProgress,
+  Stack,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogActions,
+} from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const Formularios = () => {
-    const [formularios, setFormularios] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
-    useEffect(() => {
-        const formularioService = FormularioService();
-        const fetchFormularios = async () => {
-            try {
-                const data = await formularioService.getFormulariosByAdminId();
-                setFormularios(data);
-            } catch (error) {
-                console.error("Erro ao buscar formulários:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
+  const [formularios, setFormularios] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const formularioService = FormularioService();
+  useEffect(() => {
+    buscarFormularios();
+  }, []);
 
-        fetchFormularios();
-    }, []);
+  const buscarFormularios = async () => {
+    try {
+      setLoading(true);
+      const data = await formularioService.getFormularios();
+      setFormularios(data);
+    } catch (error) {
+      console.error("Erro ao buscar formulários:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const handleEditarForms = (formId: string) => {
-        navigate(`/campos/${formId}`);
-    };
+  const handleEditarCampos = (formId: string) => {
+    navigate(`/campos/${formId}`);
+  };
 
-    if (loading) return <p>Carregando formulários...</p>;
+  const handleEditarFormulario = (formId: string) => {
+    navigate(`/editarFormulario/${formId}`);
+  };
 
+
+  const handleDelete = async () => {
+    if (!confirmDeleteId) return;
+    try {
+      await formularioService.removerForms(confirmDeleteId);
+      await buscarFormularios();
+    } catch (error) {
+      console.error("Erro ao excluir formulário:", error);
+    } finally {
+      setConfirmDeleteId(null);
+    }
+  };
+
+  if (loading) {
     return (
-        <div className="formularios-container">
-                <IconButton onClick={() => navigate(-1)} sx={{ alignSelf: "flex-start", mb: 2 }}>
+      <Box display="flex" justifyContent="center" mt={4}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  return (
+    <Box p={4}>
+      <Box display="flex" alignItems="center" mb={3}>
+        <IconButton onClick={() => navigate("/home")} sx={{ mr: 1 }}>
           <ArrowBackIcon />
         </IconButton>
-            {formularios.map((formulario) => (
-                <form key={formulario.id} className="formulario-item">
-                    <h2>{formulario.titulo}</h2>
-                    <CamposViewForm formId={formulario.id} />
-                    <button
-                        type="button"
-                        onClick={() => handleEditarForms(formulario.id)}
-                    >
-                        Editar Formulário
-                    </button>
-                    <hr />
-                </form>
-            ))}
-        </div>
-    );
+        <Typography variant="h5">Formulários Cadastrados</Typography>
+      </Box>
+
+      <Stack spacing={3}>
+        {formularios.map((formulario) => (
+          <Paper key={formulario.id} elevation={3} sx={{ p: 3 }}>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Typography variant="h6">{formulario.titulo}</Typography>
+              <IconButton
+                onClick={() => setConfirmDeleteId(formulario.id)}
+                color="error"
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Box>
+
+            <CamposViewForm formId={formulario.id} />
+
+            <Box mt={2}>
+              <Stack direction="row" spacing={2}>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={() => handleEditarCampos(formulario.id)}
+                >
+                  Editar Campos
+                </Button>
+
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => handleEditarFormulario(formulario.id)}
+                >
+                  Editar Formulário
+                </Button>
+              </Stack>
+            </Box>
+
+          </Paper>
+        ))}
+      </Stack>
+
+      <Box mt={4} textAlign="center">
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => navigate("/criarFormularios")}
+        >
+          Criar novo formulário
+        </Button>
+      </Box>
+      <Dialog open={!!confirmDeleteId} onClose={() => setConfirmDeleteId(null)}>
+        <DialogTitle>Deseja realmente excluir este formulário?</DialogTitle>
+        <DialogActions>
+          <Button onClick={() => setConfirmDeleteId(null)} color="inherit">
+            Cancelar
+          </Button>
+          <Button onClick={handleDelete} color="error">
+            Excluir
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
+  );
 };
 
 export default Formularios;
