@@ -98,7 +98,6 @@ const Register = () => {
         <TextField label="CNPJ" fullWidth value={cnpj} onChange={(e) => setCnpj(e.target.value)} />
         <TextField label="Senha" type="password" fullWidth value={senha} onChange={(e) => setSenha(e.target.value)} />
         <TextField label="Confirme a senha" type="password" fullWidth value={confirmarSenha} onChange={(e) => setConfirmarSenha(e.target.value)} />
-
         <Button variant="contained" color="primary" onClick={handleRegister}>
           Registrar
         </Button>
