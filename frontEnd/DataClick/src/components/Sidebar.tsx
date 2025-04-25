@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import "./Sidebar.css";
+import { Button } from "@mui/material";
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -28,9 +29,9 @@ const Sidebar = () => {
             <Link to="/support">Suporte</Link>
           </li>
           <li>
-            <button onClick={handleLogout}>
+            <Button onClick={handleLogout}>
               Logout
-            </button>
+            </Button>
           </li>
         </ul>
       </nav>

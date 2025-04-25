@@ -3,7 +3,8 @@ import { EntityCampo } from "../types/entityes/EntityCampo";
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const CampoService = () => {
-    const token = localStorage.getItem("token")
+    const token = localStorage.getItem("token");
+    
     async function getCamposByFormId(formid: string): Promise<EntityCampo[]> {
         const response = await axios.get(`${API_URL}/campos/findByFormId/${formid}`,{
             headers: {

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { CampoService } from "../../../api/CampoService";
-import { EntityCampo } from "../../../types/entityes/EntityCampo"; // Importe a interface EntityCampo
+import { EntityCampo } from "../../../types/entityes/EntityCampo";
 import {
   Box,
   TextField,
@@ -8,12 +8,7 @@ import {
   Select,
   InputLabel,
   FormControl,
-  Button,
-  FormControlLabel,
-  Checkbox,
-  RadioGroup,
-  Radio,
-  FormLabel
+  Button
 } from "@mui/material";
 import {useNavigate, useParams } from "react-router-dom";
 
@@ -44,97 +39,6 @@ const CriarCampo = () => {
         tipo: "",
       },
     });
-  };
-
-  const handleRespostaChange = (e: { target: { checked: any; value: any } }) => {
-    const value =
-      formData.tipo === "CHECKBOX" ? e.target.checked : e.target.value;
-
-    setFormData({
-      ...formData,
-      resposta: {
-        tipo: value,
-      },
-    });
-  };
-
-  const renderCampoResposta = () => {
-    const tipo = formData.tipo;
-
-    switch (tipo) {
-      case "TEXTO":
-        return (
-          <TextField
-            label="Resposta"
-            value={formData.resposta.tipo}
-            onChange={handleRespostaChange}
-            fullWidth
-            variant="outlined"
-          />
-        );
-      case "NUMERO":
-        return (
-          <TextField
-            type="number"
-            label="Resposta"
-            value={formData.resposta.tipo}
-            onChange={handleRespostaChange}
-            fullWidth
-            variant="outlined"
-          />
-        );
-      case "DATA":
-        return (
-          <TextField
-            type="date"
-            label="Resposta"
-            value={formData.resposta.tipo}
-            onChange={handleRespostaChange}
-            fullWidth
-            variant="outlined"
-            InputLabelProps={{ shrink: true }}
-          />
-        );
-      case "CHECKBOX":
-        return (
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={formData.resposta.tipo === true}
-                onChange={handleRespostaChange}
-              />
-            }
-            label="Marcar"
-          />
-        );
-      case "RADIO":
-        return (
-          <FormControl component="fieldset">
-            <FormLabel component="legend">Resposta</FormLabel>
-            <RadioGroup
-              value={formData.resposta.tipo}
-              onChange={handleRespostaChange}
-              row
-            >
-              <FormControlLabel value="sim" control={<Radio />} label="Sim" />
-              <FormControlLabel value="nao" control={<Radio />} label="Não" />
-            </RadioGroup>
-          </FormControl>
-        );
-      case "EMAIL":
-        return (
-          <TextField
-            type="email"
-            label="Resposta"
-            value={formData.resposta.tipo}
-            onChange={handleRespostaChange}
-            fullWidth
-            variant="outlined"
-          />
-        );
-      default:
-        return null;
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -182,11 +86,6 @@ const CriarCampo = () => {
             </MenuItem>
           ))}
         </Select>
-      </FormControl>
-
-      <FormControl disabled fullWidth margin="normal">
-        <InputLabel>Resposta</InputLabel>
-        {renderCampoResposta()}
       </FormControl>
 
       <Button type="submit" variant="contained" color="primary" fullWidth>
