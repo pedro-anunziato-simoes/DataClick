@@ -28,5 +28,4 @@ public class ServiceAdministrador {
     public void removerAdm(String admId){
         repositoryAdministrador.deleteById(admId);
     }
-
 }
