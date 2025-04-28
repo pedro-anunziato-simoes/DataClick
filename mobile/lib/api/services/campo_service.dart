@@ -18,10 +18,16 @@ class CampoService {
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         return data.map((json) => Campo.fromJson(json)).toList();
+      } else {
+        throw ApiException(
+          _getErrorMessage(response, 'buscar campos do formulário'),
+          response.statusCode,
+        );
       }
-      throw ApiException.fromResponse(response, 'buscar campos do formulário');
+    } on ApiException {
+      rethrow;
     } catch (e) {
-      throw ApiException.fromError(e, 'Erro ao buscar campos');
+      throw ApiException('Erro ao buscar campos: ${e.toString()}', 0);
     }
   }
 
@@ -34,66 +40,116 @@ class CampoService {
 
       if (response.statusCode == 200) {
         return Campo.fromJson(json.decode(response.body));
+      } else {
+        throw ApiException(
+          _getErrorMessage(response, 'buscar campo'),
+          response.statusCode,
+        );
       }
-      throw ApiException.fromResponse(response, 'buscar campo');
+    } on ApiException {
+      rethrow;
     } catch (e) {
-      throw ApiException.fromError(e, 'Erro ao buscar campo');
+      throw ApiException('Erro ao buscar campo: ${e.toString()}', 0);
     }
   }
 
-  Future<Campo> updateCampo({
+  Future<Campo> alterarCampo({
     required String campoId,
     required String tipo,
     required String titulo,
   }) async {
     try {
-      final response = await _apiClient.put(
-        '/campos/$campoId',
+      final response = await _apiClient.post(
+        '/campos/alterar/$campoId',
         body: json.encode({'tipo': tipo, 'titulo': titulo}),
         includeAuth: true,
       );
 
       if (response.statusCode == 200) {
         return Campo.fromJson(json.decode(response.body));
+      } else {
+        throw ApiException(
+          _getErrorMessage(response, 'atualizar campo'),
+          response.statusCode,
+        );
       }
-      throw ApiException.fromResponse(response, 'atualizar campo');
+    } on ApiException {
+      rethrow;
     } catch (e) {
-      throw ApiException.fromError(e, 'Erro ao atualizar campo');
+      throw ApiException('Erro ao atualizar campo: ${e.toString()}', 0);
     }
   }
 
-  Future<void> deleteCampo(String campoId) async {
+  Future<void> deletarCampo(String campoId) async {
     try {
       final response = await _apiClient.delete(
-        '/campos/$campoId',
+        '/campos/remover/$campoId',
         includeAuth: true,
       );
 
       if (response.statusCode != 200 && response.statusCode != 204) {
-        throw ApiException.fromResponse(response, 'remover campo');
+        throw ApiException(
+          _getErrorMessage(response, 'remover campo'),
+          response.statusCode,
+        );
       }
+    } on ApiException {
+      rethrow;
     } catch (e) {
-      throw ApiException.fromError(e, 'Erro ao remover campo');
+      throw ApiException('Erro ao remover campo: ${e.toString()}', 0);
     }
   }
 
-  Future<Campo> createCampo({
+  Future<Campo> adicionarCampo({
     required String formId,
     required Campo campo,
   }) async {
     try {
       final response = await _apiClient.post(
-        '/campos/$formId',
+        '/campos/add/$formId',
         body: json.encode(campo.toJson()),
         includeAuth: true,
       );
 
       if (response.statusCode == 201) {
         return Campo.fromJson(json.decode(response.body));
+      } else {
+        throw ApiException(
+          _getErrorMessage(response, 'adicionar campo'),
+          response.statusCode,
+        );
       }
-      throw ApiException.fromResponse(response, 'criar campo');
+    } on ApiException {
+      rethrow;
     } catch (e) {
-      throw ApiException.fromError(e, 'Erro ao criar campo');
+      throw ApiException('Erro ao adicionar campo: ${e.toString()}', 0);
+    }
+  }
+
+  String _getErrorMessage(dynamic response, String operation) {
+    try {
+      final responseBody = response is String ? response : response.body;
+      final decoded = json.decode(responseBody);
+
+      return decoded['message'] ??
+          decoded['error'] ??
+          decoded['error_description'] ??
+          'Falha ao $operation: Status ${response.statusCode}';
+    } catch (e) {
+      switch (response.statusCode) {
+        case 400:
+          return 'Requisição inválida ao $operation';
+        case 401:
+          return 'Não autorizado. Faça login novamente.';
+        case 403:
+          return 'Acesso negado. Permissões insuficientes para $operation';
+        case 404:
+          return 'Campo não encontrado';
+        case 500:
+          return 'Erro interno do servidor ao $operation';
+        default:
+          return 'Falha ao $operation: Status ${response.statusCode}';
+      }
     }
   }
 }
