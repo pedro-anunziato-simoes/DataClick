@@ -1,7 +1,10 @@
 package com.api.DataClick.entities;
 
 import com.api.DataClick.enums.UserRole;
+import com.api.DataClick.validations.Telefone;
 import jakarta.annotation.Generated;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,13 +29,15 @@ public abstract class Usuario implements UserDetails {
 
     @Id
     private String usuarioId;
-    @NotNull
+    @NotBlank(message = "Nome é obrigatório")
     private String nome;
-    @NotNull
+    @NotBlank(message = "Senha é obrigatória")
     private String senha;
-    @NotNull
+    @NotBlank(message = "Telefone é obrigatório")
+    @Telefone(message = "Telefone inválido")
     private String telefone;
-    @NotNull
+    @NotBlank(message = "Email é obrigatório")
+    @Email(message = "Email inválido")
     private String email;
 
     private UserRole role;

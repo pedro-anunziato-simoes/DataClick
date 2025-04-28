@@ -101,7 +101,7 @@ public class ControllerRecrutador {
             System.out.println("Acesso negado: usuário não é ADMIN");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-
+       
         Usuario admin = (Usuario) userDetails;
 
         String encryptedPassword = passwordEncoder.encode(recrutadorDTO.senha());
