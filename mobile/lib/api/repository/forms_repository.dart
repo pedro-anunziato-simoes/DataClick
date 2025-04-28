@@ -4,7 +4,6 @@ import '../models/campo.dart';
 
 abstract class IFormularioRepository {
   Future<List<Formulario>> listarMeusFormularios();
-  Future<List<Formulario>> listarTodosFormularios();
   Future<Formulario> obterFormularioPorId(String id);
   Future<Formulario> criarFormulario(String titulo, List<Campo> campos);
   Future<Formulario> atualizarFormulario(
@@ -19,11 +18,6 @@ class FormularioRepository implements IFormularioRepository {
   final FormularioService _formularioService;
 
   FormularioRepository(this._formularioService);
-
-  @override
-  Future<List<Formulario>> listarTodosFormularios() async {
-    return await _formularioService.listarTodosFormularios();
-  }
 
   @override
   Future<List<Formulario>> listarMeusFormularios() async {

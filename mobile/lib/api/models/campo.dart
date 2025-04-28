@@ -42,4 +42,24 @@ class Campo {
       'opcoes': opcoes,
     };
   }
+
+  Campo copyWith({
+    String? campoId,
+    String? titulo,
+    String? tipo,
+    Resposta? resposta,
+    bool? isObrigatorio,
+    String? descricao,
+    List<String>? opcoes,
+  }) {
+    return Campo(
+      campoId: campoId ?? this.campoId,
+      titulo: titulo ?? this.titulo,
+      tipo: tipo ?? this.tipo,
+      resposta: resposta ?? this.resposta,
+      isObrigatorio: isObrigatorio ?? this.isObrigatorio,
+      descricao: descricao ?? this.descricao,
+      opcoes: opcoes ?? this.opcoes,
+    );
+  }
 }

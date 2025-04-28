@@ -18,7 +18,7 @@ class FormularioService {
       }
 
       final response = await _apiClient.get(
-        '/formularios/id',
+        '/formularios/todos-formularios',
         includeAuth: true,
       );
 
@@ -35,30 +35,6 @@ class FormularioService {
       rethrow;
     } catch (e) {
       throw ApiException('Erro ao buscar formulários: ${e.toString()}', 0);
-    }
-  }
-
-  Future<List<Formulario>> listarTodosFormularios() async {
-    try {
-      if (!_authService.isAuthenticated()) {
-        throw ApiException('Sessão expirada. Faça login novamente.', 401);
-      }
-
-      final response = await _apiClient.get('/formularios', includeAuth: true);
-
-      if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        return data.map((json) => Formulario.fromJson(json)).toList();
-      } else {
-        throw ApiException(
-          _getErrorMessage(response, 'listar formulários'),
-          response.statusCode,
-        );
-      }
-    } on ApiException {
-      rethrow;
-    } catch (e) {
-      throw ApiException('Erro ao listar formulários: ${e.toString()}', 0);
     }
   }
 
@@ -102,7 +78,7 @@ class FormularioService {
       }
 
       final response = await _apiClient.post(
-        '/formularios',
+        '/formularios/add',
         body: {
           'titulo': titulo,
           'campos': campos.map((c) => c.toJson()).toList(),
@@ -135,8 +111,8 @@ class FormularioService {
         throw ApiException('Sessão expirada. Faça login novamente.', 401);
       }
 
-      final response = await _apiClient.put(
-        '/formularios/$formId',
+      final response = await _apiClient.post(
+        '/formularios/alterar/$formId',
         body: {
           'titulo': titulo,
           'campos': campos.map((c) => c.toJson()).toList(),
@@ -166,7 +142,7 @@ class FormularioService {
       }
 
       final response = await _apiClient.delete(
-        '/formularios/$id',
+        '/formularios/remove/$id',
         includeAuth: true,
       );
 

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../api/services/campo_service.dart';
 import '../api/models/campo.dart';
-import '../api/models/resposta.dart';
 
 class EditCampoScreen extends StatefulWidget {
   final Campo campo;
@@ -65,7 +64,7 @@ class _EditCampoScreenState extends State<EditCampoScreen> {
         );
 
         await widget.campoService.alterarCampo(
-          widget.campo.campoId,
+          campoId: widget.campo.campoId,
           tipo: _tipoCampo,
           titulo: _nomeController.text,
         );

@@ -10,6 +10,7 @@ class Administrador {
   final String senha;
   final List<Recrutador> recrutadores;
   final List<Formulario> formularios;
+  final bool isAdmin;
 
   Administrador({
     required this.usuarioId,
@@ -20,6 +21,7 @@ class Administrador {
     required this.senha,
     required this.recrutadores,
     required this.formularios,
+    this.isAdmin = true,
   });
 
   factory Administrador.fromJson(Map<String, dynamic> json) {

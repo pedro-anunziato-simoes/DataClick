@@ -3,15 +3,18 @@ import '../api/models/campo.dart';
 import '../api/models/formulario.dart';
 import '../api/models/resposta.dart';
 import '../api/services/formulario_service.dart';
+import '../api/services/campo_service.dart';
 
 class CreateFormScreen extends StatefulWidget {
   final Formulario? formularioExistente;
   final FormularioService formularioService;
+  final CampoService campoService;
 
   const CreateFormScreen({
     super.key,
     this.formularioExistente,
     required this.formularioService,
+    required this.campoService,
   });
 
   @override
@@ -62,7 +65,7 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
           titulo: _campoTituloController.text,
           tipo: _tipoCampoSelecionado,
           resposta: Resposta(
-            respostaId: '',
+            respostaId: '', // Added required respostaId
             tipo: _tipoCampoSelecionado,
             valor: '',
           ),
@@ -70,7 +73,7 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
           opcoes:
               _tipoCampoSelecionado == 'SELECT' ||
                       _tipoCampoSelecionado == 'CHECKBOX'
-                  ? _opcoes
+                  ? List.from(_opcoes)
                   : null,
         ),
       );
@@ -162,6 +165,7 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
                         controller: _tituloController,
                         decoration: const InputDecoration(
                           labelText: 'Título do Formulário',
+                          border: OutlineInputBorder(),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -176,6 +180,9 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
                       const SizedBox(height: 20),
                       ElevatedButton(
                         onPressed: _salvarFormulario,
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 50),
+                        ),
                         child: const Text('Salvar Formulário'),
                       ),
                     ],
@@ -199,35 +206,36 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _campoTituloController,
-              decoration: const InputDecoration(labelText: 'Título do Campo'),
+              decoration: const InputDecoration(
+                labelText: 'Título do Campo',
+                border: OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               value: _tipoCampoSelecionado,
+              decoration: const InputDecoration(
+                labelText: 'Tipo de Campo',
+                border: OutlineInputBorder(),
+              ),
               items: const [
                 DropdownMenuItem(value: 'TEXTO', child: Text('Texto')),
-                DropdownMenuItem(value: 'SELECT', child: Text('Seleção')),
+                DropdownMenuItem(value: 'NUMERO', child: Text('Número')),
+                DropdownMenuItem(value: 'DATA', child: Text('Data')),
                 DropdownMenuItem(value: 'CHECKBOX', child: Text('Checkbox')),
+                DropdownMenuItem(value: 'SELECT', child: Text('Seleção')),
               ],
-              onChanged: (value) {
-                setState(() {
-                  _tipoCampoSelecionado = value!;
-                });
-              },
-              decoration: const InputDecoration(labelText: 'Tipo de Campo'),
+              onChanged:
+                  (value) => setState(() => _tipoCampoSelecionado = value!),
             ),
             if (_tipoCampoSelecionado == 'SELECT' ||
                 _tipoCampoSelecionado == 'CHECKBOX')
               _buildOpcoesCampo(),
             const SizedBox(height: 16),
-            CheckboxListTile(
+            SwitchListTile(
               title: const Text('Campo Obrigatório'),
               value: _campoObrigatorio,
-              onChanged: (value) {
-                setState(() {
-                  _campoObrigatorio = value ?? false;
-                });
-              },
+              onChanged: (value) => setState(() => _campoObrigatorio = value!),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
@@ -249,7 +257,10 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
             Expanded(
               child: TextFormField(
                 controller: _opcaoController,
-                decoration: const InputDecoration(labelText: 'Adicionar Opção'),
+                decoration: const InputDecoration(
+                  labelText: 'Adicionar Opção',
+                  border: OutlineInputBorder(),
+                ),
               ),
             ),
             IconButton(icon: const Icon(Icons.add), onPressed: _adicionarOpcao),
@@ -265,11 +276,7 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
                   _opcoes.map((opcao) {
                     return Chip(
                       label: Text(opcao),
-                      onDeleted: () {
-                        setState(() {
-                          _opcoes.remove(opcao);
-                        });
-                      },
+                      onDeleted: () => setState(() => _opcoes.remove(opcao)),
                     );
                   }).toList(),
             ),

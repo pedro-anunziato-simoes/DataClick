@@ -185,7 +185,7 @@ class AuthService {
       }
 
       print('[AuthService] Dados de autenticação salvos com sucesso');
-      final displayLength = token.length < 248 ? token.length : 248;
+      final displayLength = token.length < 248 ? token.length : 300;
       print(
         '[AuthService] Token salvo: ${token.substring(0, displayLength)}... (tamanho total: ${token.length} caracteres)',
       );
