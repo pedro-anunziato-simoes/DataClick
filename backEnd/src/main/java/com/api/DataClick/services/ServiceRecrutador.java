@@ -84,4 +84,8 @@ public class ServiceRecrutador {
         return recrutador;
 
     }
+
+    public EntityRecrutador infoAdm(String recId){
+        return repositoryRecrutador.findById(recId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.REC_NAO_ENCONTRADO));
+    }
 }

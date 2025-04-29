@@ -1,6 +1,7 @@
 package com.api.DataClick.controllers;
 
 import com.api.DataClick.entities.EntityAdministrador;
+import com.api.DataClick.entities.Usuario;
 import com.api.DataClick.services.ServiceAdministrador;
 import com.api.DataClick.services.ServiceRecrutador;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,6 +41,21 @@ public class ControllerAdministrador {
         }
 
         serviceAdministrador.removerAdm(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/info")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Busca as informações do adminitrador", description = "Retorna a informações do adminitrador")
+    public ResponseEntity<EntityAdministrador> infoAdm(@AuthenticationPrincipal UserDetails userDetails){
+        if (userDetails.getAuthorities().stream()
+                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            System.out.println("Acesso negado: usuário não é ADMIN");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        Usuario usuarioLogado  = (Usuario) userDetails;
+        String adminId = usuarioLogado.getUsuarioId();
+        serviceAdministrador.infoAdm(adminId);
         return ResponseEntity.noContent().build();
     }
 }

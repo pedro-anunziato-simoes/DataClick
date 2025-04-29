@@ -1,6 +1,8 @@
 package com.api.DataClick.services;
 
 import com.api.DataClick.entities.EntityAdministrador;
+import com.api.DataClick.exeptions.ExeceptionsMensage;
+import com.api.DataClick.exeptions.ExeptionNaoEncontrado;
 import com.api.DataClick.repositories.RepositoryAdministrador;
 import com.api.DataClick.repositories.RepositoryRecrutador;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +28,10 @@ public class ServiceAdministrador {
     }
 
     public void removerAdm(String admId){
-        repositoryAdministrador.deleteById(admId);
+        repositoryAdministrador.deleteById(admId);}
+
+    public EntityAdministrador infoAdm(String admId){
+        return repositoryAdministrador.findById(admId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.ADM_NAO_ENCONTRADO));
     }
 
 }

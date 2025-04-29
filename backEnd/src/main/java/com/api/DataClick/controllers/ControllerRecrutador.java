@@ -2,6 +2,7 @@ package com.api.DataClick.controllers;
 
 import com.api.DataClick.DTO.RecrutadorUpdateDTO;
 import com.api.DataClick.DTO.RegisterRecrutadorDTO;
+import com.api.DataClick.entities.EntityAdministrador;
 import com.api.DataClick.entities.EntityRecrutador;
 import com.api.DataClick.entities.Usuario;
 import com.api.DataClick.enums.UserRole;
@@ -130,5 +131,15 @@ public class ControllerRecrutador {
         }
         EntityRecrutador recrutadorAtualizado = serviceRecrutador.alterarRecrutador(recrutadorId, dto);
         return ResponseEntity.ok(recrutadorAtualizado);
+    }
+
+    @GetMapping("/info")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Busca as informações do recrutador", description = "Retorna as informações do recrutador")
+    public ResponseEntity<EntityAdministrador> infoAdm(@AuthenticationPrincipal UserDetails userDetails){
+        Usuario usuarioLogado  = (Usuario) userDetails;
+        String recId = usuarioLogado.getUsuarioId();
+        serviceAdministrador.infoAdm(recId);
+        return ResponseEntity.noContent().build();
     }
 }
