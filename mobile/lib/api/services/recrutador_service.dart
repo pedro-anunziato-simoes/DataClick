@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import '../api_client.dart';
 import '../endpoints.dart';
 import '../models/recrutador.dart';
@@ -15,7 +16,7 @@ class RecrutadorService {
     try {
       final response = await _apiClient.post(
         Endpoints.criarRecrutador,
-        body: json.encode(recrutador.toJson()),
+        body: recrutador.toJson(),
       );
 
       if (response.statusCode == 201) {
@@ -47,9 +48,45 @@ class RecrutadorService {
     }
   }
 
+  Future<Recrutador> buscarPorId(String id) async {
+    try {
+      final response = await _apiClient.get('${Endpoints.recrutadores}/$id');
+
+      if (response.statusCode == 200) {
+        return Recrutador.fromJson(json.decode(response.body));
+      } else {
+        throw Exception('Falha ao buscar recrutador: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Erro ao buscar recrutador: ${e.toString()}');
+    }
+  }
+
+  Future<Recrutador> atualizarRecrutador(
+    String id,
+    Recrutador recrutador,
+  ) async {
+    try {
+      final response = await _apiClient.put(
+        '${Endpoints.recrutadores}/$id',
+        body: recrutador.toJson(),
+      );
+
+      if (response.statusCode == 200) {
+        return Recrutador.fromJson(json.decode(response.body));
+      } else {
+        throw Exception(
+          'Falha ao atualizar recrutador: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      throw Exception('Erro ao atualizar recrutador: ${e.toString()}');
+    }
+  }
+
   Future<void> removerRecrutador(String id) async {
     try {
-      final response = await _apiClient.delete(Endpoints.removerRecrutador(id));
+      final response = await _apiClient.delete('${Endpoints.recrutadores}/$id');
 
       if (response.statusCode != 200 && response.statusCode != 204) {
         throw Exception('Falha ao remover recrutador: ${response.statusCode}');

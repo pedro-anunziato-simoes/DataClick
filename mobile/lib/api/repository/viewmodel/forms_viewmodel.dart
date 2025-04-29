@@ -50,10 +50,9 @@ class FormViewModel extends ChangeNotifier {
       _formularios = const LoadingState();
       notifyListeners();
 
-      final result =
-          _isAdmin
-              ? await _repository.listarMeusFormularios()
-              : await _repository.listarTodosFormularios();
+      // Since we removed listarTodosFormularios(), we just use listarMeusFormularios()
+      // regardless of admin status, as the backend handles the filtering
+      final result = await _repository.listarMeusFormularios();
 
       _formularios = SuccessState(result);
       notifyListeners();
@@ -79,6 +78,10 @@ class FormViewModel extends ChangeNotifier {
 
   Future<void> criarFormulario(String titulo, List<Campo> campos) async {
     try {
+      if (!_isAdmin) {
+        throw Exception('Apenas administradores podem criar formulários');
+      }
+
       _formularioAtual = const LoadingState();
       notifyListeners();
 
@@ -98,6 +101,10 @@ class FormViewModel extends ChangeNotifier {
     List<Campo> campos,
   ) async {
     try {
+      if (!_isAdmin) {
+        throw Exception('Apenas administradores podem atualizar formulários');
+      }
+
       _formularioAtual = const LoadingState();
       notifyListeners();
 
@@ -117,6 +124,10 @@ class FormViewModel extends ChangeNotifier {
 
   Future<void> removerFormulario(String id) async {
     try {
+      if (!_isAdmin) {
+        throw Exception('Apenas administradores podem remover formulários');
+      }
+
       await _repository.removerFormulario(id);
       await carregarFormularios();
     } catch (e) {

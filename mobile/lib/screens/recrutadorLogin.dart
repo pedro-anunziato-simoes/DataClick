@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/api/repository/viewmodel/auth_viewmodel.dart';
-import 'recrutadorLogin.dart';
-import 'registerScreen.dart';
+import 'package:logging/logging.dart';
+import 'recrutadorRegisterScreen.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RecruiterLoginScreen extends StatefulWidget {
+  const RecruiterLoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RecruiterLoginScreen> createState() => _RecruiterLoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RecruiterLoginScreenState extends State<RecruiterLoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _senhaController = TextEditingController();
   bool _obscurePassword = true;
+  final Logger _logger = Logger('RecruiterLoginScreen');
 
   @override
   void dispose() {
@@ -24,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> _login() async {
+  Future<void> _loginRecruiter() async {
     FocusManager.instance.primaryFocus?.unfocus();
 
     if (!_formKey.currentState!.validate()) return;
@@ -32,26 +33,31 @@ class _LoginScreenState extends State<LoginScreen> {
     final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
 
     try {
-      final success = await authViewModel.login(
+      _logger.fine('Iniciando processo de login como recrutador');
+      final success = await authViewModel.loginRecruiter(
         _emailController.text.trim(),
         _senhaController.text.trim(),
       );
 
       if (success && mounted) {
-        Navigator.pushReplacementNamed(context, '/home');
+        _logger.fine('Navegando para dashboard de recrutador');
+        Navigator.pushReplacementNamed(context, '/recruiter/dashboard');
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(authViewModel.errorMessage ?? 'Erro no login'),
+            content: Text(
+              authViewModel.errorMessage ?? 'Erro no login como recrutador',
+            ),
             backgroundColor: Colors.red,
           ),
         );
       }
     } catch (e) {
+      _logger.severe('Erro no login: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Erro ao tentar fazer login'),
+            content: Text('Erro ao tentar fazer login como recrutador'),
             backgroundColor: Colors.red,
           ),
         );
@@ -59,18 +65,17 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void _navigateToRegister() {
+  void _navigateToRecruiterRegister() {
+    _logger.fine('Navegando para registro de recrutador');
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const RegisterScreen()),
+      MaterialPageRoute(builder: (context) => const RecruiterRegisterScreen()),
     );
   }
 
-  void _navigateToRecruiterLogin() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const RecruiterLoginScreen()),
-    );
+  void _navigateToUserLogin() {
+    _logger.fine('Retornando para login normal');
+    Navigator.pop(context);
   }
 
   @override
@@ -81,6 +86,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF26A69A),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: SafeArea(
         child: GestureDetector(
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -89,17 +102,17 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 40),
+                const SizedBox(height: 30),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(20.0),
                   child: Image.asset(
                     'assets/images/Logo DataClick.jpg',
-                    width: 150,
-                    height: 150,
+                    width: 120,
+                    height: 120,
                     fit: BoxFit.cover,
                   ),
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 30),
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -118,20 +131,26 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       children: [
                         const Text(
-                          'Bem-vindo',
+                          'Acesso de Recrutador',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF26A69A),
                           ),
                         ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Entre com suas credenciais de recrutador',
+                          style: TextStyle(fontSize: 14, color: Colors.grey),
+                          textAlign: TextAlign.center,
+                        ),
                         const SizedBox(height: 24),
                         TextFormField(
                           controller: _emailController,
                           decoration: InputDecoration(
-                            labelText: 'E-mail',
-                            hintText: 'Insira seu e-mail',
-                            prefixIcon: const Icon(Icons.email),
+                            labelText: 'E-mail do recrutador',
+                            hintText: 'Insira seu e-mail corporativo',
+                            prefixIcon: const Icon(Icons.business),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10.0),
                             ),
@@ -181,12 +200,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             if (value == null || value.isEmpty) {
                               return 'Por favor, insira sua senha';
                             }
-                            if (value.length < 6) {
-                              return 'A senha deve ter pelo menos 6 caracteres';
-                            }
                             return null;
                           },
-                          onFieldSubmitted: (_) => _login(),
+                          onFieldSubmitted: (_) => _loginRecruiter(),
                         ),
                         const SizedBox(height: 8),
                         Align(
@@ -202,7 +218,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         if (errorMessage != null) ...[
                           const SizedBox(height: 8),
                           Text(
-                            errorMessage!,
+                            errorMessage,
                             style: const TextStyle(
                               color: Colors.red,
                               fontSize: 14,
@@ -214,7 +230,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: isLoading ? null : _login,
+                            onPressed: isLoading ? null : _loginRecruiter,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF26A69A),
                               minimumSize: const Size(0, 45),
@@ -229,7 +245,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       color: Colors.white,
                                     )
                                     : const Text(
-                                      'Entrar',
+                                      'Entrar como Recrutador',
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
@@ -240,19 +256,19 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 16),
                         TextButton(
-                          onPressed: isLoading ? null : _navigateToRegister,
+                          onPressed:
+                              isLoading ? null : _navigateToRecruiterRegister,
                           child: const Text(
-                            'Criar uma conta',
+                            'Solicitar acesso como recrutador',
                             style: TextStyle(color: Color(0xFF26A69A)),
                           ),
                         ),
                         const SizedBox(height: 8),
                         TextButton(
-                          onPressed:
-                              isLoading ? null : _navigateToRecruiterLogin,
+                          onPressed: isLoading ? null : _navigateToUserLogin,
                           child: const Text(
-                            'Entrar como recrutador',
-                            style: TextStyle(color: Color(0xFF26A69A)),
+                            'Voltar para login normal',
+                            style: TextStyle(color: Colors.grey),
                           ),
                         ),
                       ],

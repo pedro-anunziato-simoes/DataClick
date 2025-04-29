@@ -26,6 +26,8 @@ class _EditCampoScreenState extends State<EditCampoScreen> {
   late String _tipoCampo;
   late bool _isRequired;
   bool _isLoading = false;
+  final List<String> _opcoes = [];
+  final TextEditingController _opcaoController = TextEditingController();
 
   @override
   void initState() {
@@ -36,13 +38,23 @@ class _EditCampoScreenState extends State<EditCampoScreen> {
     );
     _tipoCampo = widget.campo.tipo;
     _isRequired = widget.campo.isObrigatorio;
+    _opcoes.addAll(widget.campo.opcoes ?? []);
   }
 
   @override
   void dispose() {
     _nomeController.dispose();
     _descricaoController.dispose();
+    _opcaoController.dispose();
     super.dispose();
+  }
+
+  void _adicionarOpcao() {
+    if (_opcaoController.text.isEmpty) return;
+    setState(() {
+      _opcoes.add(_opcaoController.text);
+      _opcaoController.clear();
+    });
   }
 
   Future<void> _salvarCampo() async {
@@ -52,22 +64,16 @@ class _EditCampoScreenState extends State<EditCampoScreen> {
       });
 
       try {
-        final campoAtualizado = Campo(
+        final campoAtualizado = await widget.campoService.atualizarCampo(
           campoId: widget.campo.campoId,
           titulo: _nomeController.text,
           tipo: _tipoCampo,
-          resposta: widget.campo.resposta,
           isObrigatorio: _isRequired,
           descricao:
               _descricaoController.text.isNotEmpty
                   ? _descricaoController.text
                   : null,
-        );
-
-        await widget.campoService.alterarCampo(
-          widget.campo.campoId,
-          tipo: _tipoCampo,
-          titulo: _nomeController.text,
+          opcoes: _opcoes.isNotEmpty ? _opcoes : null,
         );
 
         if (!mounted) return;
@@ -108,6 +114,7 @@ class _EditCampoScreenState extends State<EditCampoScreen> {
                 decoration: const InputDecoration(
                   labelText: 'Nome do Campo',
                   hintText: 'Digite o nome do campo',
+                  border: OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -122,6 +129,7 @@ class _EditCampoScreenState extends State<EditCampoScreen> {
                 decoration: const InputDecoration(
                   labelText: 'Descrição',
                   hintText: 'Digite a descrição do campo (opcional)',
+                  border: OutlineInputBorder(),
                 ),
                 minLines: 2,
                 maxLines: 4,
@@ -129,7 +137,10 @@ class _EditCampoScreenState extends State<EditCampoScreen> {
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 value: _tipoCampo,
-                decoration: const InputDecoration(labelText: 'Tipo de Campo'),
+                decoration: const InputDecoration(
+                  labelText: 'Tipo de Campo',
+                  border: OutlineInputBorder(),
+                ),
                 items: const [
                   DropdownMenuItem(value: 'TEXTO', child: Text('Texto')),
                   DropdownMenuItem(value: 'NUMERO', child: Text('Número')),
@@ -143,6 +154,42 @@ class _EditCampoScreenState extends State<EditCampoScreen> {
                   });
                 },
               ),
+              if (_tipoCampo == 'SELECT' || _tipoCampo == 'CHECKBOX') ...[
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _opcaoController,
+                        decoration: const InputDecoration(
+                          labelText: 'Adicionar Opção',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.add),
+                      onPressed: _adicionarOpcao,
+                    ),
+                  ],
+                ),
+                if (_opcoes.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    children:
+                        _opcoes
+                            .map(
+                              (opcao) => Chip(
+                                label: Text(opcao),
+                                onDeleted:
+                                    () => setState(() => _opcoes.remove(opcao)),
+                              ),
+                            )
+                            .toList(),
+                  ),
+                ],
+              ],
               const SizedBox(height: 16),
               SwitchListTile(
                 title: const Text('Campo Obrigatório'),
@@ -156,6 +203,9 @@ class _EditCampoScreenState extends State<EditCampoScreen> {
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: _isLoading ? null : _salvarCampo,
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                ),
                 child:
                     _isLoading
                         ? const CircularProgressIndicator()

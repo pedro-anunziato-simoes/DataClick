@@ -17,16 +17,11 @@ class AuthService {
 
   Future<bool> login(String email, String senha) async {
     try {
-      print('[AuthService] Iniciando login para $email');
-
       final response = await _apiClient.post(
         Endpoints.login,
         body: {'email': email, 'senha': senha},
         includeAuth: false,
       );
-
-      print('[AuthService] Resposta recebida: ${response.statusCode}');
-      print('[AuthService] Corpo da resposta: ${response.body}');
 
       if (response.statusCode != 200) {
         throw ApiException(
@@ -46,40 +41,40 @@ class AuthService {
       await _saveAuthData(token, userData);
       _apiClient.setAuthToken(token);
 
-      print('[AuthService] Login realizado com sucesso');
       return true;
     } on ApiException {
       rethrow;
     } catch (e) {
-      print('[AuthService] Erro inesperado no login: $e');
       throw ApiException('Erro durante o processo de login', 0);
     }
   }
 
-  Future<void> register({
+  Future<bool> register({
     required String nome,
     required String email,
     required String telefone,
-    required String cnpj,
+    String? cnpj,
     required String senha,
+    String? empresa,
+    String? cargo,
   }) async {
     try {
-      print('[AuthService] Registrando novo usuário: $email');
+      final body = {
+        'nome': nome,
+        'email': email,
+        'telefone': telefone,
+        'senha': senha,
+      };
+
+      if (cnpj != null) body['cnpj'] = cnpj;
+      if (empresa != null) body['empresa'] = empresa;
+      if (cargo != null) body['cargo'] = cargo;
 
       final response = await _apiClient.post(
         Endpoints.register,
-        body: {
-          'nome': nome,
-          'email': email,
-          'telefone': telefone,
-          'cnpj': cnpj,
-          'senha': senha,
-        },
+        body: body,
         includeAuth: false,
       );
-
-      print('[AuthService] Resposta do registro: ${response.statusCode}');
-      print('[AuthService] Corpo da resposta: ${response.body}');
 
       if (response.statusCode != 201 && response.statusCode != 200) {
         throw ApiException(
@@ -88,33 +83,53 @@ class AuthService {
         );
       }
 
-      final loginSuccess = await login(email, senha);
-      if (!loginSuccess) {
-        throw ApiException(
-          'Registro concluído, mas falha no login automático',
-          0,
-        );
-      }
-
-      print('[AuthService] Registro e login realizados com sucesso');
+      return true;
     } on ApiException {
       rethrow;
     } catch (e) {
-      print('[AuthService] Erro inesperado no registro: $e');
       throw ApiException('Erro durante o processo de registro', 0);
     }
   }
 
-  String? _extractToken(Map<String, dynamic> responseData) {
-    final token = responseData['token'];
+  Future<bool> registerRecruiter({
+    required String nome,
+    required String email,
+    required String telefone,
+    required String senha,
+    required String empresa,
+    required String cargo,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        Endpoints.criarRecrutador,
+        body: {
+          'nome': nome,
+          'email': email,
+          'telefone': telefone,
+          'senha': senha,
+          'empresa': empresa,
+          'cargo': cargo,
+        },
+        includeAuth: false,
+      );
 
-    if (token != null && token is String) {
-      print('[AuthService] Token JWT extraído com sucesso');
-      return token;
+      if (response.statusCode != 201 && response.statusCode != 200) {
+        throw ApiException(
+          _getErrorMessage(response.body) ?? 'Falha no registro de recrutador',
+          response.statusCode,
+        );
+      }
+
+      return true;
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException('Erro durante o registro de recrutador', 0);
     }
+  }
 
-    print('[AuthService] Formato de token não reconhecido: $responseData');
-    return null;
+  String? _extractToken(Map<String, dynamic> responseData) {
+    return responseData['token'];
   }
 
   Map<String, dynamic> _extractUserData(Map<String, dynamic> responseData) {
@@ -139,7 +154,6 @@ class AuthService {
 
       return userData;
     } catch (e) {
-      print('[AuthService] Erro ao extrair dados do usuário: $e');
       return {};
     }
   }
@@ -155,7 +169,6 @@ class AuthService {
 
       return json.decode(decoded) as Map<String, dynamic>;
     } catch (e) {
-      print('[AuthService] Erro ao decodificar JWT: $e');
       return null;
     }
   }
@@ -183,16 +196,8 @@ class AuthService {
       if (userData.isNotEmpty) {
         _currentUser = Administrador.fromJson(userData);
       }
-
-      print('[AuthService] Dados de autenticação salvos com sucesso');
-      final displayLength = token.length < 248 ? token.length : 248;
-      print(
-        '[AuthService] Token salvo: ${token.substring(0, displayLength)}... (tamanho total: ${token.length} caracteres)',
-      );
-      print('[AuthService] Dados do usuário: $userData');
     } catch (e) {
       await _clearAuthData();
-      print('[AuthService] Erro ao salvar dados: $e');
       throw ApiException('Falha ao salvar dados de autenticação', 0);
     }
   }
@@ -203,9 +208,7 @@ class AuthService {
       await _prefs.remove(_authUserKey);
       _currentUser = null;
       _apiClient.setAuthToken(null);
-      print('[AuthService] Dados de autenticação removidos');
     } catch (e) {
-      print('[AuthService] Erro ao limpar dados: $e');
       throw ApiException('Falha ao limpar dados de autenticação', 0);
     }
   }
@@ -223,17 +226,14 @@ class AuthService {
       return null;
     } catch (e) {
       await _clearAuthData();
-      print('[AuthService] Erro ao carregar usuário: $e');
       return null;
     }
   }
 
   Future<void> logout() async {
     try {
-      print('[AuthService] Realizando logout');
       await _clearAuthData();
     } catch (e) {
-      print('[AuthService] Erro no logout: $e');
       throw ApiException('Falha durante o logout', 0);
     }
   }

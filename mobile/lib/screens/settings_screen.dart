@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../api/services/administrador_service.dart';
+import '../api/repository/viewmodel/auth_viewmodel.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -8,37 +9,62 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final administradorService = Provider.of<AdministradorService>(context);
+    final authViewModel = Provider.of<AuthViewModel>(context);
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF26A69A),
+      backgroundColor:
+          isDarkMode ? const Color(0xFF1A1A1A) : const Color(0xFF26A69A),
       appBar: AppBar(
-        title: const Text('Configurações'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
+        title: const Text('Configurações'),
       ),
       body: SafeArea(
         child: Column(
           children: [
+            const SizedBox(height: 16),
             Expanded(
               child: Container(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24.0,
+                  vertical: 24.0,
+                ),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: isDarkMode ? const Color(0xFF2A2A2A) : Colors.white,
                   borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(30),
+                    top: Radius.circular(30.0),
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      spreadRadius: 2,
+                    ),
+                  ],
                 ),
                 child: ListView(
+                  physics: const BouncingScrollPhysics(),
                   children: [
-                    _buildSettingsHeader(),
+                    _buildSettingsHeader(isDarkMode),
                     const SizedBox(height: 24),
-                    _buildProfileSection(context, administradorService),
+                    _buildProfileSection(
+                      context,
+                      administradorService,
+                      isDarkMode,
+                    ),
                     const SizedBox(height: 24),
-                    _buildAppSettingsSection(),
+                    _buildAppSettingsSection(isDarkMode),
                     const SizedBox(height: 24),
-                    _buildAccountActionsSection(context),
+                    _buildAccountActionsSection(
+                      context,
+                      isDarkMode,
+                      authViewModel,
+                    ),
                   ],
                 ),
               ),
@@ -49,17 +75,21 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSettingsHeader() {
+  Widget _buildSettingsHeader(bool isDarkMode) {
     return Column(
       children: [
-        Icon(Icons.settings, size: 40, color: const Color(0xFF26A69A)),
+        Icon(
+          Icons.settings,
+          size: 40,
+          color: isDarkMode ? Colors.white : const Color(0xFF26A69A),
+        ),
         const SizedBox(height: 8),
         Text(
           'Configurações',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: const Color(0xFF26A69A),
+            color: isDarkMode ? Colors.white : const Color(0xFF26A69A),
           ),
         ),
       ],
@@ -69,8 +99,13 @@ class SettingsScreen extends StatelessWidget {
   Widget _buildProfileSection(
     BuildContext context,
     AdministradorService service,
+    bool isDarkMode,
   ) {
-    return Card(
+    return Container(
+      decoration: BoxDecoration(
+        color: isDarkMode ? Colors.grey[800]! : Colors.grey[50]!,
+        borderRadius: BorderRadius.circular(15),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -81,29 +116,33 @@ class SettingsScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: const Color(0xFF26A69A),
+                color: isDarkMode ? Colors.white : const Color(0xFF26A69A),
               ),
             ),
             const SizedBox(height: 16),
-            ListTile(
-              leading: Icon(Icons.person, color: const Color(0xFF26A69A)),
-              title: const Text('Editar Perfil'),
-              trailing: const Icon(Icons.chevron_right),
+            _buildSettingsItem(
+              context,
+              icon: Icons.person,
+              title: 'Editar Perfil',
+              isDarkMode: isDarkMode,
               onTap: () => Navigator.pushNamed(context, '/profile'),
             ),
-            const Divider(),
-            ListTile(
-              leading: Icon(Icons.email, color: const Color(0xFF26A69A)),
-              title: const Text('Alterar Email'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => _showChangeEmailDialog(context),
+            _buildDivider(isDarkMode),
+            _buildSettingsItem(
+              context,
+              icon: Icons.email,
+              title: 'Alterar Email',
+              isDarkMode: isDarkMode,
+              onTap: () => _showChangeEmailDialog(context, isDarkMode),
             ),
-            const Divider(),
-            ListTile(
-              leading: Icon(Icons.lock, color: const Color(0xFF26A69A)),
-              title: const Text('Alterar Senha'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => _showChangePasswordDialog(context, service),
+            _buildDivider(isDarkMode),
+            _buildSettingsItem(
+              context,
+              icon: Icons.lock,
+              title: 'Alterar Senha',
+              isDarkMode: isDarkMode,
+              onTap:
+                  () => _showChangePasswordDialog(context, service, isDarkMode),
             ),
           ],
         ),
@@ -111,8 +150,12 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAppSettingsSection() {
-    return Card(
+  Widget _buildAppSettingsSection(bool isDarkMode) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isDarkMode ? Colors.grey[800]! : Colors.grey[50]!,
+        borderRadius: BorderRadius.circular(15),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -123,24 +166,26 @@ class SettingsScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: const Color(0xFF26A69A),
+                color: isDarkMode ? Colors.white : const Color(0xFF26A69A),
               ),
             ),
             const SizedBox(height: 16),
-            SwitchListTile(
-              title: const Text('Notificações'),
-              subtitle: const Text('Receber notificações importantes'),
+            _buildSwitchItem(
+              title: 'Notificações',
+              subtitle: 'Receber notificações importantes',
               value: true,
-              activeColor: const Color(0xFF26A69A),
+              isDarkMode: isDarkMode,
               onChanged: (value) {},
             ),
-            const Divider(),
-            SwitchListTile(
-              title: const Text('Tema Escuro'),
-              subtitle: const Text('Ativar modo escuro'),
-              value: false,
-              activeColor: const Color(0xFF26A69A),
-              onChanged: (value) {},
+            _buildDivider(isDarkMode),
+            _buildSwitchItem(
+              title: 'Tema Escuro',
+              subtitle: 'Ativar modo escuro',
+              value: isDarkMode,
+              isDarkMode: isDarkMode,
+              onChanged: (value) {
+                // Implement theme change logic here
+              },
             ),
           ],
         ),
@@ -148,8 +193,16 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAccountActionsSection(BuildContext context) {
-    return Card(
+  Widget _buildAccountActionsSection(
+    BuildContext context,
+    bool isDarkMode,
+    AuthViewModel authViewModel,
+  ) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isDarkMode ? Colors.grey[800]! : Colors.grey[50]!,
+        borderRadius: BorderRadius.circular(15),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -160,28 +213,33 @@ class SettingsScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: const Color(0xFF26A69A),
+                color: isDarkMode ? Colors.white : const Color(0xFF26A69A),
               ),
             ),
             const SizedBox(height: 16),
-            ListTile(
-              leading: Icon(Icons.help, color: const Color(0xFF26A69A)),
-              title: const Text('Ajuda e Suporte'),
-              trailing: const Icon(Icons.chevron_right),
+            _buildSettingsItem(
+              context,
+              icon: Icons.help,
+              title: 'Ajuda e Suporte',
+              isDarkMode: isDarkMode,
               onTap: () {},
             ),
-            const Divider(),
-            ListTile(
-              leading: Icon(Icons.privacy_tip, color: const Color(0xFF26A69A)),
-              title: const Text('Privacidade e Termos'),
-              trailing: const Icon(Icons.chevron_right),
+            _buildDivider(isDarkMode),
+            _buildSettingsItem(
+              context,
+              icon: Icons.privacy_tip,
+              title: 'Privacidade e Termos',
+              isDarkMode: isDarkMode,
               onTap: () {},
             ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.exit_to_app, color: Colors.red),
-              title: const Text('Sair', style: TextStyle(color: Colors.red)),
-              onTap: () => _confirmLogout(context),
+            _buildDivider(isDarkMode),
+            _buildSettingsItem(
+              context,
+              icon: Icons.exit_to_app,
+              title: 'Sair',
+              isDarkMode: isDarkMode,
+              isLogout: true,
+              onTap: () => _confirmLogout(context, authViewModel),
             ),
           ],
         ),
@@ -189,25 +247,112 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  void _showChangeEmailDialog(BuildContext context) {
+  Widget _buildSettingsItem(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required bool isDarkMode,
+    bool isLogout = false,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: isLogout ? Colors.red : const Color(0xFF26A69A),
+      ),
+      title: Text(
+        title,
+        style: TextStyle(
+          color:
+              isLogout
+                  ? Colors.red
+                  : (isDarkMode ? Colors.white : Colors.black87),
+        ),
+      ),
+      trailing:
+          isLogout
+              ? null
+              : Icon(
+                Icons.chevron_right,
+                color: isDarkMode ? Colors.grey[400]! : Colors.grey[600]!,
+              ),
+      onTap: onTap,
+    );
+  }
+
+  Widget _buildSwitchItem({
+    required String title,
+    required String subtitle,
+    required bool value,
+    required bool isDarkMode,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return SwitchListTile(
+      title: Text(
+        title,
+        style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: TextStyle(
+          color: isDarkMode ? Colors.grey[400]! : Colors.grey[600]!,
+        ),
+      ),
+      value: value,
+      activeColor: const Color(0xFF26A69A),
+      inactiveTrackColor: isDarkMode ? Colors.grey[600]! : Colors.grey[300]!,
+      onChanged: onChanged,
+    );
+  }
+
+  Widget _buildDivider(bool isDarkMode) {
+    return Divider(
+      color: isDarkMode ? Colors.grey[700]! : Colors.grey[200]!,
+      height: 1,
+    );
+  }
+
+  void _showChangeEmailDialog(BuildContext context, bool isDarkMode) {
+    final emailController = TextEditingController();
+
     showDialog(
       context: context,
       builder: (context) {
-        final emailController = TextEditingController();
         return AlertDialog(
-          title: const Text('Alterar Email'),
+          title: Text(
+            'Alterar Email',
+            style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+          ),
+          backgroundColor: isDarkMode ? const Color(0xFF2A2A2A) : Colors.white,
           content: TextField(
             controller: emailController,
-            decoration: const InputDecoration(
+            style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+            decoration: InputDecoration(
               labelText: 'Novo Email',
+              labelStyle: TextStyle(
+                color: isDarkMode ? Colors.grey[400]! : Colors.grey[600]!,
+              ),
               hintText: 'digite@seuemail.com',
+              hintStyle: TextStyle(
+                color: isDarkMode ? Colors.grey[500]! : Colors.grey[400]!,
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: isDarkMode ? Colors.grey[600]! : Colors.grey[300]!,
+                ),
+              ),
             ),
             keyboardType: TextInputType.emailAddress,
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar'),
+              child: Text(
+                'Cancelar',
+                style: TextStyle(
+                  color: isDarkMode ? Colors.white : Colors.black87,
+                ),
+              ),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -216,7 +361,11 @@ class SettingsScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Email alterado com sucesso!')),
+                  SnackBar(
+                    content: const Text('Email alterado com sucesso!'),
+                    backgroundColor:
+                        isDarkMode ? Colors.grey[800]! : Colors.white,
+                  ),
                 );
               },
               child: const Text('Salvar'),
@@ -230,6 +379,7 @@ class SettingsScreen extends StatelessWidget {
   Future<void> _showChangePasswordDialog(
     BuildContext context,
     AdministradorService service,
+    bool isDarkMode,
   ) async {
     final oldPasswordController = TextEditingController();
     final newPasswordController = TextEditingController();
@@ -238,19 +388,49 @@ class SettingsScreen extends StatelessWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Alterar Senha'),
+          title: Text(
+            'Alterar Senha',
+            style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+          ),
+          backgroundColor: isDarkMode ? const Color(0xFF2A2A2A) : Colors.white,
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: oldPasswordController,
-                decoration: const InputDecoration(labelText: 'Senha Atual'),
+                style: TextStyle(
+                  color: isDarkMode ? Colors.white : Colors.black87,
+                ),
+                decoration: InputDecoration(
+                  labelText: 'Senha Atual',
+                  labelStyle: TextStyle(
+                    color: isDarkMode ? Colors.grey[400]! : Colors.grey[600]!,
+                  ),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color: isDarkMode ? Colors.grey[600]! : Colors.grey[300]!,
+                    ),
+                  ),
+                ),
                 obscureText: true,
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: newPasswordController,
-                decoration: const InputDecoration(labelText: 'Nova Senha'),
+                style: TextStyle(
+                  color: isDarkMode ? Colors.white : Colors.black87,
+                ),
+                decoration: InputDecoration(
+                  labelText: 'Nova Senha',
+                  labelStyle: TextStyle(
+                    color: isDarkMode ? Colors.grey[400]! : Colors.grey[600]!,
+                  ),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color: isDarkMode ? Colors.grey[600]! : Colors.grey[300]!,
+                    ),
+                  ),
+                ),
                 obscureText: true,
               ),
             ],
@@ -258,7 +438,12 @@ class SettingsScreen extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar'),
+              child: Text(
+                'Cancelar',
+                style: TextStyle(
+                  color: isDarkMode ? Colors.white : Colors.black87,
+                ),
+              ),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -274,15 +459,21 @@ class SettingsScreen extends StatelessWidget {
                   if (context.mounted) {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Senha alterada com sucesso!'),
+                      SnackBar(
+                        content: const Text('Senha alterada com sucesso!'),
+                        backgroundColor:
+                            isDarkMode ? Colors.grey[800]! : Colors.white,
                       ),
                     );
                   }
                 } catch (e) {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Erro: ${e.toString()}')),
+                      SnackBar(
+                        content: Text('Erro: ${e.toString()}'),
+                        backgroundColor:
+                            isDarkMode ? Colors.grey[800]! : Colors.white,
+                      ),
                     );
                   }
                 }
@@ -295,21 +486,41 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  void _confirmLogout(BuildContext context) {
+  void _confirmLogout(BuildContext context, AuthViewModel authViewModel) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     showDialog(
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Sair'),
-            content: const Text('Deseja realmente sair do aplicativo?'),
+            title: Text(
+              'Sair',
+              style: TextStyle(
+                color: isDarkMode ? Colors.white : Colors.black87,
+              ),
+            ),
+            backgroundColor:
+                isDarkMode ? const Color(0xFF2A2A2A) : Colors.white,
+            content: Text(
+              'Deseja realmente sair do aplicativo?',
+              style: TextStyle(
+                color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
+              ),
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Cancelar'),
+                child: Text(
+                  'Cancelar',
+                  style: TextStyle(
+                    color: isDarkMode ? Colors.white : Colors.black87,
+                  ),
+                ),
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                 onPressed: () {
+                  authViewModel.logout();
                   Navigator.pop(context);
                   Navigator.pushReplacementNamed(context, '/login');
                 },

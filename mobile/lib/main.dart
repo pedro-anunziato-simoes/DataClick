@@ -62,7 +62,6 @@ List<SingleChildWidget> _buildProviders(
     ProxyProvider<ApiClient, AdministradorService>(
       update: (_, apiClient, __) => AdministradorService(apiClient),
     ),
-    // Corrigido para ProxyProvider2 para incluir AuthService como segundo argumento
     ProxyProvider2<ApiClient, AuthService, FormularioService>(
       update:
           (_, apiClient, authService, __) =>
@@ -120,6 +119,7 @@ class MyApp extends StatelessWidget {
                 (context) => CreateFormScreen(
                   formularioExistente: args?['formularioExistente'],
                   formularioService: context.read<FormularioService>(),
+                  campoService: context.read<CampoService>(),
                 ),
           );
         }

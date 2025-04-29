@@ -2,6 +2,7 @@ import 'resposta.dart';
 
 class Campo {
   final String campoId;
+  final String formId;
   final String titulo;
   final String tipo;
   final Resposta resposta;
@@ -11,6 +12,7 @@ class Campo {
 
   Campo({
     required this.campoId,
+    required this.formId,
     required this.titulo,
     required this.tipo,
     required this.resposta,
@@ -22,6 +24,7 @@ class Campo {
   factory Campo.fromJson(Map<String, dynamic> json) {
     return Campo(
       campoId: json['campoId'] ?? '',
+      formId: json['formId'] ?? '',
       titulo: json['titulo'] ?? '',
       tipo: json['tipo'] ?? 'TEXTO',
       resposta: Resposta.fromJson(json['resposta'] ?? {}),
@@ -34,12 +37,35 @@ class Campo {
   Map<String, dynamic> toJson() {
     return {
       'campoId': campoId,
+      'formId': formId,
       'titulo': titulo,
       'tipo': tipo,
       'resposta': resposta.toJson(),
       'isObrigatorio': isObrigatorio,
-      'descricao': descricao,
-      'opcoes': opcoes,
+      if (descricao != null) 'descricao': descricao,
+      if (opcoes != null) 'opcoes': opcoes,
     };
+  }
+
+  Campo copyWith({
+    String? campoId,
+    String? formId,
+    String? titulo,
+    String? tipo,
+    Resposta? resposta,
+    bool? isObrigatorio,
+    String? descricao,
+    List<String>? opcoes,
+  }) {
+    return Campo(
+      campoId: campoId ?? this.campoId,
+      formId: formId ?? this.formId,
+      titulo: titulo ?? this.titulo,
+      tipo: tipo ?? this.tipo,
+      resposta: resposta ?? this.resposta,
+      isObrigatorio: isObrigatorio ?? this.isObrigatorio,
+      descricao: descricao ?? this.descricao,
+      opcoes: opcoes ?? this.opcoes,
+    );
   }
 }
