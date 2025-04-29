@@ -85,7 +85,19 @@ public class ServiceRecrutador {
 
     }
 
-    public EntityRecrutador infoAdm(String recId){
+    public EntityRecrutador infoRec(String recId){
         return repositoryRecrutador.findById(recId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.REC_NAO_ENCONTRADO));
+    }
+
+    public void alterarEmail(String email,String recId){
+        EntityRecrutador rec = repositoryRecrutador.findById(recId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.REC_NAO_ENCONTRADO));
+        rec.setEmail(email);
+        repositoryRecrutador.save(rec);
+    }
+
+    public void alterarSenha(String senha,String recId){
+        EntityRecrutador rec = repositoryRecrutador.findById(recId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.REC_NAO_ENCONTRADO));
+        rec.setSenha(senha);
+        repositoryRecrutador.save(rec);
     }
 }

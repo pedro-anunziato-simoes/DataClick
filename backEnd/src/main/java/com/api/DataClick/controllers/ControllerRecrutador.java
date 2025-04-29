@@ -139,7 +139,27 @@ public class ControllerRecrutador {
     public ResponseEntity<EntityAdministrador> infoAdm(@AuthenticationPrincipal UserDetails userDetails){
         Usuario usuarioLogado  = (Usuario) userDetails;
         String recId = usuarioLogado.getUsuarioId();
-        serviceAdministrador.infoAdm(recId);
+        serviceRecrutador.infoRec(recId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/alterar/email")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Altera o e-amil do recrutador", description = "altera o e-mail do rec")
+    public void alterarEmail(@AuthenticationPrincipal UserDetails userDetails,@RequestBody String email){
+        Usuario usuarioLogado  = (Usuario) userDetails;
+        String recId = usuarioLogado.getUsuarioId();
+        serviceRecrutador.alterarEmail(email,recId);
+        ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/alterar/senha")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Altera a senha do recrutador", description = "altera a senha do rec")
+    public void alterarSenha(@AuthenticationPrincipal UserDetails userDetails,@RequestBody String senha){
+        Usuario usuarioLogado  = (Usuario) userDetails;
+        String recId = usuarioLogado.getUsuarioId();
+        serviceRecrutador.alterarSenha(senha,recId);
+        ResponseEntity.noContent().build();
     }
 }

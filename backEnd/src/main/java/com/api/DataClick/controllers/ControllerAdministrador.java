@@ -58,4 +58,28 @@ public class ControllerAdministrador {
         serviceAdministrador.infoAdm(adminId);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/alterar/email")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Altera o e-amil do administrador", description = "altera o e-mail do adm")
+    public void alterarEmail(@AuthenticationPrincipal UserDetails userDetails,@RequestBody String email){
+        userDetails.getAuthorities().stream()
+                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        Usuario usuarioLogado  = (Usuario) userDetails;
+        String adminId = usuarioLogado.getUsuarioId();
+        serviceAdministrador.alterarEmail(email,adminId);
+        ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/alterar/senha")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Altera a senha do administrador", description = "altera a senha do adm")
+    public void alterarSenha(@AuthenticationPrincipal UserDetails userDetails,@RequestBody String senha){
+        userDetails.getAuthorities().stream()
+                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        Usuario usuarioLogado  = (Usuario) userDetails;
+        String adminId = usuarioLogado.getUsuarioId();
+        serviceAdministrador.alterarSenha(senha,adminId);
+        ResponseEntity.noContent().build();
+    }
 }
