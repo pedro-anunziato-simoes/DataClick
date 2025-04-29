@@ -28,7 +28,14 @@ class _FormsScreenState extends State<FormsScreen> {
   @override
   void initState() {
     super.initState();
-    _refreshForms();
+    _loadForms();
+  }
+
+  Future<void> _loadForms() {
+    setState(() {
+      _formulariosFuture = _carregarFormularios();
+    });
+    return _formulariosFuture;
   }
 
   Future<List<Formulario>> _carregarFormularios() async {
@@ -39,15 +46,19 @@ class _FormsScreenState extends State<FormsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erro ao carregar formulários: ${e.toString()}'),
+            duration: const Duration(seconds: 3),
           ),
         );
       }
-      rethrow;
+      return [];
     }
   }
 
   Future<void> _refreshForms() async {
-    setState(() => _formulariosFuture = _carregarFormularios());
+    await _loadForms();
+    if (mounted) {
+      _refreshIndicatorKey.currentState?.show();
+    }
   }
 
   @override
@@ -95,7 +106,7 @@ class _FormsScreenState extends State<FormsScreen> {
               );
             }
 
-            final formularios = snapshot.data!;
+            final formularios = snapshot.data ?? [];
             if (formularios.isEmpty) {
               return Center(
                 child: Text(
@@ -176,7 +187,7 @@ class _FormsScreenState extends State<FormsScreen> {
   }
 
   Future<void> _navegarParaCriarFormulario() async {
-    await Navigator.push(
+    final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder:
@@ -186,11 +197,14 @@ class _FormsScreenState extends State<FormsScreen> {
             ),
       ),
     );
-    _refreshForms();
+
+    if (result == true && mounted) {
+      await _refreshForms();
+    }
   }
 
   Future<void> _editarFormulario(Formulario formulario) async {
-    await Navigator.push(
+    final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder:
@@ -201,7 +215,10 @@ class _FormsScreenState extends State<FormsScreen> {
             ),
       ),
     );
-    _refreshForms();
+
+    if (result == true && mounted) {
+      await _refreshForms();
+    }
   }
 
   void _confirmarExclusao(Formulario formulario) {
@@ -237,13 +254,19 @@ class _FormsScreenState extends State<FormsScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Formulário excluído com sucesso!')),
+        const SnackBar(
+          content: Text('Formulário excluído com sucesso!'),
+          duration: Duration(seconds: 2),
+        ),
       );
-      _refreshForms();
+      await _refreshForms();
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao excluir: ${e.toString()}')),
+        SnackBar(
+          content: Text('Erro ao excluir: ${e.toString()}'),
+          duration: const Duration(seconds: 3),
+        ),
       );
     }
   }
@@ -337,7 +360,7 @@ class _FormsScreenState extends State<FormsScreen> {
     );
 
     if (result == true && mounted) {
-      _refreshForms();
+      await _refreshForms();
     }
   }
 }

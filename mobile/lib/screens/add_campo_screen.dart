@@ -24,12 +24,23 @@ class _AddCampoScreenState extends State<AddCampoScreen> {
   String _tipoCampo = 'TEXTO';
   bool _isRequired = false;
   bool _isLoading = false;
+  final List<String> _opcoes = [];
+  final TextEditingController _opcaoController = TextEditingController();
 
   @override
   void dispose() {
     _nomeController.dispose();
     _descricaoController.dispose();
+    _opcaoController.dispose();
     super.dispose();
+  }
+
+  void _adicionarOpcao() {
+    if (_opcaoController.text.isEmpty) return;
+    setState(() {
+      _opcoes.add(_opcaoController.text);
+      _opcaoController.clear();
+    });
   }
 
   Future<void> _salvarCampo() async {
@@ -37,31 +48,21 @@ class _AddCampoScreenState extends State<AddCampoScreen> {
       setState(() => _isLoading = true);
 
       try {
-        final campo = Campo(
-          campoId: '',
+        final campo = await widget.campoService.criarCampo(
+          formId: widget.formId,
           titulo: _nomeController.text,
           tipo: _tipoCampo,
-          resposta: Resposta(
-            respostaId: '', // Added required parameter
-            tipo: _tipoCampo,
-            valor: '',
-          ),
           isObrigatorio: _isRequired,
           descricao:
               _descricaoController.text.isNotEmpty
                   ? _descricaoController.text
                   : null,
-        );
-
-        await widget.campoService.adicionarCampo(
-          // Changed to correct method name
-          formId: widget.formId,
-          campo: campo,
+          opcoes: _opcoes.isNotEmpty ? _opcoes : null,
         );
 
         if (!mounted) return;
 
-        Navigator.pop(context, true);
+        Navigator.pop(context, campo);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Campo adicionado com sucesso!')),
         );
@@ -121,6 +122,42 @@ class _AddCampoScreenState extends State<AddCampoScreen> {
                 ],
                 onChanged: (value) => setState(() => _tipoCampo = value!),
               ),
+              if (_tipoCampo == 'SELECT' || _tipoCampo == 'CHECKBOX') ...[
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _opcaoController,
+                        decoration: const InputDecoration(
+                          labelText: 'Adicionar Opção',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.add),
+                      onPressed: _adicionarOpcao,
+                    ),
+                  ],
+                ),
+                if (_opcoes.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    children:
+                        _opcoes
+                            .map(
+                              (opcao) => Chip(
+                                label: Text(opcao),
+                                onDeleted:
+                                    () => setState(() => _opcoes.remove(opcao)),
+                              ),
+                            )
+                            .toList(),
+                  ),
+                ],
+              ],
               const SizedBox(height: 16),
               SwitchListTile(
                 title: const Text('Campo Obrigatório'),

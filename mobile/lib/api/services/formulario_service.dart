@@ -18,7 +18,7 @@ class FormularioService {
       }
 
       final response = await _apiClient.get(
-        '/formularios/todos-formularios',
+        '/formularios/{id}',
         includeAuth: true,
       );
 

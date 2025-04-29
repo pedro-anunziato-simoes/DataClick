@@ -7,7 +7,7 @@ class Endpoints {
       '$administradores/$id/remover';
 
   static const String recrutadores = '/recrutadores';
-  static const String criarRecrutador = recrutadores;
+  static const String criarRecrutador = '/recrutadores';
   static String buscarRecrutador(String recrutadorId) =>
       '$recrutadores/$recrutadorId';
   static String listarRecrutadoresPorAdmin(String adminId) =>

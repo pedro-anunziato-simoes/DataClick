@@ -42,4 +42,22 @@ class Recrutador {
       'formularios': formularios.map((e) => e.toJson()).toList(),
     };
   }
+
+  Recrutador copyWith({
+    String? usuarioId,
+    String? nome,
+    String? telefone,
+    String? email,
+    String? adminId,
+    List<Formulario>? formularios,
+  }) {
+    return Recrutador(
+      usuarioId: usuarioId ?? this.usuarioId,
+      nome: nome ?? this.nome,
+      telefone: telefone ?? this.telefone,
+      email: email ?? this.email,
+      adminId: adminId ?? this.adminId,
+      formularios: formularios ?? this.formularios,
+    );
+  }
 }
