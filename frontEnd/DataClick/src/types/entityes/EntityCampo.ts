@@ -4,4 +4,5 @@ export interface EntityCampo {
     resposta: {
       tipo: string | number | boolean;
     };
+    campoId: string;
   }

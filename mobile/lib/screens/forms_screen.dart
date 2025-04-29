@@ -1,170 +1,168 @@
 import 'package:flutter/material.dart';
 import '../api/models/formulario.dart';
-import '../api/models/campo.dart';
 import '../api/services/formulario_service.dart';
 import '../api/services/campo_service.dart';
+import 'form_create_screen.dart';
+import 'add_campo_screen.dart';
 
 class FormsScreen extends StatefulWidget {
-  final String? adminId;
+  final bool isAdmin;
   final FormularioService formularioService;
   final CampoService campoService;
 
   const FormsScreen({
-    Key? key,
-    this.adminId,
+    super.key,
+    required this.isAdmin,
     required this.formularioService,
     required this.campoService,
-  }) : super(key: key);
+  });
 
   @override
   State<FormsScreen> createState() => _FormsScreenState();
 }
 
 class _FormsScreenState extends State<FormsScreen> {
-  List<Formulario> _formularios = [];
-  bool _isLoading = true;
-  String? _errorMessage;
+  late Future<List<Formulario>> _formulariosFuture;
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
-    _carregarFormularios();
+    _loadForms();
   }
 
-  Future<void> _carregarFormularios() async {
+  Future<void> _loadForms() {
     setState(() {
-      _isLoading = true;
-      _errorMessage = null;
+      _formulariosFuture = _carregarFormularios();
     });
+    return _formulariosFuture;
+  }
 
+  Future<List<Formulario>> _carregarFormularios() async {
     try {
-      final formularios =
-          widget.adminId != null
-              ? await widget.formularioService.listarFormulariosPorAdmin(
-                widget.adminId!,
-              )
-              : await widget.formularioService.listarTodosFormularios();
-
-      setState(() {
-        _formularios = formularios;
-        _isLoading = false;
-      });
+      return await widget.formularioService.getMeusFormularios();
     } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-        _isLoading = false;
-      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao carregar formulários: ${e.toString()}'),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+      return [];
     }
   }
 
-  Future<void> _adicionarCampoAFormulario(
-    String formId,
-    Campo novoCampo,
-  ) async {
-    try {
-      await widget.campoService.adicionarCampo(formId, novoCampo);
-      await _carregarFormularios();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Campo adicionado com sucesso!')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao adicionar campo: ${e.toString()}')),
-      );
+  Future<void> _refreshForms() async {
+    await _loadForms();
+    if (mounted) {
+      _refreshIndicatorKey.currentState?.show();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF26A69A),
       appBar: AppBar(
         title: const Text('Formulários'),
         actions: [
-          if (widget.adminId != null)
+          if (widget.isAdmin)
             IconButton(
               icon: const Icon(Icons.add),
-              onPressed: () => _navegarParaCriarFormulario(),
+              onPressed: _navegarParaCriarFormulario,
+              tooltip: 'Criar novo formulário',
             ),
         ],
       ),
-      body: _buildBody(),
-    );
-  }
+      body: RefreshIndicator(
+        key: _refreshIndicatorKey,
+        onRefresh: _refreshForms,
+        child: FutureBuilder<List<Formulario>>(
+          future: _formulariosFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-  Widget _buildBody() {
-    return RefreshIndicator(
-      onRefresh: _carregarFormularios,
-      child:
-          _isLoading
-              ? const Center(
-                child: CircularProgressIndicator(color: Colors.white),
-              )
-              : _errorMessage != null
-              ? _buildErrorWidget()
-              : _formularios.isEmpty
-              ? _buildEmptyWidget()
-              : _buildFormulariosList(),
-    );
-  }
+            if (snapshot.hasError) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Falha ao carregar formulários'),
+                    Text(
+                      snapshot.error.toString(),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: _refreshForms,
+                      child: const Text('Tentar novamente'),
+                    ),
+                  ],
+                ),
+              );
+            }
 
-  Widget _buildErrorWidget() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text(
-            'Falha ao carregar formulários',
-            style: TextStyle(color: Colors.white, fontSize: 16),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            _errorMessage!,
-            style: const TextStyle(color: Colors.white70),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: _carregarFormularios,
-            child: const Text('Tentar novamente'),
-          ),
-        ],
+            final formularios = snapshot.data ?? [];
+            if (formularios.isEmpty) {
+              return Center(
+                child: Text(
+                  widget.isAdmin
+                      ? 'Nenhum formulário criado'
+                      : 'Nenhum formulário disponível',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              );
+            }
+
+            return ListView.builder(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              itemCount: formularios.length,
+              itemBuilder:
+                  (context, index) => _buildFormularioCard(formularios[index]),
+            );
+          },
+        ),
       ),
     );
   }
 
-  Widget _buildEmptyWidget() {
-    return Center(
-      child: Text(
-        widget.adminId != null
-            ? 'Nenhum formulário criado ainda'
-            : 'Nenhum formulário encontrado',
-        style: const TextStyle(color: Colors.white, fontSize: 16),
-      ),
-    );
-  }
-
-  Widget _buildFormulariosList() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(8),
-      itemCount: _formularios.length,
-      itemBuilder: (context, index) {
-        final formulario = _formularios[index];
-        return Card(
-          elevation: 2,
-          margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
-          child: ListTile(
-            title: Text(formulario.titulo),
-            subtitle: Text(
-              'Campos: ${formulario.campos.length}',
-              style: const TextStyle(fontSize: 12),
-            ),
-            trailing:
-                widget.adminId != null ? _buildAdminActions(formulario) : null,
-            onTap: () => _mostrarDetalhesFormulario(formulario),
+  Widget _buildFormularioCard(Formulario formulario) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: InkWell(
+        onTap: () => _mostrarDetalhesFormulario(formulario),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      formulario.titulo,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  if (widget.isAdmin) _buildAdminActions(formulario),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '${formulario.campos.length} ${formulario.campos.length == 1 ? 'campo' : 'campos'}',
+                style: TextStyle(color: Colors.grey[600]),
+              ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -173,31 +171,54 @@ class _FormsScreenState extends State<FormsScreen> {
       mainAxisSize: MainAxisSize.min,
       children: [
         IconButton(
-          icon: const Icon(Icons.edit, color: Colors.blue),
+          icon: const Icon(Icons.edit, size: 20),
+          color: Colors.blue,
           onPressed: () => _editarFormulario(formulario),
+          tooltip: 'Editar formulário',
         ),
         IconButton(
-          icon: const Icon(Icons.delete, color: Colors.red),
+          icon: const Icon(Icons.delete, size: 20),
+          color: Colors.red,
           onPressed: () => _confirmarExclusao(formulario),
+          tooltip: 'Excluir formulário',
         ),
       ],
     );
   }
 
-  void _navegarParaCriarFormulario() {
-    Navigator.pushNamed(
+  Future<void> _navegarParaCriarFormulario() async {
+    final result = await Navigator.push<bool>(
       context,
-      '/create-form',
-      arguments: {'adminId': widget.adminId},
-    ).then((_) => _carregarFormularios());
+      MaterialPageRoute(
+        builder:
+            (context) => CreateFormScreen(
+              formularioService: widget.formularioService,
+              campoService: widget.campoService,
+            ),
+      ),
+    );
+
+    if (result == true && mounted) {
+      await _refreshForms();
+    }
   }
 
-  void _editarFormulario(Formulario formulario) {
-    Navigator.pushNamed(
+  Future<void> _editarFormulario(Formulario formulario) async {
+    final result = await Navigator.push<bool>(
       context,
-      '/create-form',
-      arguments: {'adminId': widget.adminId, 'formularioExistente': formulario},
-    ).then((_) => _carregarFormularios());
+      MaterialPageRoute(
+        builder:
+            (context) => CreateFormScreen(
+              formularioExistente: formulario,
+              formularioService: widget.formularioService,
+              campoService: widget.campoService,
+            ),
+      ),
+    );
+
+    if (result == true && mounted) {
+      await _refreshForms();
+    }
   }
 
   void _confirmarExclusao(Formulario formulario) {
@@ -205,17 +226,18 @@ class _FormsScreenState extends State<FormsScreen> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Excluir Formulário'),
-            content: Text(
-              'Tem certeza que deseja excluir "${formulario.titulo}"?',
-            ),
+            title: const Text('Confirmar exclusão'),
+            content: Text('Excluir "${formulario.titulo}" permanentemente?'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: const Text('Cancelar'),
               ),
               TextButton(
-                onPressed: () => _excluirFormulario(formulario),
+                onPressed: () {
+                  Navigator.pop(context);
+                  _excluirFormulario(formulario);
+                },
                 child: const Text(
                   'Excluir',
                   style: TextStyle(color: Colors.red),
@@ -227,16 +249,24 @@ class _FormsScreenState extends State<FormsScreen> {
   }
 
   Future<void> _excluirFormulario(Formulario formulario) async {
-    Navigator.pop(context);
     try {
       await widget.formularioService.removerFormulario(formulario.id);
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Formulário excluído com sucesso!')),
+        const SnackBar(
+          content: Text('Formulário excluído com sucesso!'),
+          duration: Duration(seconds: 2),
+        ),
       );
-      _carregarFormularios();
+      await _refreshForms();
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao excluir: ${e.toString()}')),
+        SnackBar(
+          content: Text('Erro ao excluir: ${e.toString()}'),
+          duration: const Duration(seconds: 3),
+        ),
       );
     }
   }
@@ -247,22 +277,66 @@ class _FormsScreenState extends State<FormsScreen> {
       isScrollControlled: true,
       builder: (context) {
         return DraggableScrollableSheet(
-          initialChildSize: 0.6,
-          minChildSize: 0.4,
-          maxChildSize: 0.9,
           expand: false,
+          initialChildSize: 0.5,
+          maxChildSize: 0.9,
+          minChildSize: 0.25,
           builder: (context, scrollController) {
-            return SingleChildScrollView(
-              controller: scrollController,
+            return Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildDragHandle(),
-                  _buildFormularioHeader(formulario),
-                  const Divider(height: 24),
-                  _buildCamposList(formulario),
-                  if (widget.adminId != null) _buildAddCampoButton(formulario),
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  Text(
+                    formulario.titulo,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Campos:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Expanded(
+                    child: ListView.builder(
+                      controller: scrollController,
+                      itemCount: formulario.campos.length,
+                      itemBuilder: (context, index) {
+                        final campo = formulario.campos[index];
+                        return Card(
+                          margin: const EdgeInsets.symmetric(vertical: 4),
+                          child: ListTile(
+                            title: Text(campo.titulo),
+                            subtitle: Text('Tipo: ${campo.tipo}'),
+                            dense: true,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  if (widget.isAdmin)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.add),
+                        label: const Text('Adicionar Campo'),
+                        onPressed: () => _adicionarNovoCampo(formulario),
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 48),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             );
@@ -272,131 +346,21 @@ class _FormsScreenState extends State<FormsScreen> {
     );
   }
 
-  Widget _buildDragHandle() {
-    return Center(
-      child: Container(
-        width: 40,
-        height: 5,
-        decoration: BoxDecoration(
-          color: Colors.grey[300],
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFormularioHeader(Formulario formulario) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 16),
-        Text(
-          formulario.titulo,
-          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          'ID: ${formulario.id}',
-          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCamposList(Formulario formulario) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Campos do Formulário',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-        ),
-        const SizedBox(height: 8),
-        formulario.campos.isEmpty
-            ? const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text('Nenhum campo encontrado'),
-            )
-            : ListView.separated(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              itemCount: formulario.campos.length,
-              separatorBuilder: (context, index) => const Divider(height: 1),
-              itemBuilder: (context, index) {
-                final campo = formulario.campos[index];
-                return ListTile(
-                  title: Text(campo.titulo),
-                  subtitle: Text('Tipo: ${campo.tipo}'),
-                  trailing: Icon(
-                    _getIconForFieldType(campo.tipo),
-                    color: const Color(0xFF26A69A),
-                  ),
-                  onTap: () => _editarCampo(campo, formulario.id),
-                );
-              },
+  Future<void> _adicionarNovoCampo(Formulario formulario) async {
+    Navigator.pop(context);
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) => AddCampoScreen(
+              formId: formulario.id,
+              campoService: widget.campoService,
             ),
-      ],
-    );
-  }
-
-  Widget _buildAddCampoButton(Formulario formulario) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: ElevatedButton(
-        onPressed: () => _adicionarNovoCampo(formulario.id),
-        child: const Text('Adicionar Campo'),
       ),
     );
-  }
 
-  Future<void> _adicionarNovoCampo(String formId) async {
-    final novoCampo = await Navigator.pushNamed(
-      context,
-      '/add-campo',
-      arguments: {'formId': formId},
-    );
-
-    if (novoCampo != null && novoCampo is Campo) {
-      await _adicionarCampoAFormulario(formId, novoCampo);
-    }
-  }
-
-  Future<void> _editarCampo(Campo campo, String formId) async {
-    final campoEditado = await Navigator.pushNamed(
-      context,
-      '/edit-campo',
-      arguments: {'campo': campo, 'formId': formId},
-    );
-
-    if (campoEditado != null && campoEditado is Campo) {
-      try {
-        await widget.campoService.alterarCampo(
-          campo.campoId,
-          tipo: campoEditado.tipo,
-          status: campoEditado.resposta.valor,
-        );
-        await _carregarFormularios();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Campo atualizado com sucesso!')),
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao atualizar campo: ${e.toString()}')),
-        );
-      }
-    }
-  }
-
-  IconData _getIconForFieldType(String tipo) {
-    switch (tipo) {
-      case 'TEXTO':
-        return Icons.text_fields;
-      case 'SELECT':
-        return Icons.list;
-      case 'CHECKBOX':
-        return Icons.check_box;
-      default:
-        return Icons.help_outline;
+    if (result == true && mounted) {
+      await _refreshForms();
     }
   }
 }

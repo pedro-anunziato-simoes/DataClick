@@ -16,8 +16,10 @@ import {
   CircularProgress,
   Grid
 } from "@mui/material";
+import { useParams } from "react-router-dom";
 
 const Campo = () => {
+  const { formId } = useParams<{ formId: string }>();
   const [campo, setCampo] = useState<EntityCampo | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -25,7 +27,7 @@ const Campo = () => {
     const campoService = CampoService();
     const fetchCampo = async () => {
       try {
-        const campoUnico: EntityCampo = await campoService.getCampoById("67f451cb8df2d24afb2e45d5");
+        const campoUnico: EntityCampo = await campoService.getCampoById(formId || '');
         setCampo(campoUnico);
       } catch (error) {
         console.error("Erro ao buscar campo:", error);
@@ -55,64 +57,6 @@ const Campo = () => {
     });
   };
 
-  const renderCampoResposta = (campo: EntityCampo) => {
-    const tipo = campo.tipo;
-
-    switch (tipo) {
-      case "TEXTO":
-      case "NUMERO":
-      case "DATA":
-      case "EMAIL":
-        return (
-          <TextField
-            fullWidth
-            type={tipo === "NUMERO" ? "number" : tipo.toLowerCase()}
-            label={campo.titulo}
-            variant="outlined"
-            value={
-              typeof campo.resposta?.tipo === "boolean"
-                ? campo.resposta.tipo
-                  ? "true"
-                  : "false"
-                : campo.resposta?.tipo || ""
-            }
-            onChange={handleRespostaChange}
-          />
-        );
-
-      case "CHECKBOX":
-        return (
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={campo.resposta?.tipo === true}
-                onChange={handleRespostaChange}
-              />
-            }
-            label="Marcar"
-          />
-        );
-
-      case "RADIO":
-        return (
-          <FormControl component="fieldset">
-            <FormLabel component="legend">{campo.titulo}</FormLabel>
-            <RadioGroup
-              row
-              value={campo.resposta?.tipo || ""}
-              onChange={handleRespostaChange}
-            >
-              <FormControlLabel value="sim" control={<Radio />} label="Sim" />
-              <FormControlLabel value="nao" control={<Radio />} label="Não" />
-            </RadioGroup>
-          </FormControl>
-        );
-
-      default:
-        return <Typography color="error">Tipo de campo não suportado</Typography>;
-    }
-  };
-
   if (loading)
     return (
       <Box display="flex" justifyContent="center" mt={4}>
@@ -130,18 +74,16 @@ const Campo = () => {
   return (
     <Box p={3}>
       <form>
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <Paper elevation={2} style={{ padding: 16 }}>
-              <Typography variant="h6" gutterBottom>
-                {campo.titulo}
-              </Typography>
-              {renderCampoResposta(campo)}
-            </Paper>
-          </Grid>
-        </Grid>
+        <Box display="flex" flexDirection="column" gap={3}>
+          <Paper elevation={2} sx={{ p: 2 }}>
+            <Typography variant="h6" gutterBottom>
+              {campo.titulo}
+            </Typography>
+          </Paper>
+        </Box>
       </form>
     </Box>
+
   );
 };
 

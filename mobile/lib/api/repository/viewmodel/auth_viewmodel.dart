@@ -1,92 +1,282 @@
-import 'package:flutter/foundation.dart';
-import 'package:mobile/api/services/administrador_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/material.dart';
+import 'package:mobile/api/models/administrador.dart';
+import 'package:mobile/api/models/recrutador.dart';
+import 'package:mobile/api/services/auth_service.dart';
+import 'package:mobile/api/services/api_exception.dart';
+import 'package:intl/intl.dart';
 
-class AuthViewModel extends ChangeNotifier {
-  final AdministradorService _adminService;
+class AuthViewModel with ChangeNotifier {
+  final AuthService _authService;
+  bool _isLoading = false;
+  String? _errorMessage;
+  dynamic _currentUser;
+  DateTime? _lastLogin;
 
-  String? _adminId;
-  bool _isAuthenticated = false;
+  AuthViewModel(this._authService);
 
-  AuthViewModel(this._adminService);
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+  dynamic get currentUser => _currentUser;
+  DateTime? get lastLogin => _lastLogin;
+  bool get isAuthenticated => _authService.isAuthenticated();
+  bool get isAdmin => _currentUser is Administrador;
+  bool get isRecruiter => _currentUser is Recrutador;
 
-  String? get adminId => _adminId;
-  bool get isAuthenticated => _isAuthenticated;
-
-  // Definir adminId manualmente (principal método que será usado)
-  void setAdminId(String id) {
-    _adminId = id;
-    _isAuthenticated = true;
-    _saveToPrefs(); // Salva nas preferências para persistência
-    notifyListeners();
+  Future<void> initialize() async {
+    _startLoading();
+    try {
+      if (isAuthenticated) {
+        await _loadCurrentUser();
+        _lastLogin = DateTime.now();
+      }
+    } catch (e) {
+      _setError('Erro ao carregar dados do usuário');
+    } finally {
+      _stopLoading();
+    }
   }
 
-  // Método para salvar o ID nas preferências compartilhadas
-  Future<void> _saveToPrefs() async {
+  Future<bool> login(String email, String password) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      if (_adminId != null) {
-        await prefs.setString('admin_id', _adminId!);
-        await prefs.setBool('is_authenticated', true);
+      _startLoading();
+      _clearError();
+
+      final success = await _authService.login(email, password);
+
+      if (!success) {
+        _setError('Credenciais inválidas ou serviço indisponível');
+        return false;
+      }
+
+      await _loadCurrentUser();
+      _lastLogin = DateTime.now();
+
+      if (_currentUser == null) {
+        _setError('Falha ao carregar dados do usuário');
+        return false;
+      }
+
+      return true;
+    } on ApiException catch (e) {
+      _setError(e.message);
+      return false;
+    } catch (e) {
+      _setError('Ocorreu um erro inesperado durante o login');
+      return false;
+    } finally {
+      _stopLoading();
+    }
+  }
+
+  Future<bool> loginRecruiter(String email, String password) async {
+    try {
+      _startLoading();
+      _clearError();
+
+      final success = await _authService.login(email, password);
+
+      if (!success) {
+        _setError('Credenciais inválidas ou serviço indisponível');
+        return false;
+      }
+
+      await _loadCurrentUser();
+      _lastLogin = DateTime.now();
+
+      if (_currentUser == null || !isRecruiter) {
+        _setError('Falha ao carregar dados do recrutador');
+        return false;
+      }
+
+      return true;
+    } on ApiException catch (e) {
+      _setError(e.message);
+      return false;
+    } catch (e) {
+      _setError('Ocorreu um erro inesperado durante o login');
+      return false;
+    } finally {
+      _stopLoading();
+    }
+  }
+
+  Future<bool> register({
+    required String nome,
+    required String email,
+    required String telefone,
+    required String cnpj,
+    required String senha,
+  }) async {
+    try {
+      _startLoading();
+      _clearError();
+
+      await _authService.register(
+        nome: nome,
+        email: email,
+        telefone: telefone,
+        cnpj: cnpj,
+        senha: senha,
+      );
+
+      final loginSuccess = await _authService.login(email, senha);
+
+      if (loginSuccess) {
+        await _loadCurrentUser();
+        _lastLogin = DateTime.now();
+        return true;
       } else {
-        await prefs.remove('admin_id');
-        await prefs.setBool('is_authenticated', false);
+        _setError('Registro realizado, mas falha no login automático');
+        return false;
       }
-    } catch (e) {
-      // Apenas log, não afeta a funcionalidade principal
-      print('Erro ao salvar credenciais: $e');
-    }
-  }
-
-  // Carrega o estado de autenticação das preferências
-  Future<bool> loadAuthState() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final savedId = prefs.getString('admin_id');
-      final savedAuth = prefs.getBool('is_authenticated') ?? false;
-
-      if (savedId != null && savedAuth) {
-        _adminId = savedId;
-        _isAuthenticated = true;
-        notifyListeners();
-        return true;
-      }
-    } catch (e) {
-      print('Erro ao carregar estado de autenticação: $e');
-    }
-    return false;
-  }
-
-  // Método de autenticação - deve ser implementado conforme sua API
-  // Este é um exemplo genérico, substitua pela implementação real
-  Future<bool> authenticate(String email, String senha) async {
-    try {
-      // Implementação fictícia - substitua pelo método real do seu serviço
-      // Por exemplo: await _adminService.login(email, senha)
-
-      // Para teste ou implementação temporária:
-      // Simula um login bem-sucedido para fins de desenvolvimento
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      // Exemplo: se for um email de administrador válido
-      if (email.contains('@admin')) {
-        final mockedId = 'admin-${DateTime.now().millisecondsSinceEpoch}';
-        setAdminId(mockedId);
-        return true;
-      }
-
+    } on ApiException catch (e) {
+      _setError(e.message);
       return false;
     } catch (e) {
-      print('Erro na autenticação: $e');
+      _setError('Ocorreu um erro inesperado durante o registro');
       return false;
+    } finally {
+      _stopLoading();
     }
   }
 
-  // Logout
+  Future<bool> registerRecruiter({
+    required String nome,
+    required String email,
+    required String telefone,
+    required String senha,
+    required String empresa,
+    required String cargo,
+  }) async {
+    try {
+      _startLoading();
+      _clearError();
+
+      await _authService.registerRecruiter(
+        nome: nome,
+        email: email,
+        telefone: telefone,
+        senha: senha,
+        empresa: empresa,
+        cargo: cargo,
+      );
+
+      final loginSuccess = await _authService.login(email, senha);
+
+      if (loginSuccess) {
+        await _loadCurrentUser();
+        _lastLogin = DateTime.now();
+        return true;
+      } else {
+        _setError('Registro realizado, mas falha no login automático');
+        return false;
+      }
+    } on ApiException catch (e) {
+      _setError(e.message);
+      return false;
+    } catch (e) {
+      _setError('Ocorreu um erro inesperado durante o registro de recrutador');
+      return false;
+    } finally {
+      _stopLoading();
+    }
+  }
+
+  Future<void> _loadCurrentUser() async {
+    try {
+      _currentUser = await _authService.getCurrentUser();
+      notifyListeners();
+
+      if (_currentUser == null) {
+        await _authService.logout();
+      }
+    } catch (e) {
+      await _authService.logout();
+      _currentUser = null;
+      notifyListeners();
+      throw Exception('Falha ao carregar dados do usuário');
+    }
+  }
+
   Future<void> logout() async {
-    _adminId = null;
-    _isAuthenticated = false;
-    await _saveToPrefs();
+    try {
+      _startLoading();
+      await _authService.logout();
+      _currentUser = null;
+      _lastLogin = null;
+      _clearError();
+    } catch (e) {
+      _setError('Falha ao realizar logout');
+      rethrow;
+    } finally {
+      _stopLoading();
+    }
+  }
+
+  Future<void> checkAuthStatus() async {
+    try {
+      if (isAuthenticated) {
+        await _loadCurrentUser();
+        _lastLogin = DateTime.now();
+      }
+    } catch (e) {
+      debugPrint('Erro ao verificar status de autenticação: $e');
+    }
+  }
+
+  void _startLoading() {
+    if (!_isLoading) {
+      _isLoading = true;
+      notifyListeners();
+    }
+  }
+
+  void _stopLoading() {
+    if (_isLoading) {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  void _setError(String message) {
+    _errorMessage = message;
     notifyListeners();
+  }
+
+  void _clearError() {
+    if (_errorMessage != null) {
+      _errorMessage = null;
+      notifyListeners();
+    }
+  }
+
+  String get formattedLastLogin {
+    return _lastLogin != null
+        ? DateFormat('dd/MM/yyyy HH:mm').format(_lastLogin!)
+        : 'N/A';
+  }
+
+  String get userRole {
+    if (isAdmin) return 'Administrador';
+    if (isRecruiter) return 'Recrutador';
+    return 'Usuário';
+  }
+
+  Future<void> updateProfile({
+    String? nome,
+    String? email,
+    String? telefone,
+  }) async {
+    try {
+      _startLoading();
+      _clearError();
+
+      notifyListeners();
+    } catch (e) {
+      _setError('Falha ao atualizar perfil: ${e.toString()}');
+      rethrow;
+    } finally {
+      _stopLoading();
+    }
   }
 }

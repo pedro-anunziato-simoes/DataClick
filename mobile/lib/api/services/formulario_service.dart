@@ -2,139 +2,187 @@ import 'dart:convert';
 import '../api_client.dart';
 import '../models/formulario.dart';
 import '../models/campo.dart';
-import '../endpoints.dart';
+import 'package:mobile/api/services/api_exception.dart';
+import 'package:mobile/api/services/auth_service.dart';
 
 class FormularioService {
   final ApiClient _apiClient;
+  final AuthService _authService;
 
-  FormularioService(this._apiClient);
+  FormularioService(this._apiClient, this._authService);
 
-  Future<List<Formulario>> listarTodosFormularios() async {
+  Future<List<Formulario>> getMeusFormularios() async {
     try {
-      final response = await _apiClient.get(Endpoints.formularios);
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-
-        if (data is List) {
-          return data.map((json) => Formulario.fromJson(json)).toList();
-        } else if (data['result'] is List) {
-          return (data['result'] as List)
-              .map((json) => Formulario.fromJson(json))
-              .toList();
-        }
-        throw Exception('Formato de resposta inesperado');
+      if (!_authService.isAuthenticated()) {
+        throw ApiException('Sessão expirada. Faça login novamente.', 401);
       }
 
-      throw Exception('Falha ao carregar formulários: ${response.statusCode}');
-    } catch (e) {
-      print('Erro ao listar formulários: $e');
-      rethrow;
-    }
-  }
-
-  Future<List<Formulario>> listarFormulariosPorAdmin(String adminId) async {
-    try {
       final response = await _apiClient.get(
-        Endpoints.formulariosPorAdmin(adminId),
+        '/formularios/{id}',
+        includeAuth: true,
       );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-
-        if (data is List) {
-          return data.map((json) => Formulario.fromJson(json)).toList();
-        } else if (data['result'] is List) {
-          return (data['result'] as List)
-              .map((json) => Formulario.fromJson(json))
-              .toList();
-        }
-        throw Exception('Formato de resposta inesperado');
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Formulario.fromJson(json)).toList();
+      } else {
+        throw ApiException(
+          _getErrorMessage(response, 'buscar formulários'),
+          response.statusCode,
+        );
       }
-
-      // Fallback para dados locais se necessário
-      return await _listarFormulariosLocalBackup(adminId);
-    } catch (e) {
-      print('Erro ao listar formulários do admin: $e');
-      return await _listarFormulariosLocalBackup(adminId);
-    }
-  }
-
-  Future<Formulario> criarFormulario(
-    String adminId,
-    String titulo,
-    List<Campo> campos,
-  ) async {
-    try {
-      final body = {
-        "titulo": titulo,
-        "adminId": adminId,
-        "campos": campos.map((campo) => campo.toJson()).toList(),
-      };
-
-      final response = await _apiClient.post(
-        Endpoints.adicionarFormulario(adminId),
-        body: body,
-      );
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return Formulario.fromJson(json.decode(response.body));
-      }
-
-      throw Exception('Falha ao criar formulário: ${response.statusCode}');
-    } catch (e) {
-      print('Erro ao criar formulário: $e');
+    } on ApiException {
       rethrow;
-    }
-  }
-
-  Future<Formulario> atualizarFormulario(Formulario formulario) async {
-    try {
-      final response = await _apiClient.put(
-        Endpoints.formularioPorId(formulario.id),
-        body: formulario.toJson(),
-      );
-
-      if (response.statusCode == 200) {
-        return Formulario.fromJson(json.decode(response.body));
-      }
-
-      throw Exception('Falha ao atualizar formulário: ${response.statusCode}');
     } catch (e) {
-      print('Erro ao atualizar formulário: $e');
-      rethrow;
+      throw ApiException('Erro ao buscar formulários: ${e.toString()}', 0);
     }
   }
 
   Future<Formulario> obterFormularioPorId(String id) async {
     try {
-      final response = await _apiClient.get(Endpoints.formularioPorId(id));
+      if (!_authService.isAuthenticated()) {
+        throw ApiException('Sessão expirada. Faça login novamente.', 401);
+      }
+
+      final response = await _apiClient.get(
+        '/formularios/$id',
+        includeAuth: true,
+      );
 
       if (response.statusCode == 200) {
         return Formulario.fromJson(json.decode(response.body));
+      } else {
+        throw ApiException(
+          _getErrorMessage(response, 'obter formulário'),
+          response.statusCode,
+        );
+      }
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException('Erro ao obter formulário: ${e.toString()}', 0);
+    }
+  }
+
+  Future<Formulario> criarFormulario({
+    required String titulo,
+    required List<Campo> campos,
+  }) async {
+    try {
+      if (!_authService.isAuthenticated()) {
+        throw ApiException('Sessão expirada. Faça login novamente.', 401);
       }
 
-      throw Exception('Falha ao obter formulário: ${response.statusCode}');
-    } catch (e) {
-      print('Erro ao obter formulário: $e');
+      if (_authService.isTokenAboutToExpire()) {
+        print('[FormularioService] Token prestes a expirar, considere renovar');
+      }
+
+      final response = await _apiClient.post(
+        '/formularios/add',
+        body: {
+          'titulo': titulo,
+          'campos': campos.map((c) => c.toJson()).toList(),
+        },
+        includeAuth: true,
+      );
+
+      if (response.statusCode == 201) {
+        return Formulario.fromJson(json.decode(response.body));
+      } else {
+        throw ApiException(
+          _getErrorMessage(response, 'criar formulário'),
+          response.statusCode,
+        );
+      }
+    } on ApiException {
       rethrow;
+    } catch (e) {
+      throw ApiException('Erro ao criar formulário: ${e.toString()}', 0);
+    }
+  }
+
+  Future<Formulario> atualizarFormulario({
+    required String formId,
+    required String titulo,
+    required List<Campo> campos,
+  }) async {
+    try {
+      if (!_authService.isAuthenticated()) {
+        throw ApiException('Sessão expirada. Faça login novamente.', 401);
+      }
+
+      final response = await _apiClient.post(
+        '/formularios/alterar/$formId',
+        body: {
+          'titulo': titulo,
+          'campos': campos.map((c) => c.toJson()).toList(),
+        },
+        includeAuth: true,
+      );
+
+      if (response.statusCode == 200) {
+        return Formulario.fromJson(json.decode(response.body));
+      } else {
+        throw ApiException(
+          _getErrorMessage(response, 'atualizar formulário'),
+          response.statusCode,
+        );
+      }
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException('Erro ao atualizar formulário: ${e.toString()}', 0);
     }
   }
 
   Future<void> removerFormulario(String id) async {
     try {
-      final response = await _apiClient.delete(Endpoints.removerFormulario(id));
+      if (!_authService.isAuthenticated()) {
+        throw ApiException('Sessão expirada. Faça login novamente.', 401);
+      }
+
+      final response = await _apiClient.delete(
+        '/formularios/remove/$id',
+        includeAuth: true,
+      );
 
       if (response.statusCode != 200 && response.statusCode != 204) {
-        throw Exception('Falha ao remover formulário: ${response.statusCode}');
+        throw ApiException(
+          _getErrorMessage(response, 'remover formulário'),
+          response.statusCode,
+        );
       }
-    } catch (e) {
-      print('Erro ao remover formulário: $e');
+    } on ApiException {
       rethrow;
+    } catch (e) {
+      throw ApiException('Erro ao remover formulário: ${e.toString()}', 0);
     }
   }
 
-  Future<List<Formulario>> _listarFormulariosLocalBackup(String adminId) async {
-    return [];
+  String _getErrorMessage(dynamic response, String operation) {
+    try {
+      final responseBody = response is String ? response : response.body;
+      final decoded = json.decode(responseBody);
+
+      return decoded['message'] ??
+          decoded['error'] ??
+          decoded['error_description'] ??
+          'Falha ao $operation: Status ${response.statusCode}';
+    } catch (e) {
+      switch (response.statusCode) {
+        case 400:
+          return 'Requisição inválida ao $operation';
+        case 401:
+          return 'Não autorizado. Faça login novamente.';
+        case 403:
+          return 'Acesso negado. Permissões insuficientes para $operation';
+        case 404:
+          return 'Formulário não encontrado';
+        case 500:
+          return 'Erro interno do servidor ao $operation';
+        default:
+          return 'Falha ao $operation: Status ${response.statusCode}';
+      }
+    }
   }
 }

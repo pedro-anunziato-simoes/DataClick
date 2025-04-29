@@ -2,40 +2,70 @@ import 'resposta.dart';
 
 class Campo {
   final String campoId;
+  final String formId;
   final String titulo;
   final String tipo;
   final Resposta resposta;
+  final bool isObrigatorio;
+  final String? descricao;
+  final List<String>? opcoes;
 
   Campo({
     required this.campoId,
+    required this.formId,
     required this.titulo,
     required this.tipo,
     required this.resposta,
+    this.isObrigatorio = false,
+    this.descricao,
+    this.opcoes,
   });
 
   factory Campo.fromJson(Map<String, dynamic> json) {
     return Campo(
-      campoId: json['campoId']?.toString() ?? '',
-      titulo: json['titulo']?.toString() ?? '',
-      tipo: json['tipo']?.toString() ?? 'TEXTO',
-      resposta: Resposta.fromJson(
-        json['resposta'] is Map
-            ? json['resposta']
-            : {
-              'respostaId': '',
-              'tipo': json['tipo']?.toString() ?? 'TEXTO',
-              'valor': json['resposta']?.toString() ?? '',
-            },
-      ),
+      campoId: json['campoId'] ?? '',
+      formId: json['formId'] ?? '',
+      titulo: json['titulo'] ?? '',
+      tipo: json['tipo'] ?? 'TEXTO',
+      resposta: Resposta.fromJson(json['resposta'] ?? {}),
+      isObrigatorio: json['isObrigatorio'] ?? false,
+      descricao: json['descricao'],
+      opcoes: json['opcoes'] != null ? List<String>.from(json['opcoes']) : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'campoId': campoId,
+      'formId': formId,
       'titulo': titulo,
       'tipo': tipo,
       'resposta': resposta.toJson(),
+      'isObrigatorio': isObrigatorio,
+      if (descricao != null) 'descricao': descricao,
+      if (opcoes != null) 'opcoes': opcoes,
     };
+  }
+
+  Campo copyWith({
+    String? campoId,
+    String? formId,
+    String? titulo,
+    String? tipo,
+    Resposta? resposta,
+    bool? isObrigatorio,
+    String? descricao,
+    List<String>? opcoes,
+  }) {
+    return Campo(
+      campoId: campoId ?? this.campoId,
+      formId: formId ?? this.formId,
+      titulo: titulo ?? this.titulo,
+      tipo: tipo ?? this.tipo,
+      resposta: resposta ?? this.resposta,
+      isObrigatorio: isObrigatorio ?? this.isObrigatorio,
+      descricao: descricao ?? this.descricao,
+      opcoes: opcoes ?? this.opcoes,
+    );
   }
 }

@@ -34,16 +34,13 @@ const CriarRecrutador = () => {
             setLoading(false);
             return;
         }
-
-
-        try {
-            await recrutadorService.criarRecrutador({
-                nome,
-                telefone,
-                email,
-                formularios: [],
-                senha
-      });
+        try {await recrutadorService.criarRecrutador({
+            nome,
+            telefone,
+            email,
+            formularios: [],
+            senha
+        });
 
             setSucesso("Recrutador criado com sucesso!");
             navigate("/home")
@@ -57,9 +54,9 @@ const CriarRecrutador = () => {
 
     return (
         <Container maxWidth="sm">
-            <IconButton onClick={() => navigate("/home")} sx={{ alignSelf: "flex-start", mb: 2 }}>
-          <ArrowBackIcon />
-        </IconButton>
+            <IconButton onClick={() => navigate("/recrutadores")} sx={{ alignSelf: "flex-start", mb: 2 }}>
+                <ArrowBackIcon />
+            </IconButton>
             <Paper elevation={3} sx={{ p: 4, mt: 6 }}>
                 <Typography variant="h5" gutterBottom>
                     Criar Recrutador

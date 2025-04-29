@@ -1,11 +1,15 @@
-// profile_screen.dart - Versão melhorada
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:mobile/api/repository/viewmodel/auth_viewmodel.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final authViewModel = Provider.of<AuthViewModel>(context);
+    final user = authViewModel.currentUser;
+
     return Scaffold(
       backgroundColor: const Color(0xFF26A69A),
       appBar: AppBar(
@@ -16,6 +20,16 @@ class ProfileScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await authViewModel.logout();
+              if (!context.mounted) return;
+              Navigator.pushReplacementNamed(context, '/login');
+            },
+          ),
+        ],
       ),
       body: SafeArea(
         child: Column(
@@ -48,25 +62,37 @@ class ProfileScreen extends StatelessWidget {
                       _buildProfileInfoCard(
                         title: 'Informações Pessoais',
                         items: [
-                          _buildProfileItem('Nome', 'Fulano da Silva'),
-                          _buildProfileItem('E-mail', 'fulano@email.com'),
-                          _buildProfileItem('Telefone', '(11) 99999-9999'),
+                          _buildProfileItem('Nome', user?.nome ?? 'N/A'),
+                          _buildProfileItem('E-mail', user?.email ?? 'N/A'),
+                          _buildProfileItem(
+                            'Telefone',
+                            user?.telefone ?? 'N/A',
+                          ),
                         ],
                       ),
                       const SizedBox(height: 20),
                       _buildProfileInfoCard(
                         title: 'Informações da Conta',
                         items: [
-                          _buildProfileItem('Permissões', 'Administrador'),
-                          _buildProfileItem('Data de Cadastro', '10/03/2023'),
-                          _buildProfileItem('Último Acesso', 'Hoje, 14:30'),
+                          _buildProfileItem(
+                            'Permissões',
+                            authViewModel.userRole,
+                          ),
+                          _buildProfileItem(
+                            'Último Acesso',
+                            authViewModel.formattedLastLogin,
+                          ),
                         ],
                       ),
                       const SizedBox(height: 30),
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed:
+                              () => _showEditProfileDialog(
+                                context,
+                                authViewModel,
+                              ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF26A69A),
                             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -88,6 +114,71 @@ class ProfileScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  void _showEditProfileDialog(
+    BuildContext context,
+    AuthViewModel authViewModel,
+  ) {
+    final user = authViewModel.currentUser;
+    final nomeController = TextEditingController(text: user?.nome);
+    final emailController = TextEditingController(text: user?.email);
+    final telefoneController = TextEditingController(text: user?.telefone);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Editar Perfil'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nomeController,
+                  decoration: const InputDecoration(labelText: 'Nome'),
+                ),
+                TextField(
+                  controller: emailController,
+                  decoration: const InputDecoration(labelText: 'E-mail'),
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                TextField(
+                  controller: telefoneController,
+                  decoration: const InputDecoration(labelText: 'Telefone'),
+                  keyboardType: TextInputType.phone,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () async {
+                try {
+                  await authViewModel.updateProfile(
+                    nome: nomeController.text,
+                    email: emailController.text,
+                    telefone: telefoneController.text,
+                  );
+                  if (context.mounted) Navigator.pop(context);
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(e.toString())));
+                  }
+                }
+              },
+              child: const Text('Salvar'),
+            ),
+          ],
+        );
+      },
     );
   }
 

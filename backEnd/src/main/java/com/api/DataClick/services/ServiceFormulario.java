@@ -1,11 +1,14 @@
 package com.api.DataClick.services;
 
+import com.api.DataClick.DTO.FormularioUpdateDTO;
 import com.api.DataClick.entities.EntityAdministrador;
+import com.api.DataClick.entities.EntityCampo;
 import com.api.DataClick.entities.EntityFormulario;
 import com.api.DataClick.entities.EntityRecrutador;
 import com.api.DataClick.exeptions.ExeceptionsMensage;
 import com.api.DataClick.exeptions.ExeptionNaoEncontrado;
 import com.api.DataClick.repositories.RepositoryAdministrador;
+import com.api.DataClick.repositories.RepositoryCampo;
 import com.api.DataClick.repositories.RepositoryFormulario;
 import com.api.DataClick.repositories.RepositoryRecrutador;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +27,8 @@ public class ServiceFormulario {
     RepositoryAdministrador repositoryAdministrador;
     @Autowired
     RepositoryRecrutador repositoryRecrutador;
+    @Autowired
+    RepositoryCampo repositoryCampo;
 
     public EntityFormulario criarFormulario(EntityFormulario formulario, String adminId){
         EntityAdministrador admin = repositoryAdministrador.findById(adminId)
@@ -42,13 +47,13 @@ public class ServiceFormulario {
         return formulario;
     }
 
-    public List<EntityFormulario> listarFormularios(){
-        return repositoryFormulario.findAll();
-    }
-
     public void removerFormulario(String formId){
         EntityFormulario form = repositoryFormulario.findById(formId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.FORM_NAO_ENCONTRADO));
         String adminId = form.getAdminId();
+        List<EntityCampo> campos = form.getCampos();
+        for(EntityCampo campo : campos){
+            repositoryCampo.delete(campo);
+        }
         EntityAdministrador admin = repositoryAdministrador.findById(adminId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.ADM_NAO_ENCONTRADO));
         admin.getFormularios().remove(form);
         repositoryFormulario.delete(form);
@@ -63,5 +68,11 @@ public class ServiceFormulario {
     public List<EntityFormulario> buscarFormPorAdminId(String adminId){
         EntityAdministrador admin = repositoryAdministrador.findById(adminId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.ADM_NAO_ENCONTRADO));
         return admin.getFormularios();
+    }
+
+    public EntityFormulario alterarFormulario(FormularioUpdateDTO dto, String id){
+        EntityFormulario form = repositoryFormulario.findById(id).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.FORM_NAO_ENCONTRADO));
+        form.setTituloForm(dto.getTitulo());
+        return repositoryFormulario.save(form);
     }
 }
