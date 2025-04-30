@@ -70,4 +70,12 @@ public abstract class Usuario implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }
