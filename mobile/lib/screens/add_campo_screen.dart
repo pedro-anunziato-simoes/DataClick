@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../api/services/campo_service.dart';
-import '../api/models/campo.dart';
 
 class AddCampoScreen extends StatefulWidget {
   final String formId;
@@ -17,167 +16,99 @@ class AddCampoScreen extends StatefulWidget {
 }
 
 class _AddCampoScreenState extends State<AddCampoScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final TextEditingController _nomeController = TextEditingController();
-  final TextEditingController _descricaoController = TextEditingController();
+  final _tituloController = TextEditingController();
   String _tipoCampo = 'TEXTO';
-  bool _isRequired = false;
   bool _isLoading = false;
-  final List<String> _opcoes = [];
-  final TextEditingController _opcaoController = TextEditingController();
 
   @override
   void dispose() {
-    _nomeController.dispose();
-    _descricaoController.dispose();
-    _opcaoController.dispose();
+    _tituloController.dispose();
     super.dispose();
   }
 
-  void _adicionarOpcao() {
-    if (_opcaoController.text.isEmpty) return;
-    setState(() {
-      _opcoes.add(_opcaoController.text);
-      _opcaoController.clear();
-    });
-  }
-
   Future<void> _salvarCampo() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() => _isLoading = true);
+    if (_tituloController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Informe o título do campo')),
+      );
+      return;
+    }
 
-      try {
-        final campoData = {
-          'titulo': _nomeController.text,
-          'tipo': _tipoCampo,
-          'isObrigatorio': _isRequired,
-          if (_descricaoController.text.isNotEmpty)
-            'descricao': _descricaoController.text,
-          if (_opcoes.isNotEmpty) 'opcoes': _opcoes,
-        };
+    setState(() => _isLoading = true);
 
-        final campo = await widget.campoService.adicionarCampo(
-          widget.formId,
-          campoData,
-        );
+    try {
+      final campoData = {
+        'titulo': _tituloController.text,
+        'tipo': _tipoCampo,
+        'resposta': {'tipo': ''},
+      };
 
-        if (!mounted) return;
+      await widget.campoService.adicionarCampo(widget.formId, campoData);
 
-        Navigator.pop(context, campo);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Campo adicionado com sucesso!')),
-        );
-      } catch (e) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao adicionar campo: ${e.toString()}')),
-        );
-      } finally {
-        if (mounted) setState(() => _isLoading = false);
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Campo adicionado com sucesso!')),
+      );
+      Navigator.pop(context);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao adicionar campo: ${e.toString()}')),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Adicionar Campo')),
+      appBar: AppBar(
+        title: const Text('Adicionar Campo'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              TextFormField(
-                controller: _nomeController,
-                decoration: const InputDecoration(
-                  labelText: 'Nome do Campo',
-                  border: OutlineInputBorder(),
-                ),
-                validator:
-                    (value) =>
-                        value?.isEmpty ?? true ? 'Campo obrigatório' : null,
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: _tituloController,
+              decoration: const InputDecoration(
+                labelText: 'Título do Campo',
+                border: OutlineInputBorder(),
               ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _descricaoController,
-                decoration: const InputDecoration(
-                  labelText: 'Descrição (opcional)',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 3,
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              value: _tipoCampo,
+              decoration: const InputDecoration(
+                labelText: 'Tipo de Campo',
+                border: OutlineInputBorder(),
               ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                value: _tipoCampo,
-                decoration: const InputDecoration(
-                  labelText: 'Tipo de Campo',
-                  border: OutlineInputBorder(),
-                ),
-                items: const [
-                  DropdownMenuItem(value: 'TEXTO', child: Text('Texto')),
-                  DropdownMenuItem(value: 'NUMERO', child: Text('Número')),
-                  DropdownMenuItem(value: 'DATA', child: Text('Data')),
-                  DropdownMenuItem(value: 'CHECKBOX', child: Text('Checkbox')),
-                  DropdownMenuItem(value: 'SELECT', child: Text('Seleção')),
-                ],
-                onChanged: (value) => setState(() => _tipoCampo = value!),
-              ),
-              if (_tipoCampo == 'SELECT' || _tipoCampo == 'CHECKBOX') ...[
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: _opcaoController,
-                        decoration: const InputDecoration(
-                          labelText: 'Adicionar Opção',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.add),
-                      onPressed: _adicionarOpcao,
-                    ),
-                  ],
-                ),
-                if (_opcoes.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    children:
-                        _opcoes
-                            .map(
-                              (opcao) => Chip(
-                                label: Text(opcao),
-                                onDeleted:
-                                    () => setState(() => _opcoes.remove(opcao)),
-                              ),
-                            )
-                            .toList(),
-                  ),
-                ],
+              items: const [
+                DropdownMenuItem(value: 'TEXTO', child: Text('Texto')),
+                DropdownMenuItem(value: 'NUMERO', child: Text('Número')),
+                DropdownMenuItem(value: 'DATA', child: Text('Data')),
+                DropdownMenuItem(value: 'CHECKBOX', child: Text('Checkbox')),
+                DropdownMenuItem(value: 'EMAIL', child: Text('Email')),
               ],
-              const SizedBox(height: 16),
-              SwitchListTile(
-                title: const Text('Campo Obrigatório'),
-                value: _isRequired,
-                onChanged: (value) => setState(() => _isRequired = value),
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
+              onChanged: (value) => setState(() => _tipoCampo = value!),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
                 onPressed: _isLoading ? null : _salvarCampo,
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
-                ),
                 child:
                     _isLoading
                         ? const CircularProgressIndicator()
-                        : const Text('Salvar Campo'),
+                        : const Text('Adicionar Campo'),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
