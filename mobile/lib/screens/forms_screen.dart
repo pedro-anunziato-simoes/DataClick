@@ -40,7 +40,7 @@ class _FormsScreenState extends State<FormsScreen> {
 
   Future<List<Formulario>> _carregarFormularios() async {
     try {
-      return await widget.formularioService.getMeusFormularios();
+      return await widget.formularioService.getFormularios();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -250,7 +250,7 @@ class _FormsScreenState extends State<FormsScreen> {
 
   Future<void> _excluirFormulario(Formulario formulario) async {
     try {
-      await widget.formularioService.removerFormulario(formulario.id);
+      await widget.formularioService.removerForms(formulario.id);
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(

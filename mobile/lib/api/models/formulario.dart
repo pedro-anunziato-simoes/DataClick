@@ -42,7 +42,7 @@ class Formulario {
       'titulo': titulo,
       'adminId': adminId,
       'campos': campos.map((e) => e.toJson()).toList(),
-      // Inclua apenas se os campos não forem nulos
+
       if (descricao != null) 'descricao': descricao,
       if (dataCriacao != null) 'dataCriacao': dataCriacao!.toIso8601String(),
     };

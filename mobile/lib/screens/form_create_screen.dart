@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import '../api/models/campo.dart';
-import '../api/models/formulario.dart';
-import '../api/models/resposta.dart';
-import '../api/services/formulario_service.dart';
-import '../api/services/campo_service.dart';
+import 'package:mobile/api/models/campo.dart';
+import 'package:mobile/api/models/formulario.dart';
+import 'package:mobile/api/models/resposta.dart';
+import 'package:mobile/api/services/formulario_service.dart';
+import 'package:mobile/api/services/campo_service.dart';
+import 'package:mobile/api/services/api_exception.dart';
 
 class CreateFormScreen extends StatefulWidget {
   final Formulario? formularioExistente;
@@ -120,17 +121,18 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
     setState(() => _isLoading = true);
 
     try {
+      final formData = {
+        'titulo': _tituloController.text,
+        'campos': _campos.map((campo) => campo.toJson()).toList(),
+      };
+
       if (widget.formularioExistente != null) {
-        await widget.formularioService.atualizarFormulario(
-          formId: widget.formularioExistente!.id,
-          titulo: _tituloController.text,
-          campos: _campos,
+        await widget.formularioService.alterarForms(
+          widget.formularioExistente!.id,
+          formData,
         );
       } else {
-        await widget.formularioService.criarFormulario(
-          titulo: _tituloController.text,
-          campos: _campos,
-        );
+        await widget.formularioService.criarForms(formData);
       }
 
       if (!mounted) return;
@@ -140,8 +142,12 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
           backgroundColor: Colors.green,
         ),
       );
-
-      Navigator.pop(context);
+      Navigator.pop(context, true);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message), backgroundColor: Colors.red),
+      );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -197,27 +203,21 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         backgroundColor: const Color(0xFF26A69A),
-        foregroundColor: Colors.white,
-        elevation: 0,
         title: Text(
           widget.formularioExistente != null
               ? 'Editar Formulário'
               : 'Criar Formulário',
-          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.save),
-            tooltip: 'Salvar formulário',
             onPressed: _isLoading ? null : _salvarFormulario,
           ),
         ],
       ),
       body:
           _isLoading
-              ? const Center(
-                child: CircularProgressIndicator(color: Color(0xFF26A69A)),
-              )
+              ? const Center(child: CircularProgressIndicator())
               : Form(
                 key: _formKey,
                 child: Column(
@@ -282,21 +282,12 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
               ),
       floatingActionButton:
           !_isLoading
-              ? Container(
-                width: double.infinity,
-                margin: const EdgeInsets.only(left: 32),
-                child: FloatingActionButton.extended(
-                  onPressed: _salvarFormulario,
-                  backgroundColor: const Color(0xFF26A69A),
-                  icon: const Icon(Icons.save),
-                  label: const Text(
-                    'SALVAR FORMULÁRIO',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
+              ? FloatingActionButton.extended(
+                onPressed: _salvarFormulario,
+                label: const Text('SALVAR FORMULÁRIO'),
+                icon: const Icon(Icons.save),
               )
               : null,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 

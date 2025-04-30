@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../api/services/campo_service.dart';
 import '../api/models/campo.dart';
-import '../api/models/resposta.dart';
 
 class EditCampoScreen extends StatefulWidget {
   final Campo campo;
@@ -59,21 +58,22 @@ class _EditCampoScreenState extends State<EditCampoScreen> {
 
   Future<void> _salvarCampo() async {
     if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+      setState(() => _isLoading = true);
 
       try {
-        final campoAtualizado = await widget.campoService.atualizarCampo(
+        final campoData = {
+          'titulo': _nomeController.text,
+          'tipo': _tipoCampo,
+          'isObrigatorio': _isRequired,
+          if (_descricaoController.text.isNotEmpty)
+            'descricao': _descricaoController.text,
+          if (_opcoes.isNotEmpty) 'opcoes': _opcoes,
+        };
+
+        final campoAtualizado = await widget.campoService.alterarCampo(
           campoId: widget.campo.campoId,
-          titulo: _nomeController.text,
           tipo: _tipoCampo,
-          isObrigatorio: _isRequired,
-          descricao:
-              _descricaoController.text.isNotEmpty
-                  ? _descricaoController.text
-                  : null,
-          opcoes: _opcoes.isNotEmpty ? _opcoes : null,
+          titulo: _nomeController.text,
         );
 
         if (!mounted) return;
@@ -81,20 +81,14 @@ class _EditCampoScreenState extends State<EditCampoScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Campo atualizado com sucesso!')),
         );
-
         Navigator.pop(context, campoAtualizado);
       } catch (e) {
         if (!mounted) return;
-
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Erro ao atualizar campo: ${e.toString()}')),
         );
       } finally {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-        }
+        if (mounted) setState(() => _isLoading = false);
       }
     }
   }
@@ -113,26 +107,20 @@ class _EditCampoScreenState extends State<EditCampoScreen> {
                 controller: _nomeController,
                 decoration: const InputDecoration(
                   labelText: 'Nome do Campo',
-                  hintText: 'Digite o nome do campo',
                   border: OutlineInputBorder(),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, insira um nome para o campo';
-                  }
-                  return null;
-                },
+                validator:
+                    (value) =>
+                        value?.isEmpty ?? true ? 'Campo obrigatório' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _descricaoController,
                 decoration: const InputDecoration(
-                  labelText: 'Descrição',
-                  hintText: 'Digite a descrição do campo (opcional)',
+                  labelText: 'Descrição (opcional)',
                   border: OutlineInputBorder(),
                 ),
-                minLines: 2,
-                maxLines: 4,
+                maxLines: 3,
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
@@ -148,11 +136,7 @@ class _EditCampoScreenState extends State<EditCampoScreen> {
                   DropdownMenuItem(value: 'CHECKBOX', child: Text('Checkbox')),
                   DropdownMenuItem(value: 'SELECT', child: Text('Seleção')),
                 ],
-                onChanged: (value) {
-                  setState(() {
-                    _tipoCampo = value!;
-                  });
-                },
+                onChanged: (value) => setState(() => _tipoCampo = value!),
               ),
               if (_tipoCampo == 'SELECT' || _tipoCampo == 'CHECKBOX') ...[
                 const SizedBox(height: 16),
@@ -194,11 +178,7 @@ class _EditCampoScreenState extends State<EditCampoScreen> {
               SwitchListTile(
                 title: const Text('Campo Obrigatório'),
                 value: _isRequired,
-                onChanged: (value) {
-                  setState(() {
-                    _isRequired = value;
-                  });
-                },
+                onChanged: (value) => setState(() => _isRequired = value),
               ),
               const SizedBox(height: 24),
               ElevatedButton(

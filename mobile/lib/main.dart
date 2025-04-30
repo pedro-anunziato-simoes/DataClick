@@ -47,29 +47,25 @@ List<SingleChildWidget> _buildProviders(
     Provider<http.Client>.value(value: httpClient),
 
     Provider<ApiClient>(
-      create:
-          (context) => ApiClient(
-            context.read<http.Client>(),
-            context.read<SharedPreferences>(),
-          ),
+      create: (context) => ApiClient(httpClient, sharedPreferences),
     ),
 
-    ProxyProvider2<ApiClient, SharedPreferences, AuthService>(
-      update:
-          (_, apiClient, sharedPrefs, __) =>
-              AuthService(apiClient, sharedPrefs),
+    ProxyProvider<ApiClient, AuthService>(
+      update: (_, apiClient, __) => AuthService(apiClient, sharedPreferences),
     ),
+
+    ProxyProvider<ApiClient, FormularioService>(
+      update: (_, apiClient, __) => FormularioService(apiClient),
+    ),
+
     ProxyProvider<ApiClient, AdministradorService>(
       update: (_, apiClient, __) => AdministradorService(apiClient),
     ),
-    ProxyProvider2<ApiClient, AuthService, FormularioService>(
-      update:
-          (_, apiClient, authService, __) =>
-              FormularioService(apiClient, authService),
-    ),
+
     ProxyProvider<ApiClient, CampoService>(
       update: (_, apiClient, __) => CampoService(apiClient),
     ),
+
     ProxyProvider<ApiClient, RecrutadorService>(
       update: (_, apiClient, __) => RecrutadorService(apiClient),
     ),

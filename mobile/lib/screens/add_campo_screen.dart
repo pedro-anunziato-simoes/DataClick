@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../api/services/campo_service.dart';
 import '../api/models/campo.dart';
-import '../api/models/resposta.dart';
 
 class AddCampoScreen extends StatefulWidget {
   final String formId;
@@ -48,16 +47,18 @@ class _AddCampoScreenState extends State<AddCampoScreen> {
       setState(() => _isLoading = true);
 
       try {
-        final campo = await widget.campoService.criarCampo(
-          formId: widget.formId,
-          titulo: _nomeController.text,
-          tipo: _tipoCampo,
-          isObrigatorio: _isRequired,
-          descricao:
-              _descricaoController.text.isNotEmpty
-                  ? _descricaoController.text
-                  : null,
-          opcoes: _opcoes.isNotEmpty ? _opcoes : null,
+        final campoData = {
+          'titulo': _nomeController.text,
+          'tipo': _tipoCampo,
+          'isObrigatorio': _isRequired,
+          if (_descricaoController.text.isNotEmpty)
+            'descricao': _descricaoController.text,
+          if (_opcoes.isNotEmpty) 'opcoes': _opcoes,
+        };
+
+        final campo = await widget.campoService.adicionarCampo(
+          widget.formId,
+          campoData,
         );
 
         if (!mounted) return;
