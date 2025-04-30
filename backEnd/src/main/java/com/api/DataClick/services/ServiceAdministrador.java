@@ -14,16 +14,6 @@ public class ServiceAdministrador {
 
     @Autowired
     private RepositoryAdministrador repositoryAdministrador;
-    @Autowired
-    private RepositoryRecrutador repositoryRecrutador;
-
-    public EntityAdministrador adicionarAdmin(EntityAdministrador administrador){
-        return repositoryAdministrador.save(administrador);
-    }
-
-    public List<EntityAdministrador> listarAdministradores(){
-        return repositoryAdministrador.findAll();
-    }
 
     public void removerAdm(String admId){
         repositoryAdministrador.deleteById(admId);

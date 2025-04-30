@@ -23,16 +23,9 @@ import java.util.Optional;
 public class ServiceRecrutador {
 
     @Autowired
-    private RepositoryFormulario repositoryFormulario;
-    @Autowired
     private RepositoryAdministrador repositoryAdministrador;
     @Autowired
     private RepositoryRecrutador repositoryRecrutador;
-
-
-    public List<EntityRecrutador> listarTodosRecrutadores(){
-        return repositoryRecrutador.findAll();
-    }
 
     @Transactional
     public EntityRecrutador criarRecrutador(EntityRecrutador recrutador) {

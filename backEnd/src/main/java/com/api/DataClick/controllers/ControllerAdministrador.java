@@ -23,8 +23,6 @@ public class ControllerAdministrador {
 
     @Autowired
     private ServiceAdministrador serviceAdministrador;
-    @Autowired
-    private ServiceRecrutador serviceRecrutador;
 
     //Adm
     @DeleteMapping("/{id}/remover")

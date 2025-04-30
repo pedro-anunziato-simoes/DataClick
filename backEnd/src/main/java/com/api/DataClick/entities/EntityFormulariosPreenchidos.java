@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @Data
 @Document(collection = "FormulariosPreenchidos")
-public class EntityFormualriosPreenchidos {
+public class EntityFormulariosPreenchidos {
 
     @Id
     private String FormulariosPreId;
@@ -18,7 +18,7 @@ public class EntityFormualriosPreenchidos {
     private String adminId;
     private List<EntityFormulario> listaFormularios;
 
-    public EntityFormualriosPreenchidos(List<EntityFormulario> listaFormularios) {
+    public EntityFormulariosPreenchidos(List<EntityFormulario> listaFormularios) {
         this.listaFormularios = listaFormularios;
     }
 }
