@@ -136,11 +136,11 @@ public class ControllerRecrutador {
     @GetMapping("/info")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Busca as informações do recrutador", description = "Retorna as informações do recrutador")
-    public ResponseEntity<EntityAdministrador> infoAdm(@AuthenticationPrincipal UserDetails userDetails){
+    public ResponseEntity<EntityRecrutador> infoAdm(@AuthenticationPrincipal UserDetails userDetails){
         Usuario usuarioLogado  = (Usuario) userDetails;
         String recId = usuarioLogado.getUsuarioId();
-        serviceRecrutador.infoRec(recId);
-        return ResponseEntity.noContent().build();
+        EntityRecrutador rec = serviceRecrutador.infoRec(recId);
+        return ResponseEntity.ok(rec);
     }
 
     @PostMapping("/alterar/email")

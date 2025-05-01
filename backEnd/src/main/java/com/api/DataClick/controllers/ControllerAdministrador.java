@@ -55,8 +55,8 @@ public class ControllerAdministrador {
         }
         Usuario usuarioLogado  = (Usuario) userDetails;
         String adminId = usuarioLogado.getUsuarioId();
-        serviceAdministrador.infoAdm(adminId);
-        return ResponseEntity.noContent().build();
+        EntityAdministrador adm = serviceAdministrador.infoAdm(adminId);
+        return ResponseEntity.ok(adm);
     }
 
     @PostMapping("/alterar/email")
