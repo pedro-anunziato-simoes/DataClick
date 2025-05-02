@@ -96,4 +96,35 @@ public class ServiceAuthorizationTest {
         verify(repositoryAdministrador, times(1)).findByEmail("naoexiste@dataclick.com");
         verify(repositoryRecrutador, times(1)).findByEmail("naoexiste@dataclick.com");
     }
+
+    @Test
+    void deveRespeitarCaseSensitiveNoEmail() {
+        when(repositoryAdministrador.findByEmail("ADMIN@DATACLICK.COM")).thenReturn(null);
+        when(repositoryRecrutador.findByEmail("ADMIN@DATACLICK.COM")).thenReturn(null);
+
+        assertThrows(UsernameNotFoundException.class, () -> {
+            serviceAuthorization.loadUserByUsername("ADMIN@DATACLICK.COM");
+        });
+
+        verify(repositoryAdministrador).findByEmail("ADMIN@DATACLICK.COM");
+        verify(repositoryRecrutador).findByEmail("ADMIN@DATACLICK.COM");
+    }
+
+    @Test
+    void deveRetornarAuthoritiesCorretasParaAdmin() {
+        when(repositoryAdministrador.findByEmail("admin@dataclick.com")).thenReturn(admin);
+
+        UserDetails user = serviceAuthorization.loadUserByUsername("admin@dataclick.com");
+
+        assertEquals(1, user.getAuthorities().size());
+        assertEquals("ROLE_ADMIN", user.getAuthorities().iterator().next().getAuthority());
+    }
+
+    @Test
+    void deveLancarExcecaoParaEmailNulo() {
+        assertThrows(UsernameNotFoundException.class, () -> {
+            serviceAuthorization.loadUserByUsername(null);
+        });
+    }
+
 }
