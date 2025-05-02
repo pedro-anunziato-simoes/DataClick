@@ -8,12 +8,16 @@
 		<version>3.4.3</version>
 		<relativePath/>
 	</parent>
-	<groupId>com.API</groupId>
+	<groupId>com.api</groupId>
 	<artifactId>DataClick</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>DataClick</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
+		<sonar.host.url>http://localhost:9000</sonar.host.url>
+		<sonar.token>sqa_c432c152e10e1d021d071ed389d1b42963c95b4b</sonar.token>
+		<sonar.projectKey>dataclick</sonar.projectKey>
+		<sonar.projectName>DataClick</sonar.projectName>
 		<java.version>17</java.version>
 		<jacoco.version>0.8.9</jacoco.version>
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -154,7 +158,7 @@
 					</execution>
 					<execution>
 						<id>generate-report</id>
-						<phase>test</phase>
+						<phase>verify</phase>
 						<goals>
 							<goal>report</goal>
 						</goals>
@@ -169,7 +173,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.0.0-M7</version>
+				<version>3.2.2</version>
 				<configuration>
 					<argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
 				</configuration>

@@ -1,4 +1,4 @@
-package com.API.DataClick;
+package com.api.DataClick;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

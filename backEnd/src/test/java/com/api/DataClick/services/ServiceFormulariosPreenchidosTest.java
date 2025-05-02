@@ -87,29 +87,23 @@ public class ServiceFormulariosPreenchidosTest {
 
     @Test
     void testAdicionarFormularioPreenchidoRecrutadorNaoEncontrado() {
-        // Simulando que o recrutador não foi encontrado
         when(repositoryRecrutador.findById("recrutadorId123")).thenReturn(java.util.Optional.empty());
 
-        // Executando o método e verificando a exceção
         Exception exception = assertThrows(ExeptionNaoEncontrado.class, () -> {
             serviceFormulariosPreenchidos.adicionarFormulariosPreenchidos(formularioPreenchido, "recrutadorId123");
         });
 
-        // Verificando a mensagem da exceção
         assertEquals(ExeceptionsMensage.REC_NAO_ENCONTRADO, exception.getMessage());
     }
 
     @Test
     void testBuscarListaDeFormulariosPorIdRecrutadorNaoEncontrado() {
-        // Simulando que o recrutador não foi encontrado
         when(repositoryRecrutador.findById("recrutadorId123")).thenReturn(java.util.Optional.empty());
 
-        // Executando o método e verificando a exceção
         Exception exception = assertThrows(ExeptionNaoEncontrado.class, () -> {
             serviceFormulariosPreenchidos.buscarListaDeFormualriosPorIdRecrutador("recrutadorId123");
         });
 
-        // Verificando a mensagem da exceção
         assertEquals(ExeceptionsMensage.REC_NAO_ENCONTRADO, exception.getMessage());
     }
 }

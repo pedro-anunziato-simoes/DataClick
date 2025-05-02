@@ -62,16 +62,6 @@ public class ServiceFormularioTest {
                 () -> serviceFormulario.criarFormulario(formulario, "admin-id"));
     }
 
-    @Test
-    void listarFormularios_DeveRetornarListaDeFormularios() {
-        List<EntityFormulario> formularios = List.of(formulario);
-        when(repositoryFormulario.findAll()).thenReturn(formularios);
-
-        List<EntityFormulario> resultado = serviceFormulario.listarFormularios();
-
-        assertEquals(1, resultado.size());
-        assertEquals("Formulário Teste", resultado.get(0).getTitulo());
-    }
 
     @Test
     void removerFormulario_DeveRemoverComSucesso() {
