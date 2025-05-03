@@ -2,7 +2,7 @@ import { EntityFormulario } from "./EntityFormulario";
 import { EntityRecrutador } from "./EntityRecrutador";
 
 export interface EntityAdministrador {
-    adminId:string
+    usuarioId:string
     cnpj: string,
     nome: string,
     senha: string,

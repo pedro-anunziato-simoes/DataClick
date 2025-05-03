@@ -1,5 +1,5 @@
 import Recrutadores from "../../components/Recrutadores/Recrutador";
-import Sidebar from "../../components/Sidebar";
+import Sidebar from "../../components/sideBar/Sidebar";
 
 
 const VisualizarRecrutadoresPage = () => {

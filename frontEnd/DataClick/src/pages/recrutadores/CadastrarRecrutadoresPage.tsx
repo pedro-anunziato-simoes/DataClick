@@ -1,5 +1,5 @@
 import CriarRecrutador from "../../components/Recrutadores/CriarRecrutador";
-import Sidebar from "../../components/Sidebar";
+import Sidebar from "../../components/sideBar/Sidebar";
 
 
 const CadastrarRecrutadorPage = () => {

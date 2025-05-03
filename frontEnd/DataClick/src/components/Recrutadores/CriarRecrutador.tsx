@@ -43,7 +43,7 @@ const CriarRecrutador = () => {
         });
 
             setSucesso("Recrutador criado com sucesso!");
-            navigate("/home")
+            navigate("/recrutadores")
         } catch (error) {
             console.error(error);
             setErro("Erro ao criar recrutador.");
