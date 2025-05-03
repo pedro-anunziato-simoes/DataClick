@@ -1,6 +1,6 @@
 
 import Campo from "../../../components/Formularios/Campos/Campo";
-import Sidebar from "../../../components/Sidebar";
+import Sidebar from "../../../components/sideBar/Sidebar";
 
 const CampoByIdPage = () => {  
     return (

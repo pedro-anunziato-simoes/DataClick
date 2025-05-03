@@ -1,5 +1,5 @@
 import Formularios from "../../../components/Formularios/Formularios";
-import Sidebar from "../../../components/Sidebar";
+import Sidebar from "../../../components/sideBar/Sidebar";
 
 const ListarFormsPage = () => {  
     return (
