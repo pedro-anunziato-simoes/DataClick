@@ -1,5 +1,6 @@
 package com.api.DataClick.services;
 
+import com.api.DataClick.DTO.RecrutadorUpdateDTO;
 import com.api.DataClick.entities.EntityAdministrador;
 import com.api.DataClick.entities.EntityRecrutador;
 import com.api.DataClick.enums.UserRole;
@@ -132,5 +133,125 @@ public class ServiceRecrutadorTest {
         });
 
         assertEquals(ExeceptionsMensage.REC_NAO_ENCONTRADO, exception.getMessage());
+    }
+
+    @Test
+    void testBuscarAdminIdPorRecrutadorId_Encontrado() {
+        when(repositoryRecrutador.findById("recrutadorId123"))
+                .thenReturn(Optional.of(recrutador));
+
+        Optional<String> result = serviceRecrutador.buscarAdminIdPorRecrutadorId("recrutadorId123");
+
+        assertTrue(result.isPresent());
+        assertEquals("adminId123", result.get());
+    }
+
+    @Test
+    void testBuscarAdminIdPorRecrutadorId_NaoEncontrado() {
+        when(repositoryRecrutador.findById("recrutadorId123"))
+                .thenReturn(Optional.empty());
+
+        Optional<String> result = serviceRecrutador.buscarAdminIdPorRecrutadorId("recrutadorId123");
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testAlterarRecrutador() {
+        RecrutadorUpdateDTO dto = new RecrutadorUpdateDTO( "Novo Nome",
+                "987654321",
+                "novo@email.com");
+        dto.setEmail("novo@email.com");
+        dto.setTelefone("987654321");
+        dto.setNome("Novo Nome");
+
+        when(repositoryRecrutador.findById("recrutadorId123"))
+                .thenReturn(Optional.of(recrutador));
+        when(repositoryRecrutador.save(any(EntityRecrutador.class)))
+                .thenReturn(recrutador);
+
+        EntityRecrutador result = serviceRecrutador.alterarRecrutador("recrutadorId123", dto);
+
+        assertNotNull(result);
+        assertEquals("novo@email.com", result.getEmail());
+        assertEquals("987654321", result.getTelefone());
+        assertEquals("Novo Nome", result.getNome());
+        verify(repositoryRecrutador).save(recrutador);
+    }
+
+    @Test
+    void testAlterarRecrutador_NaoEncontrado() {
+        RecrutadorUpdateDTO dto = new RecrutadorUpdateDTO(  "Nome",
+                "telefone",
+                "email");
+        when(repositoryRecrutador.findById("recrutadorId123"))
+                .thenReturn(Optional.empty());
+
+        assertThrows(ExeptionNaoEncontrado.class, () -> {
+            serviceRecrutador.alterarRecrutador("recrutadorId123", dto);
+        });
+    }
+
+    @Test
+    void testInfoRec() {
+        when(repositoryRecrutador.findById("recrutadorId123"))
+                .thenReturn(Optional.of(recrutador));
+
+        EntityRecrutador result = serviceRecrutador.infoRec("recrutadorId123");
+
+        assertNotNull(result);
+        assertEquals("recrutadorId123", result.getUsuarioId());
+    }
+
+    @Test
+    void testInfoRec_NaoEncontrado() {
+        when(repositoryRecrutador.findById("recrutadorId123"))
+                .thenReturn(Optional.empty());
+
+        assertThrows(ExeptionNaoEncontrado.class, () -> {
+            serviceRecrutador.infoRec("recrutadorId123");
+        });
+    }
+
+    @Test
+    void testAlterarEmail() {
+        when(repositoryRecrutador.findById("recrutadorId123"))
+                .thenReturn(Optional.of(recrutador));
+
+        serviceRecrutador.alterarEmail("novo@email.com", "recrutadorId123");
+
+        assertEquals("novo@email.com", recrutador.getEmail());
+        verify(repositoryRecrutador).save(recrutador);
+    }
+
+    @Test
+    void testAlterarEmail_NaoEncontrado() {
+        when(repositoryRecrutador.findById("recrutadorId123"))
+                .thenReturn(Optional.empty());
+
+        assertThrows(ExeptionNaoEncontrado.class, () -> {
+            serviceRecrutador.alterarEmail("novo@email.com", "recrutadorId123");
+        });
+    }
+
+    @Test
+    void testAlterarSenha() {
+        when(repositoryRecrutador.findById("recrutadorId123"))
+                .thenReturn(Optional.of(recrutador));
+
+        serviceRecrutador.alterarSenha("novaSenha", "recrutadorId123");
+
+        assertEquals("novaSenha", recrutador.getSenha());
+        verify(repositoryRecrutador).save(recrutador);
+    }
+
+    @Test
+    void testAlterarSenha_NaoEncontrado() {
+        when(repositoryRecrutador.findById("recrutadorId123"))
+                .thenReturn(Optional.empty());
+
+        assertThrows(ExeptionNaoEncontrado.class, () -> {
+            serviceRecrutador.alterarSenha("novaSenha", "recrutadorId123");
+        });
     }
 }
