@@ -180,7 +180,8 @@
 				<version>3.2.2</version>
 				<configuration>
 					<argLine>   -javaagent:${settings.localRepository}/org/jacoco/org.jacoco.agent/0.8.9/org.jacoco.agent-0.8.9-runtime.jar=destfile=${project.basedir}/target/jacoco.exec
-						--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+						--add-opens java.base/java.lang=ALL-UNNAMED
+						-Djdk.attach.allowAttachSelf=true</argLine>
 				</configuration>
 			</plugin>
 		</plugins>
