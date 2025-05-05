@@ -8,16 +8,24 @@
 		<version>3.4.3</version>
 		<relativePath/>
 	</parent>
-	<groupId>com.API</groupId>
+	<groupId>com.api</groupId>
 	<artifactId>DataClick</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>DataClick</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
+		<sonar.host.url>http://localhost:9000</sonar.host.url>
+		<sonar.token>sqa_c432c152e10e1d021d071ed389d1b42963c95b4b</sonar.token>
+		<sonar.projectKey>dataclick</sonar.projectKey>
+		<sonar.projectName>DataClick</sonar.projectName>
 		<java.version>17</java.version>
 		<jacoco.version>0.8.9</jacoco.version>
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
 		<sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+		<sonar.coverage.exclusions>
+			**/*Test.java,
+			**/DataClickApplication.java
+		</sonar.coverage.exclusions>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -154,7 +162,7 @@
 					</execution>
 					<execution>
 						<id>generate-report</id>
-						<phase>test</phase>
+						<phase>verify</phase>
 						<goals>
 							<goal>report</goal>
 						</goals>
@@ -169,9 +177,11 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.0.0-M7</version>
+				<version>3.2.2</version>
 				<configuration>
-					<argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+					<argLine>   -javaagent:${settings.localRepository}/org/jacoco/org.jacoco.agent/0.8.9/org.jacoco.agent-0.8.9-runtime.jar=destfile=${project.basedir}/target/jacoco.exec
+						--add-opens java.base/java.lang=ALL-UNNAMED
+						-Djdk.attach.allowAttachSelf=true</argLine>
 				</configuration>
 			</plugin>
 		</plugins>

@@ -32,7 +32,7 @@ public class ControllerCampo {
     @Operation(summary = "Lista todos os campos pelo id do formulario", description = "Retorna todos os campos de um determinado formulario")
     public ResponseEntity<List<EntityCampo>> listarCamposPorFormularioId(@PathVariable String formId, @AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
-                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_RECRUTADOR"))) {
+                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_USER"))) {
             System.out.println("Acesso negado: usuário não tem permissão");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
@@ -82,7 +82,7 @@ public class ControllerCampo {
     @Operation(summary = "Buscar Campo por Id", description = "Busca um campo pelo Id")
     public ResponseEntity<EntityCampo> buscarCampoById(@PathVariable String campoId, @AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
-                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_RECRUTADOR"))) {
+                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_USER"))) {
             System.out.println("Acesso negado: usuário não tem permissão");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }

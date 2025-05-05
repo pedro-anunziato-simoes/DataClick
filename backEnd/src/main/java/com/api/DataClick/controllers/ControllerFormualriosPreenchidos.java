@@ -46,7 +46,7 @@ public class ControllerFormualriosPreenchidos {
     public ResponseEntity<EntityFormulariosPreenchidos> adicionarFormulariosPreenchidos(@RequestBody EntityFormulariosPreenchidos forms,
                                                                                         @AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
-                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_RECRUTADOR"))) {
+                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_USER"))) {
             System.out.println("Acesso negado: usuário não tem permissão");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }

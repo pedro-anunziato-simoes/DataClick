@@ -4,7 +4,8 @@ package com.api.DataClick.enums;
 public enum UserRole {
 
     ADMIN("ROLE_ADMIN"),
-    USER("ROLE_USER");
+    USER("ROLE_USER"),
+    INVALID("ROLE_INVALID");
 
     private String role;
 
