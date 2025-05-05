@@ -23,16 +23,9 @@ import java.util.Optional;
 public class ServiceRecrutador {
 
     @Autowired
-    private RepositoryFormulario repositoryFormulario;
-    @Autowired
     private RepositoryAdministrador repositoryAdministrador;
     @Autowired
     private RepositoryRecrutador repositoryRecrutador;
-
-
-    public List<EntityRecrutador> listarTodosRecrutadores(){
-        return repositoryRecrutador.findAll();
-    }
 
     @Transactional
     public EntityRecrutador criarRecrutador(EntityRecrutador recrutador) {
@@ -83,5 +76,21 @@ public class ServiceRecrutador {
         repositoryRecrutador.save(recrutador);
         return recrutador;
 
+    }
+
+    public EntityRecrutador infoRec(String recId){
+        return repositoryRecrutador.findById(recId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.REC_NAO_ENCONTRADO));
+    }
+
+    public void alterarEmail(String email,String recId){
+        EntityRecrutador rec = repositoryRecrutador.findById(recId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.REC_NAO_ENCONTRADO));
+        rec.setEmail(email);
+        repositoryRecrutador.save(rec);
+    }
+
+    public void alterarSenha(String senha,String recId){
+        EntityRecrutador rec = repositoryRecrutador.findById(recId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.REC_NAO_ENCONTRADO));
+        rec.setSenha(senha);
+        repositoryRecrutador.save(rec);
     }
 }

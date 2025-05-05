@@ -74,14 +74,13 @@ const Recrutadores = () => {
       <Typography variant="h4" gutterBottom>
         Lista de Recrutadores
       </Typography>
-
-      <Button variant="contained" color="primary" onClick={handleCriarRecrutador} sx={{ mb: 2 }}>
-        Adicionar Recrutador
-      </Button>
-
       <Stack spacing={2}>
         {recrutadores.length === 0 ? (
-          <Typography variant="body1">Nenhum recrutador encontrado.</Typography>
+          <Typography variant="body1">Nenhum recrutador encontrado.
+            <br />
+            <Button variant="contained" color="primary" onClick={handleCriarRecrutador} sx={{ mb: 2 }}>
+              Adicionar Recrutador
+            </Button></Typography>
         ) : (
           recrutadores.map((recrutador) => (
             <Paper key={recrutador.usuarioId} elevation={3} sx={{ p: 3 }}>
