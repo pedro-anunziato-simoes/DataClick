@@ -3,7 +3,6 @@ import '../api/models/formulario.dart';
 import '../api/services/formulario_service.dart';
 import '../api/services/campo_service.dart';
 import 'form_create_screen.dart';
-import 'add_campo_screen.dart';
 
 class FormsScreen extends StatefulWidget {
   final bool isAdmin;
@@ -191,7 +190,7 @@ class _FormsScreenState extends State<FormsScreen> {
       context,
       MaterialPageRoute(
         builder:
-            (context) => CreateFormScreen(
+            (context) => FormularioScreen(
               formularioService: widget.formularioService,
               campoService: widget.campoService,
             ),
@@ -208,7 +207,7 @@ class _FormsScreenState extends State<FormsScreen> {
       context,
       MaterialPageRoute(
         builder:
-            (context) => CreateFormScreen(
+            (context) => FormularioScreen(
               formularioExistente: formulario,
               formularioService: widget.formularioService,
               campoService: widget.campoService,
@@ -352,9 +351,11 @@ class _FormsScreenState extends State<FormsScreen> {
       context,
       MaterialPageRoute(
         builder:
-            (context) => AddCampoScreen(
-              formId: formulario.id,
+            (context) => FormularioScreen(
+              formIdForAddCampo: formulario.id,
               campoService: widget.campoService,
+              formularioService: widget.formularioService,
+              isEditingCampo: false,
             ),
       ),
     );

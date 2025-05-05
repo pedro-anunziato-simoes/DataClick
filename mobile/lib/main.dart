@@ -20,8 +20,6 @@ import 'screens/profile_screen.dart';
 import 'screens/forms_screen.dart';
 import 'screens/form_create_screen.dart';
 import 'screens/settings_screen.dart';
-import 'screens/add_campo_screen.dart';
-import 'screens/edit_campo_screen.dart';
 import 'package:provider/single_child_widget.dart';
 
 void main() async {
@@ -45,39 +43,30 @@ List<SingleChildWidget> _buildProviders(
   return [
     Provider<SharedPreferences>.value(value: sharedPreferences),
     Provider<http.Client>.value(value: httpClient),
-
     Provider<ApiClient>(
       create: (context) => ApiClient(httpClient, sharedPreferences),
     ),
-
     ProxyProvider<ApiClient, AuthService>(
       update: (_, apiClient, __) => AuthService(apiClient, sharedPreferences),
     ),
-
     ProxyProvider<ApiClient, FormularioService>(
       update: (_, apiClient, __) => FormularioService(apiClient),
     ),
-
     ProxyProvider<ApiClient, AdministradorService>(
       update: (_, apiClient, __) => AdministradorService(apiClient),
     ),
-
     ProxyProvider<ApiClient, CampoService>(
       update: (_, apiClient, __) => CampoService(apiClient),
     ),
-
     ProxyProvider<ApiClient, RecrutadorService>(
       update: (_, apiClient, __) => RecrutadorService(apiClient),
     ),
-
     ProxyProvider<FormularioService, FormularioRepository>(
       update: (_, service, __) => FormularioRepository(service),
     ),
-
     ChangeNotifierProvider<AuthViewModel>(
       create: (context) => AuthViewModel(context.read<AuthService>()),
     ),
-
     ChangeNotifierProxyProvider<FormularioRepository, FormViewModel>(
       create: (context) => FormViewModel(context.read<FormularioRepository>()),
       update: (_, repo, __) => FormViewModel(repo),
@@ -112,7 +101,7 @@ class MyApp extends StatelessWidget {
           final args = settings.arguments as Map<String, dynamic>?;
           return MaterialPageRoute(
             builder:
-                (context) => CreateFormScreen(
+                (context) => FormularioScreen(
                   formularioExistente: args?['formularioExistente'],
                   formularioService: context.read<FormularioService>(),
                   campoService: context.read<CampoService>(),
@@ -124,9 +113,11 @@ class MyApp extends StatelessWidget {
           final args = settings.arguments as Map<String, dynamic>;
           return MaterialPageRoute(
             builder:
-                (context) => AddCampoScreen(
-                  formId: args['formId'],
+                (context) => FormularioScreen(
+                  formIdForAddCampo: args['formId'],
                   campoService: context.read<CampoService>(),
+                  formularioService: context.read<FormularioService>(),
+                  isEditingCampo: false,
                 ),
           );
         }
@@ -135,10 +126,12 @@ class MyApp extends StatelessWidget {
           final args = settings.arguments as Map<String, dynamic>;
           return MaterialPageRoute(
             builder:
-                (context) => EditCampoScreen(
-                  campo: args['campo'],
-                  formId: args['formId'],
+                (context) => FormularioScreen(
+                  campoToEdit: args['campo'],
+                  formIdForAddCampo: args['formId'],
                   campoService: context.read<CampoService>(),
+                  formularioService: context.read<FormularioService>(),
+                  isEditingCampo: true,
                 ),
           );
         }
