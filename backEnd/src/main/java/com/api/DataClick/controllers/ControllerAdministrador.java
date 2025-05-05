@@ -24,8 +24,6 @@ public class ControllerAdministrador {
 
     @Autowired
     private ServiceAdministrador serviceAdministrador;
-    @Autowired
-    private ServiceRecrutador serviceRecrutador;
 
     //Adm
     @DeleteMapping("/{id}/remover")
@@ -55,8 +53,8 @@ public class ControllerAdministrador {
         }
         Usuario usuarioLogado  = (Usuario) userDetails;
         String adminId = usuarioLogado.getUsuarioId();
-        serviceAdministrador.infoAdm(adminId);
-        return ResponseEntity.noContent().build();
+        EntityAdministrador adm = serviceAdministrador.infoAdm(adminId);
+        return ResponseEntity.ok(adm);
     }
 
     @PostMapping("/alterar/email")

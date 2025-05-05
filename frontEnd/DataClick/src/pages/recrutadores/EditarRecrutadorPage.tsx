@@ -1,5 +1,5 @@
 import EditarRecrutador from "../../components/Recrutadores/EditarRecrutador";
-import Sidebar from "../../components/Sidebar";
+import Sidebar from "../../components/sideBar/Sidebar";
 
 
 const EditarRecrutadorPage = () => {

@@ -1,6 +1,6 @@
 import AlterarCamposForms from "../../../components/Formularios/Campos/AlterarCampos";
 import CriarCampo from "../../../components/Formularios/Campos/CriarCampo";
-import Sidebar from "../../../components/Sidebar";
+import Sidebar from "../../../components/sideBar/Sidebar";
 
 const ListarCampoPage = () => {  
     return (

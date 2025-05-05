@@ -1,5 +1,5 @@
 import CriarFormulario from "../../components/Formularios/CriarFormulario";
-import Sidebar from "../../components/Sidebar";
+import Sidebar from "../../components/sideBar/Sidebar";
 
 const CriarFormsPage = () => {  
     return (

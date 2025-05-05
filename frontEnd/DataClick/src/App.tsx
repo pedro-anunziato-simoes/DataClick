@@ -1,17 +1,18 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import Home from "./pages/Home";
-import Register from "./pages/Register";
 import ListarFormsPage from "./pages/formularios/lista_formularios/ListarFormsPage";
 import ListarCampoPage from "./pages/formularios/campo/ListarCamposByFormsPage";
 import CriarCampoPage from "./pages/formularios/campo/CriarCampoPage";
 import CampoByIdPage from "./pages/formularios/campo/CampoByIdPage";
-import PrivateRoute from "./pages/privateRoute";
 import CadastrarRecrutadorPage from "./pages/recrutadores/CadastrarRecrutadoresPage";
 import VisualizarRecrutadoresPage from "./pages/recrutadores/VisualizarRecrutadoresPage";
 import EditarRecrutadorPage from "./pages/recrutadores/EditarRecrutadorPage";
 import CriarFormsPage from "./pages/formularios/CriarFormsPage";
 import EditarFormPage from "./pages/formularios/EditarFormsPage";
+import PerfilAdminitradorPage from "./pages/administrador/PerfilAdminitradorPage";
+import PrivateRoute from "./api/privateRoute";
+import Home from "./pages/home/Home";
+import Login from "./pages/login/Login";
+import Register from "./pages/registrar/Register";
 
 const App = () => {
   return (
@@ -29,6 +30,7 @@ const App = () => {
         <Route path="/campos/:formId" element={<PrivateRoute><ListarCampoPage /></PrivateRoute>} />
         <Route path="/campos/add/:formId" element={<PrivateRoute><CriarCampoPage /></PrivateRoute>} />
         <Route path="/campo/find" element={<PrivateRoute><CampoByIdPage /></PrivateRoute>} />
+        <Route path="/perfilAdministrador" element={<PrivateRoute><PerfilAdminitradorPage /></PrivateRoute>} />
       </Routes>
     </Router>
   );

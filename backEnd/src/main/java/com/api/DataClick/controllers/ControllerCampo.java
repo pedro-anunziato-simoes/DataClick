@@ -25,8 +25,6 @@ public class ControllerCampo {
 
     @Autowired
     private ServiceCampo serviceCampo;
-    @Autowired
-    private RepositoryCampo repositoryCampo;
 
     //Adm/Recrutador
     @GetMapping("/findByFormId/{formId}")

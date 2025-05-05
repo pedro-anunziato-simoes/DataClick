@@ -144,13 +144,7 @@ public class ControllerRecrutador {
             System.out.println("Acesso negado: usuário não é ADMIN");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-
-        Usuario usuarioLogado  = (Usuario) userDetails;
-        String recId = usuarioLogado.getUsuarioId();
-        serviceRecrutador.infoRec(recId);
-        return ResponseEntity.noContent().build();
-    }
-
+   
     @PostMapping("/alterar/email")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Altera o e-amil do recrutador", description = "altera o e-mail do rec")
