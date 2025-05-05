@@ -79,7 +79,7 @@ const Sidebar = () => {
         </ListItem>
 
         <ListItem disablePadding>
-          <ListItemButton component={Link} to="/support">
+          <ListItemButton component={Link} to="/suporte">
             <ListItemIcon><HelpOutlineIcon /></ListItemIcon>
             <ListItemText primary="Suporte" />
           </ListItemButton>

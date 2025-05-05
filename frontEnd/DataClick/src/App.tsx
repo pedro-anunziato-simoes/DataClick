@@ -13,6 +13,7 @@ import PrivateRoute from "./api/privateRoute";
 import Home from "./pages/home/Home";
 import Login from "./pages/login/Login";
 import Register from "./pages/registrar/Register";
+import SuportePage from "./pages/suporte/SuportePage";
 
 const App = () => {
   return (
@@ -31,6 +32,7 @@ const App = () => {
         <Route path="/campos/add/:formId" element={<PrivateRoute><CriarCampoPage /></PrivateRoute>} />
         <Route path="/campo/find" element={<PrivateRoute><CampoByIdPage /></PrivateRoute>} />
         <Route path="/perfilAdministrador" element={<PrivateRoute><PerfilAdminitradorPage /></PrivateRoute>} />
+        <Route path="/suporte" element={<PrivateRoute><SuportePage /></PrivateRoute>} />
       </Routes>
     </Router>
   );
