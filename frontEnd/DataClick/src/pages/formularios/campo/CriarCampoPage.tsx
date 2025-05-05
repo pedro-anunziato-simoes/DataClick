@@ -1,5 +1,5 @@
 import CriarCampo from "../../../components/Formularios/Campos/CriarCampo";
-import Sidebar from "../../../components/Sidebar";
+import Sidebar from "../../../components/sideBar/Sidebar";
 
 const CriarCampoPage = () => {  
     return (

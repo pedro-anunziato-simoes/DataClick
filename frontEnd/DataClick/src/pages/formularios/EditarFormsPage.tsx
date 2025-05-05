@@ -1,5 +1,5 @@
 import EditarFormulario from "../../components/Formularios/EditarFormulario";
-import Sidebar from "../../components/Sidebar";
+import Sidebar from "../../components/sideBar/Sidebar";
 
 const EditarFormPage = () => {  
     return (

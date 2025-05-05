@@ -20,10 +20,6 @@ public class ServiceCampo {
     @Autowired
     RepositoryFormulario repositoryFormulario;
 
-    public List<EntityCampo> listarTodosCampos(){
-        return repositoryCampo.findAll();
-    }
-
     public List<EntityCampo> listarCamposByFormularioId(String formId){
         return repositoryCampo.findAllByformId(formId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.CAMPO_NAO_ENCONTRADO));
     }
