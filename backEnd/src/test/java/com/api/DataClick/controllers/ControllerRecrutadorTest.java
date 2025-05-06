@@ -48,7 +48,6 @@ public class ControllerRecrutadorTest {
                 "admin@test.com",
                 UserRole.ADMIN
         );
-        adminUser.setUsuarioId("admin123");
 
         regularUser = new EntityRecrutador(
                 "Regular User",
@@ -59,7 +58,6 @@ public class ControllerRecrutadorTest {
                 Collections.emptyList(),
                 UserRole.USER
         );
-        regularUser.setUsuarioId("2");
 
         recrutador = new EntityRecrutador(
                 "Recrutador Teste",
@@ -70,7 +68,6 @@ public class ControllerRecrutadorTest {
                 Collections.emptyList(),
                 UserRole.USER
         );
-        recrutador.setUsuarioId("1");
     }
 
     @Test

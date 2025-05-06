@@ -56,7 +56,6 @@ public class ControllerFormularioTest {
         }};
 
         formulario = new EntityFormulario("admin123", "Formulário Teste");
-        formulario.setFormId("form123");
     }
 
     @Test

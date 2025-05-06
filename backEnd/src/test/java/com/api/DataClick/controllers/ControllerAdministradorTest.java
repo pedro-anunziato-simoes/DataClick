@@ -39,7 +39,6 @@ public class ControllerAdministradorTest {
                 "admin@test.com",
                 UserRole.ADMIN
         );
-        adminUser.setUsuarioId("admin123");
 
         regularUser = new EntityAdministrador(
                 "12345678000101",
@@ -49,7 +48,6 @@ public class ControllerAdministradorTest {
                 "regular@test.com",
                 UserRole.USER
         );
-        regularUser.setUsuarioId("user456");
     }
 
     @Test
