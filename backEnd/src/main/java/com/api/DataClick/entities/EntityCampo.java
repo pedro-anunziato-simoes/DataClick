@@ -22,23 +22,4 @@ public class EntityCampo {
         this.tipo = tipo;
     }
 
-    public String getCampoId() {
-        return campoId;
-    }
-
-    public String getFormId() {
-        return formId;
-    }
-
-    public String getTitulo() {
-        return titulo;
-    }
-
-    public TipoCampo getTipo() {
-        return tipo;
-    }
-
-    public Object getResposta() {
-        return resposta;
-    }
 }
