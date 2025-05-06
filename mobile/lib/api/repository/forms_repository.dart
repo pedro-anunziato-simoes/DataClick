@@ -11,7 +11,7 @@ abstract class IFormularioRepository {
     String titulo,
     List<Campo> campos,
   );
-  Future<void> removerFormulario(String id);
+  Future<Formulario> removerFormulario(String id);
 }
 
 class FormularioRepository implements IFormularioRepository {
@@ -21,20 +21,21 @@ class FormularioRepository implements IFormularioRepository {
 
   @override
   Future<List<Formulario>> listarMeusFormularios() async {
-    return await _formularioService.getMeusFormularios();
+    return await _formularioService.getFormularios();
   }
 
   @override
   Future<Formulario> obterFormularioPorId(String id) async {
-    return await _formularioService.obterFormularioPorId(id);
+    return await _formularioService.getFormularioById(id);
   }
 
   @override
   Future<Formulario> criarFormulario(String titulo, List<Campo> campos) async {
-    return await _formularioService.criarFormulario(
-      titulo: titulo,
-      campos: campos,
-    );
+    Map<String, dynamic> data = {
+      'titulo': titulo,
+      'campos': campos.map((campo) => campo.toJson()).toList(),
+    };
+    return await _formularioService.criarForms(data);
   }
 
   @override
@@ -43,15 +44,15 @@ class FormularioRepository implements IFormularioRepository {
     String titulo,
     List<Campo> campos,
   ) async {
-    return await _formularioService.atualizarFormulario(
-      formId: formId,
-      titulo: titulo,
-      campos: campos,
-    );
+    Map<String, dynamic> data = {
+      'titulo': titulo,
+      'campos': campos.map((campo) => campo.toJson()).toList(),
+    };
+    return await _formularioService.alterarForms(formId, data);
   }
 
   @override
-  Future<void> removerFormulario(String id) async {
-    await _formularioService.removerFormulario(id);
+  Future<Formulario> removerFormulario(String id) async {
+    return await _formularioService.removerForms(id);
   }
 }

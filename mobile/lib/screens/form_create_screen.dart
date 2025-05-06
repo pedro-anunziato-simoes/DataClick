@@ -1,27 +1,33 @@
 import 'package:flutter/material.dart';
-import '../api/models/campo.dart';
-import '../api/models/formulario.dart';
-import '../api/models/resposta.dart';
-import '../api/services/formulario_service.dart';
-import '../api/services/campo_service.dart';
+import 'package:mobile/api/models/campo.dart';
+import 'package:mobile/api/models/formulario.dart';
+import 'package:mobile/api/services/formulario_service.dart';
+import 'package:mobile/api/services/campo_service.dart';
+import 'package:mobile/api/services/api_exception.dart';
 
-class CreateFormScreen extends StatefulWidget {
+class FormularioScreen extends StatefulWidget {
   final Formulario? formularioExistente;
   final FormularioService formularioService;
   final CampoService campoService;
+  final bool isEditingCampo;
+  final Campo? campoToEdit;
+  final String? formIdForAddCampo;
 
-  const CreateFormScreen({
+  const FormularioScreen({
     super.key,
     this.formularioExistente,
     required this.formularioService,
     required this.campoService,
+    this.isEditingCampo = false,
+    this.campoToEdit,
+    this.formIdForAddCampo,
   });
 
   @override
-  State<CreateFormScreen> createState() => _CreateFormScreenState();
+  State<FormularioScreen> createState() => _FormularioScreenState();
 }
 
-class _CreateFormScreenState extends State<CreateFormScreen> {
+class _FormularioScreenState extends State<FormularioScreen> {
   final _formKey = GlobalKey<FormState>();
   final _tituloController = TextEditingController();
   final _campoTituloController = TextEditingController();
@@ -33,13 +39,31 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
   final List<Campo> _campos = [];
   bool _isLoading = false;
   bool _isExpanded = false;
+  bool _isCampoMode = false;
+
+  final List<String> _tiposCampo = [
+    'TEXTO',
+    'NUMERO',
+    'DATA',
+    'CHECKBOX',
+    'SELECT',
+    'EMAIL',
+  ];
 
   @override
   void initState() {
     super.initState();
+
+    _isCampoMode = widget.isEditingCampo || widget.formIdForAddCampo != null;
+
     if (widget.formularioExistente != null) {
       _tituloController.text = widget.formularioExistente!.titulo;
       _campos.addAll(widget.formularioExistente!.campos);
+    }
+
+    if (widget.campoToEdit != null) {
+      _campoTituloController.text = widget.campoToEdit!.titulo;
+      _tipoCampoSelecionado = widget.campoToEdit!.tipo;
     }
   }
 
@@ -65,21 +89,10 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
     setState(() {
       _campos.add(
         Campo(
-          campoId: '',
-          formId: widget.formularioExistente?.id ?? '',
           titulo: _campoTituloController.text,
           tipo: _tipoCampoSelecionado,
-          resposta: Resposta(
-            respostaId: '',
-            tipo: _tipoCampoSelecionado,
-            valor: '',
-          ),
-          isObrigatorio: _campoObrigatorio,
-          opcoes:
-              _tipoCampoSelecionado == 'SELECT' ||
-                      _tipoCampoSelecionado == 'CHECKBOX'
-                  ? List.from(_opcoes)
-                  : null,
+          resposta: {'tipo': _tipoCampoSelecionado, 'valor': ''},
+          campoId: widget.campoToEdit?.campoId ?? '',
         ),
       );
 
@@ -107,7 +120,7 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
 
   Future<void> _salvarFormulario() async {
     if (!_formKey.currentState!.validate()) return;
-    if (_campos.isEmpty) {
+    if (_campos.isEmpty && !_isCampoMode) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Adicione pelo menos um campo'),
@@ -120,33 +133,61 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
     setState(() => _isLoading = true);
 
     try {
-      if (widget.formularioExistente != null) {
-        await widget.formularioService.atualizarFormulario(
-          formId: widget.formularioExistente!.id,
-          titulo: _tituloController.text,
-          campos: _campos,
-        );
+      if (_isCampoMode) {
+        if (widget.campoToEdit != null) {
+          await widget.campoService.alterarCampo(
+            campoId: widget.campoToEdit!.campoId,
+            tipo: _tipoCampoSelecionado,
+            titulo: _campoTituloController.text,
+          );
+        } else {
+          final campoData = {
+            'titulo': _campoTituloController.text,
+            'tipo': _tipoCampoSelecionado,
+            'resposta': {},
+          };
+
+          await widget.campoService.adicionarCampo(
+            widget.formIdForAddCampo!,
+            campoData,
+          );
+        }
       } else {
-        await widget.formularioService.criarFormulario(
-          titulo: _tituloController.text,
-          campos: _campos,
-        );
+        final formData = {
+          'titulo': _tituloController.text,
+          'campos': _campos.map((campo) => campo.toJson()).toList(),
+        };
+
+        if (widget.formularioExistente != null) {
+          await widget.formularioService.alterarForms(
+            widget.formularioExistente!.id,
+            formData,
+          );
+        } else {
+          await widget.formularioService.criarForms(formData);
+        }
       }
 
       if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Formulário salvo com sucesso!'),
+          content: Text('Operação realizada com sucesso!'),
           backgroundColor: Colors.green,
         ),
       );
 
-      Navigator.pop(context);
+      Navigator.pop(context, true);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message), backgroundColor: Colors.red),
+      );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erro ao salvar formulário: ${e.toString()}'),
+          content: Text('Erro: ${e.toString()}'),
           backgroundColor: Colors.red,
         ),
       );
@@ -169,6 +210,8 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
         return 'Múltipla escolha';
       case 'SELECT':
         return 'Seleção única';
+      case 'EMAIL':
+        return 'E-mail';
       default:
         return tipo;
     }
@@ -186,9 +229,76 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
         return const Icon(Icons.check_box, color: Color(0xFF26A69A));
       case 'SELECT':
         return const Icon(Icons.radio_button_checked, color: Color(0xFF26A69A));
+      case 'EMAIL':
+        return const Icon(Icons.email, color: Color(0xFF26A69A));
       default:
         return const Icon(Icons.help_outline, color: Color(0xFF26A69A));
     }
+  }
+
+  Widget _buildCampoForm() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextField(
+          controller: _campoTituloController,
+          decoration: const InputDecoration(
+            labelText: 'Título do Campo',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 16),
+        DropdownButtonFormField<String>(
+          value: _tipoCampoSelecionado,
+          decoration: const InputDecoration(
+            labelText: 'Tipo de Campo',
+            border: OutlineInputBorder(),
+          ),
+          items: const [
+            DropdownMenuItem(value: 'TEXTO', child: Text('Texto')),
+            DropdownMenuItem(value: 'NUMERO', child: Text('Número')),
+            DropdownMenuItem(value: 'DATA', child: Text('Data')),
+            DropdownMenuItem(value: 'CHECKBOX', child: Text('Checkbox')),
+            DropdownMenuItem(value: 'EMAIL', child: Text('Email')),
+          ],
+          onChanged: (value) => setState(() => _tipoCampoSelecionado = value!),
+        ),
+        const SizedBox(height: 24),
+        if (widget.campoToEdit != null)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancelar'),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: _isLoading ? null : _salvarFormulario,
+                  child:
+                      _isLoading
+                          ? const CircularProgressIndicator()
+                          : const Text('Salvar'),
+                ),
+              ),
+            ],
+          )
+        else
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _isLoading ? null : _salvarFormulario,
+              child:
+                  _isLoading
+                      ? const CircularProgressIndicator()
+                      : const Text('Adicionar Campo'),
+            ),
+          ),
+      ],
+    );
   }
 
   @override
@@ -197,31 +307,40 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         backgroundColor: const Color(0xFF26A69A),
-        foregroundColor: Colors.white,
-        elevation: 0,
         title: Text(
-          widget.formularioExistente != null
+          _isCampoMode
+              ? widget.campoToEdit != null
+                  ? 'Editar Campo'
+                  : 'Adicionar Campo'
+              : widget.formularioExistente != null
               ? 'Editar Formulário'
               : 'Criar Formulário',
-          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.save),
-            tooltip: 'Salvar formulário',
-            onPressed: _isLoading ? null : _salvarFormulario,
-          ),
+          if (!_isCampoMode)
+            IconButton(
+              icon: const Icon(Icons.save),
+              onPressed: _isLoading ? null : _salvarFormulario,
+            ),
         ],
       ),
       body:
           _isLoading
-              ? const Center(
-                child: CircularProgressIndicator(color: Color(0xFF26A69A)),
+              ? const Center(child: CircularProgressIndicator())
+              : _isCampoMode
+              ? Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: _buildCampoForm(),
               )
               : Form(
                 key: _formKey,
                 child: Column(
                   children: [
+                    // Form title section
                     Container(
                       padding: const EdgeInsets.all(16),
                       color: const Color(0xFF26A69A),
@@ -264,6 +383,8 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
                         },
                       ),
                     ),
+
+                    // Main content
                     Expanded(
                       child: SingleChildScrollView(
                         padding: const EdgeInsets.all(16),
@@ -272,7 +393,7 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
                             _buildAdicionarCampoCard(),
                             const SizedBox(height: 16),
                             if (_campos.isNotEmpty) _buildListaCampos(),
-                            const SizedBox(height: 72),
+                            const SizedBox(height: 72), // Space for FAB
                           ],
                         ),
                       ),
@@ -281,22 +402,13 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
                 ),
               ),
       floatingActionButton:
-          !_isLoading
-              ? Container(
-                width: double.infinity,
-                margin: const EdgeInsets.only(left: 32),
-                child: FloatingActionButton.extended(
-                  onPressed: _salvarFormulario,
-                  backgroundColor: const Color(0xFF26A69A),
-                  icon: const Icon(Icons.save),
-                  label: const Text(
-                    'SALVAR FORMULÁRIO',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
+          !_isLoading && !_isCampoMode
+              ? FloatingActionButton.extended(
+                onPressed: _salvarFormulario,
+                label: const Text('SALVAR FORMULÁRIO'),
+                icon: const Icon(Icons.save),
               )
               : null,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -350,6 +462,7 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
               ),
             ),
           ),
+
           AnimatedCrossFade(
             firstChild: const SizedBox.shrink(),
             secondChild: Padding(
@@ -359,6 +472,8 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
                 children: [
                   const Divider(),
                   const SizedBox(height: 8),
+
+                  // Field title
                   TextFormField(
                     controller: _campoTituloController,
                     decoration: InputDecoration(
@@ -373,6 +488,7 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
+
                   DropdownButtonFormField<String>(
                     value: _tipoCampoSelecionado,
                     isExpanded: true,
@@ -385,81 +501,35 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
                       filled: true,
                       fillColor: Colors.grey[50],
                     ),
-                    items: [
-                      DropdownMenuItem(
-                        value: 'TEXTO',
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.text_fields,
-                              color: Color(0xFF26A69A),
+                    items:
+                        _tiposCampo.map((tipo) {
+                          return DropdownMenuItem(
+                            value: tipo,
+                            child: Row(
+                              children: [
+                                _getTipoIcon(tipo),
+                                const SizedBox(width: 10),
+                                Text(_getTipoDescricao(tipo)),
+                              ],
                             ),
-                            const SizedBox(width: 10),
-                            const Text('Texto'),
-                          ],
-                        ),
-                      ),
-                      DropdownMenuItem(
-                        value: 'NUMERO',
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.filter_1,
-                              color: Color(0xFF26A69A),
-                            ),
-                            const SizedBox(width: 10),
-                            const Text('Número'),
-                          ],
-                        ),
-                      ),
-                      DropdownMenuItem(
-                        value: 'DATA',
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.calendar_today,
-                              color: Color(0xFF26A69A),
-                            ),
-                            const SizedBox(width: 10),
-                            const Text('Data'),
-                          ],
-                        ),
-                      ),
-                      DropdownMenuItem(
-                        value: 'CHECKBOX',
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.check_box,
-                              color: Color(0xFF26A69A),
-                            ),
-                            const SizedBox(width: 10),
-                            const Text('Múltipla escolha'),
-                          ],
-                        ),
-                      ),
-                      DropdownMenuItem(
-                        value: 'SELECT',
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.radio_button_checked,
-                              color: Color(0xFF26A69A),
-                            ),
-                            const SizedBox(width: 10),
-                            const Text('Seleção única'),
-                          ],
-                        ),
-                      ),
-                    ],
-                    onChanged:
-                        (value) =>
-                            setState(() => _tipoCampoSelecionado = value!),
+                          );
+                        }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _tipoCampoSelecionado = value!;
+                        if (value != 'SELECT' && value != 'CHECKBOX') {
+                          _opcoes.clear();
+                        }
+                      });
+                    },
                   ),
+
                   if (_tipoCampoSelecionado == 'SELECT' ||
                       _tipoCampoSelecionado == 'CHECKBOX')
                     _buildOpcoesCampo(),
+
                   const SizedBox(height: 16),
+
                   SwitchListTile(
                     title: const Text('Campo Obrigatório'),
                     subtitle: const Text(
@@ -474,7 +544,10 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
+
                   const SizedBox(height: 16),
+
+                  // Add field button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
@@ -519,6 +592,8 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
           ),
         ),
         const SizedBox(height: 8),
+
+        // Add new option row
         Row(
           children: [
             Expanded(
@@ -554,6 +629,7 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
             ),
           ],
         ),
+
         if (_opcoes.isNotEmpty)
           Container(
             margin: const EdgeInsets.only(top: 16),
@@ -658,6 +734,7 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
           ),
           const SizedBox(height: 8),
           const Divider(),
+
           _campos.isEmpty
               ? Container(
                 padding: const EdgeInsets.symmetric(vertical: 24),
@@ -699,33 +776,7 @@ class _CreateFormScreenState extends State<CreateFormScreen> {
                       campo.titulo,
                       style: const TextStyle(fontWeight: FontWeight.w500),
                     ),
-                    subtitle: Row(
-                      children: [
-                        Text(_getTipoDescricao(campo.tipo)),
-                        if (campo.isObrigatorio) ...[
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.red[50],
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(color: Colors.red[100]!),
-                            ),
-                            child: const Text(
-                              'Obrigatório',
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Colors.red,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
+                    subtitle: Text(_getTipoDescricao(campo.tipo)),
                     trailing: IconButton(
                       icon: const Icon(Icons.delete_outline, color: Colors.red),
                       onPressed: () => _removerCampo(index),

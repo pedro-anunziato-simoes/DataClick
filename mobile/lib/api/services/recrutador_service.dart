@@ -1,98 +1,164 @@
 import 'dart:convert';
-
 import '../api_client.dart';
-import '../endpoints.dart';
 import '../models/recrutador.dart';
+import 'package:mobile/api/services/api_exception.dart';
 
 class RecrutadorService {
   final ApiClient _apiClient;
 
   RecrutadorService(this._apiClient);
 
-  Future<Recrutador> criarRecrutador(
-    String adminId,
-    Recrutador recrutador,
-  ) async {
-    try {
-      final response = await _apiClient.post(
-        Endpoints.criarRecrutador,
-        body: recrutador.toJson(),
-      );
-
-      if (response.statusCode == 201) {
-        return Recrutador.fromJson(json.decode(response.body));
-      } else {
-        throw Exception(
-          'Falha ao criar recrutador: ${response.statusCode} - ${response.body}',
-        );
-      }
-    } catch (e) {
-      throw Exception('Erro ao criar recrutador: ${e.toString()}');
-    }
-  }
-
-  Future<List<Recrutador>> listarPorAdmin(String adminId) async {
+  Future<List<Recrutador>> getRecrutadores() async {
     try {
       final response = await _apiClient.get(
-        Endpoints.listarRecrutadoresPorAdmin(adminId),
+        '/recrutadores/list',
+        includeAuth: true,
       );
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         return data.map((json) => Recrutador.fromJson(json)).toList();
       } else {
-        throw Exception('Falha ao listar recrutadores: ${response.statusCode}');
+        throw ApiException(
+          _getErrorMessage(response, 'listar recrutadores'),
+          response.statusCode,
+        );
       }
+    } on ApiException {
+      rethrow;
     } catch (e) {
-      throw Exception('Erro ao listar recrutadores: ${e.toString()}');
+      throw ApiException('Erro ao listar recrutadores: ${e.toString()}', 0);
     }
   }
 
-  Future<Recrutador> buscarPorId(String id) async {
+  Future<Recrutador> getRecrutadorById(String recrutadorId) async {
     try {
-      final response = await _apiClient.get('${Endpoints.recrutadores}/$id');
-
-      if (response.statusCode == 200) {
-        return Recrutador.fromJson(json.decode(response.body));
-      } else {
-        throw Exception('Falha ao buscar recrutador: ${response.statusCode}');
-      }
-    } catch (e) {
-      throw Exception('Erro ao buscar recrutador: ${e.toString()}');
-    }
-  }
-
-  Future<Recrutador> atualizarRecrutador(
-    String id,
-    Recrutador recrutador,
-  ) async {
-    try {
-      final response = await _apiClient.put(
-        '${Endpoints.recrutadores}/$id',
-        body: recrutador.toJson(),
+      final response = await _apiClient.get(
+        '/recrutadores/$recrutadorId',
+        includeAuth: true,
       );
 
       if (response.statusCode == 200) {
         return Recrutador.fromJson(json.decode(response.body));
       } else {
-        throw Exception(
-          'Falha ao atualizar recrutador: ${response.statusCode}',
+        throw ApiException(
+          _getErrorMessage(response, 'buscar recrutador'),
+          response.statusCode,
         );
       }
+    } on ApiException {
+      rethrow;
     } catch (e) {
-      throw Exception('Erro ao atualizar recrutador: ${e.toString()}');
+      throw ApiException('Erro ao buscar recrutador: ${e.toString()}', 0);
     }
   }
 
-  Future<void> removerRecrutador(String id) async {
+  Future<Recrutador> alterarRecrutador({
+    required String recrutadorId,
+    required Map<String, dynamic> recrutadorData,
+  }) async {
     try {
-      final response = await _apiClient.delete('${Endpoints.recrutadores}/$id');
+      final response = await _apiClient.post(
+        '/recrutadores/alterar/$recrutadorId',
+        body: json.encode(recrutadorData),
+        includeAuth: true,
+      );
 
-      if (response.statusCode != 200 && response.statusCode != 204) {
-        throw Exception('Falha ao remover recrutador: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        return Recrutador.fromJson(json.decode(response.body));
+      } else {
+        throw ApiException(
+          _getErrorMessage(response, 'alterar recrutador'),
+          response.statusCode,
+        );
       }
+    } on ApiException {
+      rethrow;
     } catch (e) {
-      throw Exception('Erro ao remover recrutador: ${e.toString()}');
+      throw ApiException('Erro ao alterar recrutador: ${e.toString()}', 0);
+    }
+  }
+
+  Future<Recrutador> criarRecrutador(
+    Map<String, dynamic> recrutadorData,
+  ) async {
+    try {
+      final response = await _apiClient.post(
+        '/recrutadores',
+        body: json.encode(recrutadorData),
+        includeAuth: true,
+      );
+
+      if (response.statusCode == 201) {
+        return Recrutador.fromJson(json.decode(response.body));
+      } else {
+        throw ApiException(
+          _getErrorMessage(response, 'criar recrutador'),
+          response.statusCode,
+        );
+      }
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException('Erro ao criar recrutador: ${e.toString()}', 0);
+    }
+  }
+
+  Future<Recrutador> excluirRecrutador(String recrutadorId) async {
+    try {
+      final response = await _apiClient.delete(
+        '/recrutadores/remover/$recrutadorId',
+        includeAuth: true,
+      );
+
+      if (response.statusCode == 200) {
+        return Recrutador.fromJson(json.decode(response.body));
+      } else {
+        throw ApiException(
+          _getErrorMessage(response, 'excluir recrutador'),
+          response.statusCode,
+        );
+      }
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException('Erro ao excluir recrutador: ${e.toString()}', 0);
+    }
+  }
+
+  String _getErrorMessage(dynamic response, String operation) {
+    try {
+      final responseBody = response is String ? response : response.body;
+
+      if (responseBody == null || responseBody.isEmpty) {
+        return 'Resposta vazia do servidor ao tentar $operation';
+      }
+
+      final decoded = json.decode(responseBody);
+
+      return decoded['message'] ??
+          decoded['error'] ??
+          decoded['error_description'] ??
+          'Falha ao $operation: Status ${response.statusCode}';
+    } catch (e) {
+      return _getDefaultErrorMessage(response?.statusCode, operation);
+    }
+  }
+
+  String _getDefaultErrorMessage(int? statusCode, String operation) {
+    switch (statusCode) {
+      case 400:
+        return 'Requisição inválida ao $operation';
+      case 401:
+        return 'Não autorizado. Faça login novamente.';
+      case 403:
+        return 'Acesso negado. Permissões insuficientes para $operation';
+      case 404:
+        return 'Recurso não encontrado';
+      case 500:
+        return 'Erro interno do servidor ao $operation';
+      default:
+        return 'Falha ao $operation: Status $statusCode';
     }
   }
 }
