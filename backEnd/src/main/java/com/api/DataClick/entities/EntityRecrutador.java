@@ -5,6 +5,7 @@ import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Calendar;
 import java.util.List;
 
 @Data
@@ -27,5 +28,14 @@ public class EntityRecrutador extends Usuario{
         super(null, nome, senha, telefone, email, role);
         this.adminId = adminId;
         this.formularios = formularios;
+    }
+
+    public String getAdminId() {
+        return adminId;
+    }
+
+
+    public List<EntityFormulario> getFormularios() {
+        return formularios;
     }
 }
