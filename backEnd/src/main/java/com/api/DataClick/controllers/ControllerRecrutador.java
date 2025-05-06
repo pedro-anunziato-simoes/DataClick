@@ -137,13 +137,16 @@ public class ControllerRecrutador {
     @GetMapping("/info")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Busca as informações do recrutador", description = "Retorna as informações do recrutador")
-    public ResponseEntity<EntityAdministrador> infoAdm(@AuthenticationPrincipal UserDetails userDetails){
+    public ResponseEntity<EntityRecrutador> infoAdm(@AuthenticationPrincipal UserDetails userDetails) {
 
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            System.out.println("Acesso negado: usuário não é ADMIN");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+        Usuario usuarioLogado  = (Usuario) userDetails;
+        String recId = usuarioLogado.getUsuarioId();
+        return ResponseEntity.ok(serviceRecrutador.infoRec(recId));
+    }
    
     @PostMapping("/alterar/email")
     @SecurityRequirement(name = "bearerAuth")
@@ -151,7 +154,6 @@ public class ControllerRecrutador {
     public ResponseEntity<Void> alterarEmail(@AuthenticationPrincipal UserDetails userDetails,@RequestBody String email){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            System.out.println("Acesso negado: usuário não é ADMIN");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
