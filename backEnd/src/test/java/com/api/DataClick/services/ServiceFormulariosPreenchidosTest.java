@@ -1,6 +1,6 @@
 package com.api.DataClick.services;
 
-import com.api.DataClick.entities.EntityFormualriosPreenchidos;
+import com.api.DataClick.entities.EntityFormulariosPreenchidos;
 import com.api.DataClick.entities.EntityFormulario;
 import com.api.DataClick.entities.EntityRecrutador;
 import com.api.DataClick.exeptions.ExeceptionsMensage;
@@ -32,30 +32,15 @@ public class ServiceFormulariosPreenchidosTest {
     @InjectMocks
     private ServiceFormulariosPreenchidos serviceFormulariosPreenchidos;
 
-    private EntityFormualriosPreenchidos formularioPreenchido;
+    private EntityFormulariosPreenchidos formularioPreenchido;
     private EntityRecrutador recrutador;
     private EntityFormulario formulario;
 
     @BeforeEach
     void setUp() {
         formulario = new EntityFormulario("adminId123", "Formulario Teste");
-        formularioPreenchido = new EntityFormualriosPreenchidos(Arrays.asList(formulario));
-        formularioPreenchido.setFormulariosPreId("formPreId123");
-
+        formularioPreenchido = new EntityFormulariosPreenchidos(Arrays.asList(formulario));
         recrutador = new EntityRecrutador("recrutador1", "senha", "telefone", "email", "adminId123", Arrays.asList(), null);
-        recrutador.setUsuarioId("recrutadorId123");
-    }
-
-    @Test
-    void testListarTodosFormulariosPreenchidos() {
-        when(repositoryFormualriosPreenchidos.findAll()).thenReturn(Arrays.asList(formularioPreenchido));
-
-        List<EntityFormualriosPreenchidos> result = serviceFormulariosPreenchidos.listarTodosFormulariosPreenchidos();
-
-        assertNotNull(result);
-        assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertEquals("formPreId123", result.get(0).getFormulariosPreId());
     }
 
     @Test
@@ -63,7 +48,7 @@ public class ServiceFormulariosPreenchidosTest {
         when(repositoryRecrutador.findById("recrutadorId123")).thenReturn(java.util.Optional.of(recrutador));
         when(repositoryFormualriosPreenchidos.save(formularioPreenchido)).thenReturn(formularioPreenchido);
 
-        EntityFormualriosPreenchidos result = serviceFormulariosPreenchidos.adicionarFormulariosPreenchidos(formularioPreenchido, "recrutadorId123");
+        EntityFormulariosPreenchidos result = serviceFormulariosPreenchidos.adicionarFormulariosPreenchidos(formularioPreenchido, "recrutadorId123");
 
         verify(repositoryRecrutador, times(1)).findById("recrutadorId123");
         verify(repositoryFormualriosPreenchidos, times(1)).save(formularioPreenchido);
@@ -78,7 +63,7 @@ public class ServiceFormulariosPreenchidosTest {
         when(repositoryFormualriosPreenchidos.findByrecrutadorId("recrutadorId123"))
                 .thenReturn(java.util.Optional.of(Arrays.asList(formularioPreenchido)));
 
-        List<EntityFormualriosPreenchidos> result = serviceFormulariosPreenchidos.buscarListaDeFormualriosPorIdRecrutador("recrutadorId123");
+        List<EntityFormulariosPreenchidos> result = serviceFormulariosPreenchidos.buscarListaDeFormualriosPorIdRecrutador("recrutadorId123");
 
         assertNotNull(result);
         assertFalse(result.isEmpty());

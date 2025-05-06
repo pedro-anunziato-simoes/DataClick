@@ -24,6 +24,26 @@ public class EntityFormulario {
         this.titulo = titulo;
     }
 
+    public String getTitulo() {
+        return titulo;
+    }
+
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
+    }
+
+    public String getAdminId() {
+        return adminId;
+    }
+
+    public void setAdminId(String adminId) {
+        this.adminId = adminId;
+    }
+
+    public void setCampos(List<EntityCampo> campos) {
+        this.campos = campos;
+    }
+
     public String getId() {
         return formId;
     }

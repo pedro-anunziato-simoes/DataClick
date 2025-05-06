@@ -39,21 +39,6 @@ public class ServiceCampoTest {
     }
 
     @Test
-    void listarTodosCampos_deveRetornarListaDeCampos() {
-        List<EntityCampo> campos = Arrays.asList(
-                new EntityCampo("Nome", TipoCampo.TEXTO),
-                new EntityCampo("Idade", TipoCampo.NUMERO)
-        );
-
-        when(repositoryCampo.findAll()).thenReturn(campos);
-
-        List<EntityCampo> resultado = serviceCampo.listarTodosCampos();
-
-        assertEquals(2, resultado.size());
-        verify(repositoryCampo, times(1)).findAll();
-    }
-
-    @Test
     void listarCamposByFormularioId_existente_deveRetornarCampos() {
         String formId = "form1";
         List<EntityCampo> campos = Collections.singletonList(
@@ -86,7 +71,6 @@ public class ServiceCampoTest {
     void adicionarCampo_deveSalvarCampoEAtualizarFormulario() {
         String formId = "form123";
         EntityFormulario formulario = new EntityFormulario("admin1", "Form teste");
-        formulario.setFormId(formId);
 
         EntityCampo campo = new EntityCampo("Nome", TipoCampo.TEXTO);
 

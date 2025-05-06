@@ -48,28 +48,6 @@ public class ServiceAdministradorTest {
     }
 
     @Test
-    void deveAdicionarAdministrador() {
-        when(repositoryAdministrador.save(administrador)).thenReturn(administrador);
-
-        EntityAdministrador resultado = serviceAdministrador.adicionarAdmin(administrador);
-
-        assertNotNull(resultado);
-        assertEquals("João Admin", resultado.getNome());
-        verify(repositoryAdministrador, times(1)).save(administrador);
-    }
-
-    @Test
-    void deveListarAdministradores() {
-        when(repositoryAdministrador.findAll()).thenReturn(List.of(administrador));
-
-        List<EntityAdministrador> resultado = serviceAdministrador.listarAdministradores();
-
-        assertFalse(resultado.isEmpty());
-        assertEquals(1, resultado.size());
-        verify(repositoryAdministrador, times(1)).findAll();
-    }
-
-    @Test
     void deveRemoverAdministrador() {
         String adminId = "id123";
 

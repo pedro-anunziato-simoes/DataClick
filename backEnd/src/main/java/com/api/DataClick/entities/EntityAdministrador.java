@@ -39,6 +39,7 @@ public class EntityAdministrador extends Usuario{
 
 
 
+
     public String getCnpj() {
         return cnpj;
     }
@@ -55,5 +56,7 @@ public class EntityAdministrador extends Usuario{
         return formularios;
     }
 
-
+    public void setFormularios(List<EntityFormulario> formularios) {
+        this.formularios = formularios;
+    }
 }

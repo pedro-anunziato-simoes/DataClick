@@ -48,7 +48,6 @@ public class ServiceFormularioTest {
         formulario = new EntityFormulario("admin-id", "Formulário Teste");
         admin = new EntityAdministrador("123456789", "Admin", "senha", "telefone", "admin@email.com", null);
         recrutador = new EntityRecrutador("Recrutador", "senha", "telefone", "recrutador@email.com", "admin-id", new ArrayList<>(), null);
-        formulario.setFormId("form-id");
         admin.setFormularios(new ArrayList<>());
         admin.setRecrutadores(List.of(recrutador));
     }

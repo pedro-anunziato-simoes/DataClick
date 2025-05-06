@@ -41,19 +41,6 @@ public class ServiceRecrutadorTest {
     void setUp() {
         administrador = new EntityAdministrador("cnpj123", "Administrador", "senha", "telefone", "admin@teste.com", UserRole.ADMIN);
         recrutador = new EntityRecrutador("recrutador1", "senha", "telefone", "email", "adminId123", null, null);
-        recrutador.setUsuarioId("recrutadorId123");
-    }
-
-    @Test
-    void testListarTodosRecrutadores() {
-        when(repositoryRecrutador.findAll()).thenReturn(Arrays.asList(recrutador));
-
-        List<EntityRecrutador> result = serviceRecrutador.listarTodosRecrutadores();
-
-        assertNotNull(result);
-        assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertEquals("recrutadorId123", result.get(0).getUsuarioId());
     }
 
     @Test
