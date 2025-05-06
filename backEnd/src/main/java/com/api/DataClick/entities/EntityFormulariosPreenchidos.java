@@ -21,4 +21,16 @@ public class EntityFormulariosPreenchidos {
     public EntityFormulariosPreenchidos(List<EntityFormulario> listaFormularios) {
         this.listaFormularios = listaFormularios;
     }
+
+    public void setRecrutadorId(String recrutadorId) {
+        this.recrutadorId = recrutadorId;
+    }
+
+    public String getAdminId() {
+        return adminId;
+    }
+
+    public void setAdminId(String adminId) {
+        this.adminId = adminId;
+    }
 }

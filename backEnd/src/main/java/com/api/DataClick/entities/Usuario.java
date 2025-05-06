@@ -47,6 +47,38 @@ public abstract class Usuario implements UserDetails {
         return List.of(new SimpleGrantedAuthority(this.role.getRole()));
     }
 
+    public void setUsuarioId(String usuarioId) {
+        this.usuarioId = usuarioId;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
+    }
+
+    public String getUsuarioId() {
+        return usuarioId;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public String getTelefone() {
+        return telefone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public UserRole getRole() {
+        return role;
+    }
+
     @Override
     public String getPassword() {
         return this.senha;

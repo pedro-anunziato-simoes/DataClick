@@ -21,4 +21,5 @@ public class EntityCampo {
         this.titulo = titulo;
         this.tipo = tipo;
     }
+
 }
