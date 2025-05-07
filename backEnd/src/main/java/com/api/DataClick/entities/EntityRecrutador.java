@@ -14,7 +14,7 @@ import java.util.List;
 @Setter
 @Data
 @Document(collection = "Recrutadores")
-public class EntityRecrutador extends Usuario{
+public class EntityRecrutador extends Usuario {
 
     private String adminId;
     @DBRef
@@ -47,8 +47,4 @@ public class EntityRecrutador extends Usuario{
         return adminId;
     }
 
-
-    public List<EntityFormulario> getFormularios() {
-        return formularios;
-    }
 }

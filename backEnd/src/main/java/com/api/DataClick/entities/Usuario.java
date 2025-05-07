@@ -114,32 +114,4 @@ public abstract class Usuario implements UserDetails {
     public void setEmail(String email) {
         this.email = email;
     }
-
-    public String getUsuarioId() {
-        return usuarioId;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public String getSenha() {
-        return senha;
-    }
-
-    public String getTelefone() {
-        return telefone;
-    }
-
-    public void setTelefone(String telefone) {
-        this.telefone = telefone;
-    }
-
-    public String getEmail() {
-        return email;
-    }
 }
