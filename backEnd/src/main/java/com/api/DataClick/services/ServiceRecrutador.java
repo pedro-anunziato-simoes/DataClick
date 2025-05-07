@@ -32,11 +32,11 @@ public class ServiceRecrutador {
 
         EntityRecrutador novoRecrutador = repositoryRecrutador.save(recrutador);
 
-        if (novoRecrutador.getAdminId() != null) {
-            EntityAdministrador administrador = repositoryAdministrador.findById(novoRecrutador.getAdminId())
-                    .orElseThrow(() -> new ExeptionNaoEncontrado("Administrador não encontrado " + novoRecrutador.getAdminId()));
+        if (novoRecrutador.getRecrutadorAdminId() != null) {
+            EntityAdministrador administrador = repositoryAdministrador.findById(novoRecrutador.getRecrutadorAdminId())
+                    .orElseThrow(() -> new ExeptionNaoEncontrado("Administrador não encontrado " + novoRecrutador.getRecrutadorAdminId()));
 
-            administrador.getRecrutadores().add(novoRecrutador);
+            administrador.getAdminRecrutadores().add(novoRecrutador);
             repositoryAdministrador.save(administrador);
         }
 
@@ -52,7 +52,7 @@ public class ServiceRecrutador {
         EntityAdministrador administrador = repositoryAdministrador.findById(administradorId)
                 .orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.ADM_NAO_ENCONTRADO));
 
-        return administrador.getRecrutadores();
+        return administrador.getAdminRecrutadores();
     }
 
     public EntityRecrutador buscarRecrut(String id){
@@ -64,7 +64,7 @@ public class ServiceRecrutador {
 
     public Optional<String> buscarAdminIdPorRecrutadorId(String recrutadorId) {
         return repositoryRecrutador.findById(recrutadorId)
-                .map(EntityRecrutador::getAdminId);
+                .map(EntityRecrutador::getRecrutadorAdminId);
     }
   
     public EntityRecrutador alterarRecrutador(String id, RecrutadorUpdateDTO dto){

@@ -26,8 +26,8 @@ public class ServiceCampo {
 
     public EntityCampo adicionarCampo(EntityCampo campo, String formId) {
         EntityFormulario form = repositoryFormulario.findById(formId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.FORM_NAO_ENCONTRADO));
-        String idForm = form.getId();
-        campo.setFormId(idForm);
+        String idForm = form.getFormId();
+        campo.setCampoFormId(idForm);
         repositoryCampo.save(campo);
         form.getCampos().add(campo);
         repositoryFormulario.save(form);
@@ -46,8 +46,8 @@ public class ServiceCampo {
     public EntityCampo alterarCampo(String id, String tipo, String titulo){
         EntityCampo campo = repositoryCampo.findById(id).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.CAMPO_NAO_ENCONTRADO));
         System.out.println(tipo);
-        campo.setTipo(TipoCampo.valueOf(tipo));
-        campo.setTitulo(titulo);
+        campo.setCampoTipo(TipoCampo.valueOf(tipo));
+        campo.setCampoTitulo(titulo);
         System.out.println(titulo);
         return repositoryCampo.save(campo);
     }

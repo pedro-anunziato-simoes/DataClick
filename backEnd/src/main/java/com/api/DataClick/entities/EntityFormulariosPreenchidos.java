@@ -30,7 +30,8 @@ public class EntityFormulariosPreenchidos {
         return adminId;
     }
 
-    public void setAdminId(String adminId) {
+    public void setFormularioPreenchidoAdminId(String adminId) {
         this.adminId = adminId;
     }
 }
+
