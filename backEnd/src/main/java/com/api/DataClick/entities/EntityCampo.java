@@ -61,4 +61,5 @@ public class EntityCampo {
     public void setCampoResposta(Object resposta) {
         this.resposta = resposta;
     }
+
 }

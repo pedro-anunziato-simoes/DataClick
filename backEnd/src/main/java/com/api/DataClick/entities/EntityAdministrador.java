@@ -39,7 +39,6 @@ public class EntityAdministrador extends Usuario{
         super(null, nome, senha, telefone, email, role);
         this.cnpj = cnpj;
     }
-
     public String getCnpj() {
         return cnpj;
     }
@@ -55,4 +54,5 @@ public class EntityAdministrador extends Usuario{
     public List<EntityEvento> getAdminEventos() {
         return eventos;
     }
+
 }

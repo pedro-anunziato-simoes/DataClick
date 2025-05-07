@@ -29,8 +29,8 @@ public class EntityFormulario {
     }
 
     public String getFormId() {
-        return formId;
-    }
+     return formId;
+  }
 
     public String getFormularioTitulo() {
         return titulo;

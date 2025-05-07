@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Calendar;
 import java.util.List;
 
 @Getter
@@ -40,5 +41,14 @@ public class EntityRecrutador extends Usuario{
 
     public List<EntityEvento> getRecrutadorEventos() {
         return eventos;
+    }
+
+    public String getAdminId() {
+        return adminId;
+    }
+
+
+    public List<EntityFormulario> getFormularios() {
+        return formularios;
     }
 }
