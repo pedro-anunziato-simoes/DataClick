@@ -18,7 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/formualriosPreenchidos")
 @Tag(name = "FormualriosPreenchidos", description = "Endpoints de funcionalidades dos FormualriosPreenchidos")
-public class ControllerFormualriosPreenchidos {
+public class ControllerFormulariosPreenchidos {
 
     @Autowired
     ServiceFormulariosPreenchidos serviceFormulariosPreenchidos;

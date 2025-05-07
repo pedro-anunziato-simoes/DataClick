@@ -1,8 +1,14 @@
 package com.api.DataClick.controllers;
 
 import com.api.DataClick.DTO.FormularioUpdateDTO;
+import com.api.DataClick.entities.EntityEvento;
 import com.api.DataClick.entities.EntityFormulario;
+import com.api.DataClick.entities.EntityRecrutador;
 import com.api.DataClick.entities.Usuario;
+import com.api.DataClick.exeptions.ExeceptionsMensage;
+import com.api.DataClick.exeptions.ExeptionNaoEncontrado;
+import com.api.DataClick.repositories.RepositoryRecrutador;
+import com.api.DataClick.services.ServiceEvento;
 import com.api.DataClick.services.ServiceFormulario;
 import com.api.DataClick.services.ServiceRecrutador;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +21,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Formattable;
 import java.util.List;
 
 @RestController
@@ -24,9 +31,10 @@ public class ControllerFormulario {
 
     @Autowired
     ServiceFormulario serviceFormulario;
-
     @Autowired
-    ServiceRecrutador serviceRecrutador;
+    ServiceEvento serviceEvento;
+    @Autowired
+    RepositoryRecrutador repositoryRecrutador;
 
     @PostMapping("/alterar/{formId}")
     @SecurityRequirement(name = "bearerAuth")
@@ -53,7 +61,7 @@ public class ControllerFormulario {
         Usuario admin = (Usuario) userDetails;
         String adminId = admin.getUsuarioId();
 
-        form.setAdminId(adminId);
+        form.setFormAdminId(adminId);
 
         EntityFormulario formularioSalvo = serviceFormulario.criarFormulario(form, adminId);
         return ResponseEntity.status(HttpStatus.CREATED).body(formularioSalvo);
@@ -89,33 +97,17 @@ public class ControllerFormulario {
         return ResponseEntity.ok(formulario);
     }
     //Adm/Recrutador
-    @GetMapping("/todos-formularios")
+    @GetMapping("/formulario/evento/{eventoId}")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Busca a lista de formularios pelo id-administrador", description = "Retorna uma lista de formularios vinculada ao adminitrador")
-    public ResponseEntity<List<EntityFormulario>> buscarFormByAdminId( @AuthenticationPrincipal UserDetails userDetails){
+    public ResponseEntity<List<EntityFormulario>> buscarFormByEventoId(@PathVariable String eventoId, @AuthenticationPrincipal UserDetails userDetails){
+        Usuario usuario = (Usuario) userDetails;
+        String usuarioId = usuario.getUsuarioId();
         if (userDetails.getAuthorities().stream()
-                .noneMatch(a -> a.getAuthority().equals("ROLE_USER") || a.getAuthority().equals("ROLE_ADMIN"))) {
-            System.out.println("Acesso negado: usuário não tem permissão");
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+                return ResponseEntity.ok(serviceFormulario.ListarFormPorEventoId(eventoId));
         }
-
-        boolean isAdmin = userDetails.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-
-        Usuario usuarioLogado  = (Usuario) userDetails;
-        String adminId;
-        if (isAdmin) {
-            adminId = usuarioLogado.getUsuarioId();
-        } else {
-            adminId = serviceRecrutador.buscarAdminIdPorRecrutadorId(usuarioLogado.getUsuarioId())
-                    .orElseThrow(() -> new RuntimeException("Recrutador não vinculado a um admin"));
-        }
-        List<EntityFormulario> formularios = serviceFormulario.buscarFormPorAdminId(adminId);
-
-
-        return formularios.isEmpty() ?
-                ResponseEntity.status(HttpStatus.NOT_FOUND).build() :
-                ResponseEntity.ok(formularios);
+            return ResponseEntity.ok(serviceFormulario.ListarFormPorEventoId(eventoId));
     }
 
 }

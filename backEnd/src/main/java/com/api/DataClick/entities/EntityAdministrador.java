@@ -3,6 +3,7 @@ package com.api.DataClick.entities;
 import com.api.DataClick.enums.UserRole;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -12,17 +13,19 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+
 @Data
 @Document(collection = "Administradores")
+@Getter
+@Setter
 public class EntityAdministrador extends Usuario{
 
     @Setter
     private String cnpj;
-
     @DBRef
     private List<EntityRecrutador> recrutadores = new ArrayList<>();
     @DBRef
-    private List<EntityFormulario> formularios = new ArrayList<>();
+    private List<EntityEvento> eventos = new ArrayList<>();
 
 
     public EntityAdministrador
@@ -37,23 +40,19 @@ public class EntityAdministrador extends Usuario{
         this.cnpj = cnpj;
     }
 
-
-
     public String getCnpj() {
         return cnpj;
     }
 
-    public List<EntityRecrutador> getRecrutadores() {
+    public void setCnpj(String cnpj) {
+        this.cnpj = cnpj;
+    }
+
+    public List<EntityRecrutador> getAdminRecrutadores() {
         return recrutadores;
     }
 
-    public void setRecrutadores(List<EntityRecrutador> recrutadores) {
-        this.recrutadores = this.recrutadores;
+    public List<EntityEvento> getAdminEventos() {
+        return eventos;
     }
-
-    public List<EntityFormulario> getFormularios() {
-        return formularios;
-    }
-
-
 }

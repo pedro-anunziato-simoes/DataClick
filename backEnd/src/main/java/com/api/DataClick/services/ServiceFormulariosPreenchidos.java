@@ -21,9 +21,9 @@ public class ServiceFormulariosPreenchidos {
 
     public EntityFormulariosPreenchidos adicionarFormulariosPreenchidos(EntityFormulariosPreenchidos formularios, String recrutadorId){
         EntityRecrutador recrutador = repositoryRecrutador.findById(recrutadorId).orElseThrow(()->new ExeptionNaoEncontrado(ExeceptionsMensage.REC_NAO_ENCONTRADO));
-        String adminid = recrutador.getAdminId();
+        String adminid = recrutador.getRecrutadorAdminId();
         formularios.setRecrutadorId(recrutadorId);
-        formularios.setAdminId(adminid);
+        formularios.setFormularioPreenchidoAdminId(adminid);
         return repositoryFormualriosPreenchidos.save(formularios);
     }
 

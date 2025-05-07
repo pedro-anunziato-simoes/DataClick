@@ -4,7 +4,6 @@ public class CampoUpdateDTO {
     private String tipo;
     private String titulo;
 
-    // Getters e setters
     public String getTipo() {
         return tipo;
     }
