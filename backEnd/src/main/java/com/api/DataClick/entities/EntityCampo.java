@@ -22,4 +22,23 @@ public class EntityCampo {
         this.tipo = tipo;
     }
 
+    public void setFormId(String idForm) {
+        this.formId = idForm;
+    }
+
+    public String getTitulo() {
+        return titulo;
+    }
+
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
+    }
+
+    public TipoCampo getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(TipoCampo tipo) {
+        this.tipo = tipo;
+    }
 }
