@@ -1,8 +1,8 @@
-package com.api.DataClick.DTO.eventoDTO;
+package com.api.DataClick.DTO;
 
 import java.util.Date;
 
-public class EventoCrateDTO {
+public class EventoDTO {
     private String eventoTituloDto;
     private String eventoDescricaoDto;
     private Date eventoDataDto;

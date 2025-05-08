@@ -1,8 +1,7 @@
 package com.api.DataClick.controllers;
 
-import com.api.DataClick.DTO.RecrutadorUpdateDTO;
+import com.api.DataClick.DTO.RecrutadorDTO;
 import com.api.DataClick.DTO.RegisterRecrutadorDTO;
-import com.api.DataClick.entities.EntityAdministrador;
 import com.api.DataClick.entities.EntityRecrutador;
 import com.api.DataClick.entities.Usuario;
 import com.api.DataClick.enums.UserRole;
@@ -113,7 +112,6 @@ public class ControllerRecrutador {
                 recrutadorDTO.telefone(),
                 recrutadorDTO.email(),
                 admin.getUsuarioId(),
-                new ArrayList<>(),
                 UserRole.USER
         );
 
@@ -124,7 +122,7 @@ public class ControllerRecrutador {
     @PostMapping("/alterar/{recrutadorId}")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Alterar um recrutador", description = "Altera um recrutador por meio do id")
-    ResponseEntity<EntityRecrutador> alterarRecrutador(@PathVariable String recrutadorId,@RequestBody RecrutadorUpdateDTO dto, @AuthenticationPrincipal UserDetails userDetails){
+    ResponseEntity<EntityRecrutador> alterarRecrutador(@PathVariable String recrutadorId, @RequestBody RecrutadorDTO dto, @AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             System.out.println("Acesso negado: usuário não é ADMIN");

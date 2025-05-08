@@ -1,20 +1,15 @@
 package com.api.DataClick.services;
 
-import com.api.DataClick.DTO.RecrutadorUpdateDTO;
+import com.api.DataClick.DTO.RecrutadorDTO;
 import com.api.DataClick.entities.EntityAdministrador;
-import com.api.DataClick.entities.EntityFormulario;
 import com.api.DataClick.entities.EntityRecrutador;
 import com.api.DataClick.exeptions.ExeceptionsMensage;
 import com.api.DataClick.exeptions.ExeptionNaoEncontrado;
 import com.api.DataClick.repositories.RepositoryAdministrador;
-import com.api.DataClick.repositories.RepositoryFormulario;
 import com.api.DataClick.repositories.RepositoryRecrutador;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -67,12 +62,12 @@ public class ServiceRecrutador {
                 .map(EntityRecrutador::getRecrutadorAdminId);
     }
   
-    public EntityRecrutador alterarRecrutador(String id, RecrutadorUpdateDTO dto){
+    public EntityRecrutador alterarRecrutador(String id, RecrutadorDTO dto){
         EntityRecrutador recrutador = repositoryRecrutador.findById(id)
                 .orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.REC_NAO_ENCONTRADO));
-        recrutador.setEmail(dto.getEmail());
-        recrutador.setTelefone(dto.getTelefone());
-        recrutador.setNome(dto.getNome());
+        recrutador.setEmail(dto.getRecrutadoEmailDto());
+        recrutador.setTelefone(dto.getRecrutadoTelefoneDto());
+        recrutador.setNome(dto.getRecrutadorNomeDto());
         repositoryRecrutador.save(recrutador);
         return recrutador;
 

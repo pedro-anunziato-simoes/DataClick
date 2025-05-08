@@ -1,18 +1,14 @@
 package com.api.DataClick.services;
 
-import com.api.DataClick.DTO.FormularioUpdateDTO;
+import com.api.DataClick.DTO.FormularioDTO;
 import com.api.DataClick.entities.*;
 import com.api.DataClick.exeptions.ExeceptionsMensage;
 import com.api.DataClick.exeptions.ExeptionNaoEncontrado;
 import com.api.DataClick.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ServiceFormulario {
@@ -28,10 +24,11 @@ public class ServiceFormulario {
     @Autowired
     RepositoryEvento repositoryEvento;
 
-    public EntityFormulario criarFormulario(EntityFormulario formulario, String eventoId){
+    public EntityFormulario criarFormulario(FormularioDTO dto, String eventoId){
         EntityEvento evento = repositoryEvento.findById(eventoId)
                 .orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.EVENTO_NAO_ENCONTRADO));
         EntityAdministrador admin = repositoryAdministrador.findById(evento.getEventoAdminId()).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.ADM_NAO_ENCONTRADO));
+        EntityFormulario formulario = new EntityFormulario(admin.getUsuarioId(),dto.getFormularioTituloDto());
         formulario.setFormAdminId(evento.getEventoAdminId());
         repositoryFormulario.save(formulario);
         evento.getEventoFormularios().add(formulario);
@@ -78,9 +75,9 @@ public class ServiceFormulario {
         return eventos.getEventoFormularios();
     }
 
-    public EntityFormulario alterarFormulario(FormularioUpdateDTO dto, String id){
+    public EntityFormulario alterarFormulario(FormularioDTO dto, String id){
         EntityFormulario form = repositoryFormulario.findById(id).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.FORM_NAO_ENCONTRADO));
-        form.setFomularioTitulo(dto.getTitulo());
+        form.setFomularioTitulo(dto.getFormularioTituloDto());
         return repositoryFormulario.save(form);
     }
 }

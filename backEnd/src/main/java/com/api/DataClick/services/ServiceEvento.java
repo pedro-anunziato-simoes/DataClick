@@ -1,10 +1,8 @@
 package com.api.DataClick.services;
 
-import com.api.DataClick.DTO.eventoDTO.EventoCrateDTO;
-import com.api.DataClick.DTO.eventoDTO.EventoUpdateDTO;
+import com.api.DataClick.DTO.EventoDTO;
 import com.api.DataClick.entities.EntityAdministrador;
 import com.api.DataClick.entities.EntityEvento;
-import com.api.DataClick.entities.EntityFormulario;
 import com.api.DataClick.entities.EntityRecrutador;
 import com.api.DataClick.exeptions.ExeceptionsMensage;
 import com.api.DataClick.exeptions.ExeptionNaoEncontrado;
@@ -14,7 +12,6 @@ import com.api.DataClick.repositories.RepositoryRecrutador;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -27,7 +24,7 @@ public class ServiceEvento {
     @Autowired
     RepositoryAdministrador repositoryAdministrador;
 
-    public EntityEvento crirarEvento(EventoCrateDTO dtoEvento, String adminId){
+    public EntityEvento crirarEvento(EventoDTO dtoEvento, String adminId){
         EntityEvento evento = new EntityEvento(adminId,dtoEvento.getEventoTituloDto(),dtoEvento.getEventoDescricaoDto(),dtoEvento.getEventoDataDto());
         repositoryEvento.save(evento);
         EntityAdministrador adm = repositoryAdministrador.findById(adminId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.EVENTO_NAO_ENCONTRADO));
@@ -49,11 +46,11 @@ public class ServiceEvento {
         return repositoryEvento.findById(eventoId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.EVENTO_NAO_ENCONTRADO));
     }
 
-    public EntityEvento alterarEvento(String eventoId, EventoUpdateDTO dto){
+    public EntityEvento alterarEvento(String eventoId, EventoDTO dto){
         EntityEvento evento = repositoryEvento.findById(eventoId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.EVENTO_NAO_ENCONTRADO));
-        evento.setEventoTitulo(dto.getTituloEventoDTO());
-        evento.setEventoDescricao(dto.getDescricaoEventoDTO());
-        evento.setEventoData(dto.getDataEventoDTO());
+        evento.setEventoTitulo(dto.getEventoTituloDto());
+        evento.setEventoDescricao(dto.getEventoDescricaoDto());
+        evento.setEventoData(dto.getEventoDataDto());
         return repositoryEvento.save(evento);
     }
 }

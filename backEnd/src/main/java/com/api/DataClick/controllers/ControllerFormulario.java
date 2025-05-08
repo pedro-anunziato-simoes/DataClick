@@ -1,16 +1,11 @@
 package com.api.DataClick.controllers;
 
-import com.api.DataClick.DTO.FormularioUpdateDTO;
-import com.api.DataClick.entities.EntityEvento;
+import com.api.DataClick.DTO.FormularioDTO;
 import com.api.DataClick.entities.EntityFormulario;
-import com.api.DataClick.entities.EntityRecrutador;
 import com.api.DataClick.entities.Usuario;
-import com.api.DataClick.exeptions.ExeceptionsMensage;
-import com.api.DataClick.exeptions.ExeptionNaoEncontrado;
 import com.api.DataClick.repositories.RepositoryRecrutador;
 import com.api.DataClick.services.ServiceEvento;
 import com.api.DataClick.services.ServiceFormulario;
-import com.api.DataClick.services.ServiceRecrutador;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,7 +16,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Formattable;
 import java.util.List;
 
 @RestController
@@ -39,7 +33,7 @@ public class ControllerFormulario {
     @PostMapping("/alterar/{formId}")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "altera formulario", description = "")
-    public ResponseEntity<EntityFormulario> alterarFormulario(@RequestBody FormularioUpdateDTO dto, @PathVariable String formId,@AuthenticationPrincipal UserDetails userDetails){
+    public ResponseEntity<EntityFormulario> alterarFormulario(@RequestBody FormularioDTO dto, @PathVariable String formId, @AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -51,18 +45,14 @@ public class ControllerFormulario {
     @PostMapping("/add")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Criar formulario", description = "Retorna o formulario salvo/criado no banco de dados")
-    public ResponseEntity<EntityFormulario> criarFormulario(@RequestBody EntityFormulario form, @AuthenticationPrincipal UserDetails userDetails){
+    public ResponseEntity<EntityFormulario> criarFormulario(@RequestBody FormularioDTO form, @AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             System.out.println("Acesso negado: usuário não é ADMIN");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-
         Usuario admin = (Usuario) userDetails;
         String adminId = admin.getUsuarioId();
-
-        form.setFormAdminId(adminId);
-
         EntityFormulario formularioSalvo = serviceFormulario.criarFormulario(form, adminId);
         return ResponseEntity.status(HttpStatus.CREATED).body(formularioSalvo);
     }

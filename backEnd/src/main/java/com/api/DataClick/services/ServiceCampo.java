@@ -1,5 +1,6 @@
 package com.api.DataClick.services;
 
+import com.api.DataClick.DTO.CampoDTO;
 import com.api.DataClick.entities.EntityCampo;
 import com.api.DataClick.entities.EntityFormulario;
 import com.api.DataClick.enums.TipoCampo;
@@ -24,10 +25,10 @@ public class ServiceCampo {
         return repositoryCampo.findAllByformId(formId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.CAMPO_NAO_ENCONTRADO));
     }
 
-    public EntityCampo adicionarCampo(EntityCampo campo, String formId) {
+    public EntityCampo adicionarCampo(CampoDTO dto, String formId) {
         EntityFormulario form = repositoryFormulario.findById(formId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.FORM_NAO_ENCONTRADO));
-        String idForm = form.getFormId();
-        campo.setCampoFormId(idForm);
+        EntityCampo campo = new EntityCampo(dto.getCampoTituloDto(), dto.getCampoTipoDto());
+        campo.setCampoFormId(formId);
         repositoryCampo.save(campo);
         form.getCampos().add(campo);
         repositoryFormulario.save(form);
@@ -43,12 +44,10 @@ public class ServiceCampo {
         return repositoryCampo.findById(id).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.CAMPO_NAO_ENCONTRADO));
     };
 
-    public EntityCampo alterarCampo(String id, String tipo, String titulo){
+    public EntityCampo alterarCampo(String id,CampoDTO dto){
         EntityCampo campo = repositoryCampo.findById(id).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.CAMPO_NAO_ENCONTRADO));
-        System.out.println(tipo);
-        campo.setCampoTipo(TipoCampo.valueOf(tipo));
-        campo.setCampoTitulo(titulo);
-        System.out.println(titulo);
+        campo.setCampoTipo(dto.getCampoTipoDto());
+        campo.setCampoTitulo(dto.getCampoTituloDto());
         return repositoryCampo.save(campo);
     }
 }
