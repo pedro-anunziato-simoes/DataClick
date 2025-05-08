@@ -27,12 +27,10 @@ public class EntityRecrutador extends Usuario {
             String telefone,
             String email,
             String adminId,
-            List<EntityEvento> eventos,
             UserRole role
     ) {
         super(null, nome, senha, telefone, email, role);
         this.adminId = adminId;
-        this.eventos = eventos;
     }
 
     public String getRecrutadorAdminId() {
