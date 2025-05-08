@@ -1,4 +1,4 @@
-package com.api.DataClick.DTO;
+package com.api.DataClick.DTO.eventoDTO;
 
 import java.util.Date;
 

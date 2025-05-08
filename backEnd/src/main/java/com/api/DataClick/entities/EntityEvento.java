@@ -18,20 +18,18 @@ public class EntityEvento {
 
     @Id
     private String idEvento;
-    @DBRef
     private String adminId;
     private String eventoTitulo;
     private String eventoDescricao;
     private Date data;
     @DBRef
-    private List<EntityFormulario> formularios;
+    private List<EntityFormulario> eventoFormularios;
 
-    public EntityEvento(String adminId, String titulo, String descricao, Date data, List<EntityFormulario> formularios) {
+    public EntityEvento(String adminId, String eventoTitulo, String eventoDescricao, Date data) {
         this.adminId = adminId;
-        this.eventoTitulo = titulo;
-        this.eventoDescricao = descricao;
+        this.eventoTitulo = eventoTitulo;
+        this.eventoDescricao = eventoDescricao;
         this.data = data;
-        this.formularios = formularios;
     }
 
     public String getEventoAdminId() {
@@ -67,10 +65,10 @@ public class EntityEvento {
     }
 
     public List<EntityFormulario> getEventoFormularios() {
-        return formularios;
+        return eventoFormularios;
     }
 
     public void setEventoFormularios(List<EntityFormulario> formularios) {
-        this.formularios = formularios;
+        this.eventoFormularios = formularios;
     }
 }

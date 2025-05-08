@@ -1,10 +1,9 @@
 package com.api.DataClick.controllers;
 
-import com.api.DataClick.DTO.EventoUpdateDTO;
-import com.api.DataClick.entities.EntityAdministrador;
+import com.api.DataClick.DTO.eventoDTO.EventoCrateDTO;
+import com.api.DataClick.DTO.eventoDTO.EventoUpdateDTO;
 import com.api.DataClick.entities.EntityEvento;
 import com.api.DataClick.entities.Usuario;
-import com.api.DataClick.repositories.RepositoryAdministrador;
 import com.api.DataClick.services.ServiceEvento;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -58,6 +57,19 @@ public class ControllerEvento {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         return ResponseEntity.ok(serviceEvento.alterarEvento(eventoId,dto));
+    }
+
+    @PostMapping("/criar")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Alterar um formulario", description = "Retorna o evento alterado")
+    public ResponseEntity<EntityEvento> criarEvento(@RequestBody EventoCrateDTO evento, @AuthenticationPrincipal UserDetails userDetails){
+        Usuario usuario = (Usuario) userDetails;
+        String ususarioId = usuario.getUsuarioId();
+        if (userDetails.getAuthorities().stream()
+                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(serviceEvento.crirarEvento(evento,ususarioId));
     }
 
 }
