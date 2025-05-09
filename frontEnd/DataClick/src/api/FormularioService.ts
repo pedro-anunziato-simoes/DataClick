@@ -6,7 +6,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 export const FormularioService = () => {
     const token = localStorage.getItem("token")
 
-    async function getFormularios(): Promise<EntityFormulario[]> {
+    async function getFormulariosEvento(): Promise<EntityFormulario[]> {
         const response = await axios.get(`${API_URL}/formularios/todos-formularios`, {
             headers: {
                 Authorization: `Bearer ${token}`
@@ -55,5 +55,5 @@ export const FormularioService = () => {
         return response.data;
     }
 
-    return { getFormularios, criarForms, removerForms, getFormularioById, alterarForms, }
+    return { getFormulariosEvento, criarForms, removerForms, getFormularioById, alterarForms, }
 }

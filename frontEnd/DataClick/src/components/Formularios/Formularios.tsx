@@ -30,7 +30,7 @@ const Formularios = () => {
   const buscarFormularios = async () => {
     try {
       setLoading(true);
-      const data = await formularioService.getFormularios();
+      const data = await formularioService.getFormulariosEvento();
       setFormularios(data);
     } catch (error) {
       console.error("Erro ao buscar formulários:", error);

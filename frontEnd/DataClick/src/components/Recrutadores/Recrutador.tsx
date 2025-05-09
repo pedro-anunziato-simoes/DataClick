@@ -24,11 +24,11 @@ const Recrutadores = () => {
   useEffect(() => {
     buscarRecrutadores();
   }, []);
-
+  const recrutadorService = RecrutadorService();
   const buscarRecrutadores = async () => {
     setLoading(true);
     try {
-      const lista: EntityRecrutador[] = await RecrutadorService().getRecrutadores();
+      const lista: EntityRecrutador[] = await recrutadorService.getRecrutadores();
       setRecrutadores(lista);
     } catch (error) {
       console.error("Erro ao buscar recrutadores:", error);
@@ -52,7 +52,7 @@ const Recrutadores = () => {
   const handleDeleteRecrutador = async () => {
     if (!confirmDeleteId) return;
     try {
-      await RecrutadorService().excluirRecrutador(confirmDeleteId);
+      await recrutadorService.excluirRecrutador(confirmDeleteId);
       await buscarRecrutadores();
     } catch (error) {
       console.error("Erro ao excluir recrutador:", error);
