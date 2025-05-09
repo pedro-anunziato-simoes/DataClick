@@ -73,7 +73,7 @@ const AlterarCamposForms = () => {
 
   const handleSalvarCampo = async (campoId: string, tipo: string, titulo: string, index: number) => {
     const campoService = CampoService();
-    navigate("/formularios")
+    navigate("/eventos")
     try {
       await campoService.alterarCampo(campoId, tipo, titulo);
       alert("Campo salvo com sucesso!");

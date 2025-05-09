@@ -65,9 +65,9 @@ const Sidebar = () => {
         </ListItem>
 
         <ListItem disablePadding>
-          <ListItemButton component={Link} to="/formularios">
+          <ListItemButton component={Link} to="/eventos">
             <ListItemIcon><DescriptionIcon /></ListItemIcon>
-            <ListItemText primary="Formulários" />
+            <ListItemText primary="Eventos" />
           </ListItemButton>
         </ListItem>
 

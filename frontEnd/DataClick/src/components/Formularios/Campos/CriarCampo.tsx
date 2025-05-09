@@ -53,7 +53,7 @@ const CriarCampo = () => {
       const campoService = CampoService();
       await campoService.adicionarCampo(formId || '', formData);
       alert("Campo adicionado com sucesso!");
-      navigate("/formularios")
+      navigate("/eventos")
     } catch (error) {
       console.error("Erro ao adicionar campo:", error);
       alert("Erro ao adicionar campo." + error);
