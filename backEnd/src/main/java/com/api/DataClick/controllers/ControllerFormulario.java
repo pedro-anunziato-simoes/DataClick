@@ -42,18 +42,15 @@ public class ControllerFormulario {
         return ResponseEntity.ok(serviceFormulario.bucarFormPorId(formId));
     }
     //Adm
-    @PostMapping("/add")
+    @PostMapping("/add/{eventoId}")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Criar formulario", description = "Retorna o formulario salvo/criado no banco de dados")
-    public ResponseEntity<EntityFormulario> criarFormulario(@RequestBody FormularioDTO form, @AuthenticationPrincipal UserDetails userDetails){
+    public ResponseEntity<EntityFormulario> criarFormulario(@RequestBody FormularioDTO form, @PathVariable String eventoId, @AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            System.out.println("Acesso negado: usuário não é ADMIN");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        Usuario admin = (Usuario) userDetails;
-        String adminId = admin.getUsuarioId();
-        EntityFormulario formularioSalvo = serviceFormulario.criarFormulario(form, adminId);
+        EntityFormulario formularioSalvo = serviceFormulario.criarFormulario(form, eventoId);
         return ResponseEntity.status(HttpStatus.CREATED).body(formularioSalvo);
     }
     //Adm
@@ -63,7 +60,6 @@ public class ControllerFormulario {
     public  ResponseEntity<EntityFormulario> removerFormulario(@PathVariable String id,   @AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            System.out.println("Acesso negado: usuário não é ADMIN");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         serviceFormulario.removerFormulario(id);
@@ -76,7 +72,6 @@ public class ControllerFormulario {
     public ResponseEntity<EntityFormulario> buscarForm(@PathVariable String id, @AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_USER") || a.getAuthority().equals("ROLE_ADMIN"))) {
-            System.out.println("Acesso negado: usuário não tem permissão");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         EntityFormulario formulario = serviceFormulario.bucarFormPorId(id);

@@ -14,6 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -31,13 +32,12 @@ public class ControllerCampo {
     public ResponseEntity<List<EntityCampo>> listarCamposPorFormularioId(@PathVariable String formId, @AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_USER"))) {
-            System.out.println("Acesso negado: usuário não tem permissão");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         List<EntityCampo> campos = serviceCampo.listarCamposByFormularioId(formId);
         if (campos.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.ok(new ArrayList<>());
         }
 
         return ResponseEntity.ok(campos);
@@ -51,7 +51,6 @@ public class ControllerCampo {
     public ResponseEntity<EntityCampo> adicionarCampoForm(@RequestBody CampoDTO campo, @PathVariable String formId, @AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            System.out.println("Acesso negado: usuário não é ADMIN");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         EntityCampo campoAdicionado = serviceCampo.adicionarCampo(campo, formId);
@@ -65,7 +64,6 @@ public class ControllerCampo {
     public ResponseEntity<Void> removerCampo(@PathVariable String campoId, @AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            System.out.println("Acesso negado: usuário não é ADMIN");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -80,7 +78,6 @@ public class ControllerCampo {
     public ResponseEntity<EntityCampo> buscarCampoById(@PathVariable String campoId, @AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_USER"))) {
-            System.out.println("Acesso negado: usuário não tem permissão");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -98,7 +95,6 @@ public class ControllerCampo {
     public ResponseEntity<EntityCampo> alterarCampo(@PathVariable String campoId, @RequestBody CampoDTO dto, @AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            System.out.println("Acesso negado: usuário não é ADMIN");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         EntityCampo campoAlterado = serviceCampo.alterarCampo(campoId,dto);

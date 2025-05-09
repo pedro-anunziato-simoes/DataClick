@@ -1,7 +1,7 @@
 import { EntityFormulario } from "./EntityFormulario"
 
 export interface EntityEvento {
-    idEvento:string
+    eventoId:string
     adminid:string
     eventoTitulo:string
     eventoDescricao:string

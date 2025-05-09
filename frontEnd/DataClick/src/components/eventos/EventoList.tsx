@@ -62,7 +62,7 @@ const EventosList: React.FC = () => {
       ) : (
         <Stack spacing={2}>
           {eventos.map((evento) => (
-            <Card key={evento.idEvento} variant="outlined">
+            <Card key={evento.eventoId} variant="outlined">
               <CardContent>
                 <Typography variant="h6">{evento.eventoTitulo}</Typography>
                 <Typography color="text.secondary" gutterBottom>
@@ -74,9 +74,9 @@ const EventosList: React.FC = () => {
                 <Button
                   variant="contained"
                   color="primary"
-                  onClick={() => navigate('/formularios')}
+                  onClick={() => navigate(`/formularios/${evento.eventoId}`)}
                 >
-                  Ver Formulário
+                  Ver Formulários
                 </Button>
               </CardContent>
             </Card>

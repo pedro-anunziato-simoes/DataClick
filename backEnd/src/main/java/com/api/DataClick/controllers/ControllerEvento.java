@@ -71,4 +71,15 @@ public class ControllerEvento {
         return ResponseEntity.status(HttpStatus.CREATED).body(serviceEvento.crirarEvento(evento,ususarioId));
     }
 
+    @DeleteMapping("/remove/{eventoId}")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Alterar um formulario", description = "Retorna o evento alterado")
+    public ResponseEntity<Void> removerEvento(@PathVariable String eventoId,@AuthenticationPrincipal UserDetails userDetails){
+        if (userDetails.getAuthorities().stream()
+                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        serviceEvento.removerEvento(eventoId);
+        return ResponseEntity.noContent().build();
+    }
 }

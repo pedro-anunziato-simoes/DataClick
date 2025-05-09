@@ -30,7 +30,6 @@ public class ControllerFormulariosPreenchidos {
     public ResponseEntity<List<EntityFormulariosPreenchidos>> buscarFormByRecrutadorId(@PathVariable String recrutadorId, @AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            System.out.println("Acesso negado: usuário não é ADMIN");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         List<EntityFormulariosPreenchidos> formularios = serviceFormulariosPreenchidos.buscarListaDeFormualriosPorIdRecrutador(recrutadorId);
@@ -43,15 +42,12 @@ public class ControllerFormulariosPreenchidos {
     @PostMapping("/add")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Adicionar lista de formularios preenchidos", description = "Adiciona uma lista de fomularios ao banco de dados com a identificação do recrutador que preencheu os formularios e o adminitrador no qual o recrutador faz parte")
-    public ResponseEntity<EntityFormulariosPreenchidos> adicionarFormulariosPreenchidos(@RequestBody EntityFormulariosPreenchidos forms,
-                                                                                        @AuthenticationPrincipal UserDetails userDetails){
+    public ResponseEntity<EntityFormulariosPreenchidos> adicionarFormulariosPreenchidos(@RequestBody EntityFormulariosPreenchidos forms, @AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_USER"))) {
-            System.out.println("Acesso negado: usuário não tem permissão");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         Usuario usuarioLogado = (Usuario) userDetails;
-
         EntityFormulariosPreenchidos formulariosAdicionados = serviceFormulariosPreenchidos.adicionarFormulariosPreenchidos(forms, usuarioLogado.getUsuarioId());
         return ResponseEntity.status(HttpStatus.CREATED).body(formulariosAdicionados);
     }
