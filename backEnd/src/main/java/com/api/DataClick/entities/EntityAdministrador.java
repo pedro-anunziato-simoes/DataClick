@@ -23,9 +23,9 @@ public class EntityAdministrador extends Usuario{
     @Setter
     private String cnpj;
     @DBRef
-    private List<EntityRecrutador> recrutadores = new ArrayList<>();
+    private List<EntityRecrutador> AdminRecrutadores = new ArrayList<>();
     @DBRef
-    private List<EntityEvento> eventos = new ArrayList<>();
+    private List<EntityEvento> AdminEventos = new ArrayList<>();
 
 
     public EntityAdministrador
@@ -36,7 +36,7 @@ public class EntityAdministrador extends Usuario{
              String email,
              UserRole role
             ) {
-        super(null, nome, senha, telefone, email, role);
+        super(nome, senha, telefone, email, role);
         this.cnpj = cnpj;
     }
     public String getCnpj() {
@@ -48,11 +48,11 @@ public class EntityAdministrador extends Usuario{
     }
 
     public List<EntityRecrutador> getAdminRecrutadores() {
-        return recrutadores;
+        return AdminRecrutadores;
     }
 
     public List<EntityEvento> getAdminEventos() {
-        return eventos;
+        return AdminEventos;
     }
 
 }

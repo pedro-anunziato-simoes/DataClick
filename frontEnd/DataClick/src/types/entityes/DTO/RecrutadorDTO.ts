@@ -5,5 +5,4 @@ export interface RecrutadorCreateDTO {
    telefone:String
    email:String
    senha:string
-   formularios:EntityFormulario[]
   }

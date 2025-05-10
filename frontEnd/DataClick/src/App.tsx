@@ -14,6 +14,7 @@ import Home from "./pages/home/Home";
 import Login from "./pages/login/Login";
 import Register from "./pages/registrar/Register";
 import SuportePage from "./pages/suporte/SuportePage";
+import ListaEventosPage from "./pages/evento/ListaEventosPage";
 
 const App = () => {
   return (
@@ -25,13 +26,14 @@ const App = () => {
         <Route path="/recrutadores" element={<PrivateRoute><VisualizarRecrutadoresPage /></PrivateRoute>} />
         <Route path="/cadastrarRecrutadores" element={<PrivateRoute><CadastrarRecrutadorPage /></PrivateRoute>} />
         <Route path="/editarRecrutador/:id" element={<PrivateRoute><EditarRecrutadorPage /></PrivateRoute>} />
-        <Route path="/formularios" element={<PrivateRoute><ListarFormsPage /></PrivateRoute>} />
+        <Route path="/formularios/:idEvento" element={<PrivateRoute><ListarFormsPage /></PrivateRoute>} />
         <Route path="/editarFormulario/:formId" element={<PrivateRoute>< EditarFormPage /></PrivateRoute>} />
-        <Route path="/criarFormularios" element={<PrivateRoute><CriarFormsPage /></PrivateRoute>} />
+        <Route path="/criarFormularios/:idEvento" element={<PrivateRoute><CriarFormsPage /></PrivateRoute>} />
         <Route path="/campos/:formId" element={<PrivateRoute><ListarCampoPage /></PrivateRoute>} />
         <Route path="/campos/add/:formId" element={<PrivateRoute><CriarCampoPage /></PrivateRoute>} />
         <Route path="/campo/find" element={<PrivateRoute><CampoByIdPage /></PrivateRoute>} />
         <Route path="/perfilAdministrador" element={<PrivateRoute><PerfilAdminitradorPage /></PrivateRoute>} />
+        <Route path="/eventos" element={<PrivateRoute><ListaEventosPage /></PrivateRoute>} />
         <Route path="/suporte" element={<PrivateRoute><SuportePage /></PrivateRoute>} />
       </Routes>
     </Router>

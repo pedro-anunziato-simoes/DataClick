@@ -1,9 +1,9 @@
 package com.api.DataClick.DTO;
 
 public class FormularioDTO {
-    private String FormularioTituloDto;
+    private String formularioTituloDto;
 
     public String getFormularioTituloDto() {
-        return FormularioTituloDto;
+        return formularioTituloDto;
     }
 }

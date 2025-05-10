@@ -28,6 +28,7 @@ public class ServiceFormulario {
         EntityEvento evento = repositoryEvento.findById(eventoId)
                 .orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.EVENTO_NAO_ENCONTRADO));
         EntityAdministrador admin = repositoryAdministrador.findById(evento.getEventoAdminId()).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.ADM_NAO_ENCONTRADO));
+        System.out.println(dto.getFormularioTituloDto());
         EntityFormulario formulario = new EntityFormulario(admin.getUsuarioId(),dto.getFormularioTituloDto());
         formulario.setFormAdminId(evento.getEventoAdminId());
         repositoryFormulario.save(formulario);
@@ -35,9 +36,11 @@ public class ServiceFormulario {
         repositoryAdministrador.save(admin);
         repositoryEvento.save(evento);
         List<EntityRecrutador> listaRecrutadores = admin.getAdminRecrutadores();
-        for(EntityRecrutador recrutador : listaRecrutadores){
+        if(!listaRecrutadores.isEmpty()){
+            for(EntityRecrutador recrutador : listaRecrutadores){
             recrutador.getRecrutadorEventos().add(evento);
             repositoryRecrutador.save(recrutador);
+            }
         }
         return formulario;
     }

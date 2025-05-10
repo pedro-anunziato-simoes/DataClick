@@ -17,27 +17,28 @@ import java.util.List;
 public class EntityEvento {
 
     @Id
-    private String idEvento;
-    private String adminId;
+    private String eventoId;
+    private String eventoAdminId;
     private String eventoTitulo;
     private String eventoDescricao;
-    private Date data;
+    private Date eventoData;
     @DBRef
     private List<EntityFormulario> eventoFormularios;
 
-    public EntityEvento(String adminId, String eventoTitulo, String eventoDescricao, Date data) {
-        this.adminId = adminId;
+    public EntityEvento(String eventoAdminId, String eventoTitulo, String eventoDescricao, Date eventoData, List<EntityFormulario> eventoFormularios) {
+        this.eventoAdminId = eventoAdminId;
         this.eventoTitulo = eventoTitulo;
         this.eventoDescricao = eventoDescricao;
-        this.data = data;
+        this.eventoData = eventoData;
+        this.eventoFormularios = eventoFormularios;
     }
 
     public String getEventoAdminId() {
-        return adminId;
+        return eventoAdminId;
     }
 
-    public void setEventoAdminId(String adminId) {
-        this.adminId = adminId;
+    public void setEventoAdminId(String eventoAdminId) {
+        this.eventoAdminId = this.eventoAdminId;
     }
 
     public String getEventoTitulo() {
@@ -57,11 +58,11 @@ public class EntityEvento {
     }
 
     public Date getEventoData() {
-        return data;
+        return eventoData;
     }
 
-    public void setEventoData(Date data) {
-        this.data = data;
+    public void setEventoData(Date eventoData) {
+        this.eventoData = eventoData;
     }
 
     public List<EntityFormulario> getEventoFormularios() {

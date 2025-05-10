@@ -18,14 +18,14 @@ public class EntityFormulario {
 
     @Id
     private String formId;
-    private String titulo;
+    private String FormularioTitulo;
     private String formAdminId;
     @DBRef
     private List<EntityCampo> campos = new ArrayList<>();
 
-    public EntityFormulario( String adminId, String titulo) {
-        this.formAdminId = adminId;
-        this.titulo = titulo;
+    public EntityFormulario( String formAdminId, String FormularioTitulo) {
+        this.formAdminId = formAdminId;
+        this.FormularioTitulo = FormularioTitulo;
     }
 
     public String getFormId() {
@@ -33,11 +33,11 @@ public class EntityFormulario {
   }
 
     public String getFormularioTitulo() {
-        return titulo;
+        return FormularioTitulo;
     }
 
-    public void setFomularioTitulo(String titulo) {
-        this.titulo = titulo;
+    public void setFomularioTitulo(String FormularioTitulo) {
+        this.FormularioTitulo = FormularioTitulo;
     }
 
     public String getFormAdminId() {

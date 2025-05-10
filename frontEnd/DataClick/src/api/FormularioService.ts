@@ -1,13 +1,14 @@
 import axios from "axios";
 import { EntityFormulario } from "../types/entityes/EntityFormulario";
 import { FormularioUpdateDTO } from "../types/entityes/DTO/FormularioUpdateDTO";
+import { FormularioCreateDTO } from "../types/entityes/DTO/FormualrioCreateDTO";
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const FormularioService = () => {
     const token = localStorage.getItem("token")
 
-    async function getFormularios(): Promise<EntityFormulario[]> {
-        const response = await axios.get(`${API_URL}/formularios/todos-formularios`, {
+    async function getFormulariosEvento(eventoId:string): Promise<EntityFormulario[]> {
+        const response = await axios.get(`${API_URL}/formularios/formulario/evento/${eventoId}`, {
             headers: {
                 Authorization: `Bearer ${token}`
             },
@@ -25,8 +26,8 @@ export const FormularioService = () => {
         return response.data;
     }
 
-    async function criarForms(data: EntityFormulario): Promise<EntityFormulario[]> {
-        const response = await axios.post(`${API_URL}/formularios/add`, data, {
+    async function criarForms(data: FormularioCreateDTO,eventoId:string): Promise<EntityFormulario> {
+        const response = await axios.post(`${API_URL}/formularios/add/${eventoId}`, data, {
             headers: {
                 Authorization: `Bearer ${token}`
             },
@@ -55,5 +56,5 @@ export const FormularioService = () => {
         return response.data;
     }
 
-    return { getFormularios, criarForms, removerForms, getFormularioById, alterarForms, }
+    return { getFormulariosEvento, criarForms, removerForms, getFormularioById, alterarForms, }
 }

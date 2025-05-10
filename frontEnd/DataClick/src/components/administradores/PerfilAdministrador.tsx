@@ -26,7 +26,6 @@ const AdministradorPerfil: React.FC = () => {
     const fetchData = async () => {
       try {
         const data = await adminitradorService.getInfosAdminitrador();
-        console.log(data);
         setAdministrador(data);
       } catch (err) {
         console.error(err);

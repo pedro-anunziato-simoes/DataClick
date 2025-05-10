@@ -42,6 +42,14 @@ public abstract class Usuario implements UserDetails {
 
     private UserRole role;
 
+    public Usuario(String nome, String senha, String telefone, String email, UserRole role) {
+        this.nome = nome;
+        this.senha = senha;
+        this.telefone = telefone;
+        this.email = email;
+        this.role = role;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(this.role.getRole()));

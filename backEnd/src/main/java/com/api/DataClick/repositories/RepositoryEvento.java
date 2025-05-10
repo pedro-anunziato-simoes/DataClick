@@ -7,5 +7,5 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RepositoryEvento extends MongoRepository<EntityEvento,String> {
-    Optional<List<EntityEvento>> findAllByadminId(String adminId);
+    Optional<List<EntityEvento>> findAllByEventoAdminId(String eventoAdminId);
 }

@@ -7,11 +7,12 @@ import {
   Paper,
   Stack,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { EntityFormulario } from "../../types/entityes/EntityFormulario";
 import { FormularioService } from "../../api/FormularioService";
 
 const CriarFormulario = () => {
+  const { idEvento } = useParams<{ idEvento: string }>();
   const [titulo, setTitulo] = useState("");
   const [salvando, setSalvando] = useState(false);
   const navigate = useNavigate();
@@ -26,7 +27,7 @@ const CriarFormulario = () => {
 
     try {
       setSalvando(true);
-      await formularioService.criarForms(novoFormulario);
+      await formularioService.criarForms(novoFormulario,idEvento||'');
       navigate("/formularios"); 
     } catch (error) {
       console.error("Erro ao criar formulário:", error);

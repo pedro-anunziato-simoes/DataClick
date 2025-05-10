@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { FormularioService } from "../../api/FormularioService";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import CamposViewForm from "./Campos/CamposViewForm";
 import {
   Box,
@@ -18,6 +18,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 const Formularios = () => {
+  const { idEvento } = useParams<{ idEvento: string }>();
   const [formularios, setFormularios] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -30,7 +31,7 @@ const Formularios = () => {
   const buscarFormularios = async () => {
     try {
       setLoading(true);
-      const data = await formularioService.getFormularios();
+      const data = await formularioService.getFormulariosEvento(idEvento||'');
       setFormularios(data);
     } catch (error) {
       console.error("Erro ao buscar formulários:", error);
@@ -79,25 +80,25 @@ const Formularios = () => {
 
       <Stack spacing={3}>
         {formularios.map((formulario) => (
-          <Paper key={formulario.id} elevation={3} sx={{ p: 3 }}>
+          <Paper key={formulario.formId} elevation={3} sx={{ p: 3 }}>
             <Box display="flex" justifyContent="space-between" alignItems="center">
               <Typography variant="h6">{formulario.titulo}</Typography>
               <IconButton
-                onClick={() => setConfirmDeleteId(formulario.id)}
+                onClick={() => setConfirmDeleteId(formulario.formId)}
                 color="error"
               >
                 <DeleteIcon />
               </IconButton>
             </Box>
 
-            <CamposViewForm formId={formulario.id} />
+            <CamposViewForm formId={formulario.formId} />
 
             <Box mt={2}>
               <Stack direction="row" spacing={2}>
                 <Button
                   variant="outlined"
                   color="primary"
-                  onClick={() => handleEditarCampos(formulario.id)}
+                  onClick={() => handleEditarCampos(formulario.formId)}
                 >
                   Editar Campos
                 </Button>
@@ -105,7 +106,7 @@ const Formularios = () => {
                 <Button
                   variant="outlined"
                   color="secondary"
-                  onClick={() => handleEditarFormulario(formulario.id)}
+                  onClick={() => handleEditarFormulario(formulario.formId)}
                 >
                   Editar Formulário
                 </Button>
@@ -120,7 +121,7 @@ const Formularios = () => {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => navigate("/criarFormularios")}
+          onClick={() => navigate(`/criarFormularios/${idEvento}`)}
         >
           Criar novo formulário
         </Button>
