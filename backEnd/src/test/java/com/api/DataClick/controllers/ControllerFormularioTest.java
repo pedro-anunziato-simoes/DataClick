@@ -5,7 +5,6 @@ import com.api.DataClick.DTO.FormularioDTO;
 import com.api.DataClick.entities.EntityAdministrador;
 import com.api.DataClick.entities.EntityFormulario;
 import com.api.DataClick.entities.EntityRecrutador;
-import com.api.DataClick.entities.Usuario;
 import com.api.DataClick.enums.UserRole;
 import com.api.DataClick.services.ServiceFormulario;
 import org.junit.jupiter.api.BeforeEach;

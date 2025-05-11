@@ -5,9 +5,8 @@ package com.api.DataClick.services;
 import com.api.DataClick.entities.EntityFormulariosPreenchidos;
 import com.api.DataClick.entities.EntityRecrutador;
 import com.api.DataClick.enums.UserRole;
-import com.api.DataClick.exeptions.ExeceptionsMensage;
 import com.api.DataClick.exeptions.ExeptionNaoEncontrado;
-import com.api.DataClick.repositories.RepositoryFormualriosPreenchidos; // Corrected typo here
+import com.api.DataClick.repositories.RepositoryFormualriosPreenchidos;
 import com.api.DataClick.repositories.RepositoryRecrutador;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 

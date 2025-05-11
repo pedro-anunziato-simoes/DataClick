@@ -6,7 +6,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.api.DataClick.DTO.CampoDTO;
 import com.api.DataClick.entities.EntityCampo;
 import com.api.DataClick.enums.TipoCampo;
-import com.api.DataClick.exeptions.ExeptionNaoEncontrado;
 import com.api.DataClick.services.ServiceCampo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

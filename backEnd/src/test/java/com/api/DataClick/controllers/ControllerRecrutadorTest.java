@@ -1,19 +1,24 @@
 package com.api.DataClick.controllers;
 
-import com.api.DataClick.DTO.FormularioDTO;
+import com.api.DataClick.DTO.RecrutadorDTO;
+import com.api.DataClick.DTO.RegisterRecrutadorDTO;
 import com.api.DataClick.entities.*;
 import com.api.DataClick.enums.UserRole;
-import com.api.DataClick.services.ServiceFormulario;
+import com.api.DataClick.services.ServiceEvento;
+import com.api.DataClick.services.ServiceRecrutador;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,19 +29,34 @@ import static org.mockito.Mockito.*;
 public class ControllerRecrutadorTest {
 
     @Mock
-    private ServiceFormulario serviceFormulario;
+    private ServiceRecrutador serviceRecrutador;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
-    private ControllerFormulario controller;
+    private ControllerRecrutador controller;
+
+    @Mock
+    private ServiceEvento serviceEvento;
 
     private EntityAdministrador admin;
     private EntityRecrutador invalido;
     private EntityRecrutador recrutador;
-    private EntityFormulario formulario;
-    private FormularioDTO formularioDTO;
+    private RegisterRecrutadorDTO registerDTO;
+    private RecrutadorDTO recrutadorDTO;
 
     @BeforeEach
     void setUp() {
+
+        registerDTO = new RegisterRecrutadorDTO(
+                "Novo Recrutador",
+                "senha123",
+                "11999996666",
+                "novo@test.com"
+        );
+
+
         admin = new EntityAdministrador(
                 "123456789",
                 "Admin Teste",
@@ -47,139 +67,193 @@ public class ControllerRecrutadorTest {
         );
         admin.setUsuarioId("adm-001");
 
+
         invalido = new EntityRecrutador(
                 "Recrutador Teste",
                 "senha123",
                 "11999997777",
-                "recrutador@test.com",
-                "admin-001",
+                "user@test.com",
+                "adm-001",
                 UserRole.INVALID,
                 Collections.emptyList()
         );
-        invalido.setUsuarioId("rec-002");
+        invalido.setUsuarioId("user-001");
 
         recrutador = new EntityRecrutador(
                 "Recrutador Teste",
                 "senha123",
                 "11999997777",
                 "recrutador@test.com",
-                "admin-001",
+                "adm-001",
                 UserRole.USER,
                 Collections.emptyList()
         );
         recrutador.setUsuarioId("rec-001");
 
-        formulario = new EntityFormulario("admin-001", "novo-form");
-        formulario.setFormId("form-123");
-        formulario.setFormularioTitulo("Formulário Teste");
+        registerDTO = new RegisterRecrutadorDTO(
+                "Novo Recrutador",
+                "senha123",
+                "11999996666",
+                "novo@test.com"
+        );
 
-        formularioDTO = new FormularioDTO();
-        formularioDTO.setFormularioTituloDto("Novo Formulário");
+        recrutadorDTO = new RecrutadorDTO();
+        recrutadorDTO.setRecrutadorNomeDto("rec-teste");
+        recrutadorDTO.setRecrutadorSenhaDto("teste");
+        recrutadorDTO.setRecrutadoTelefoneDto("11999996666");
+        recrutadorDTO.setRecrutadoEmailDto("novo@test.com");
+        Date dataAtual = new Date();
+
+        List<EntityEvento> eventosAdmin = List.of(
+                new EntityEvento("adm-001", "TESTE", "Descricao", dataAtual, Collections.emptyList())
+        );
+
+        when(serviceEvento.listarEventosPorAdmin(anyString())).thenReturn(eventosAdmin);
     }
 
     @Test
-    void alterarFormulario_Admin_DeveRetornarOk() {
-        when(serviceFormulario.bucarFormPorId("form-123")).thenReturn(formulario);
-
-        ResponseEntity<EntityFormulario> response =
-                controller.alterarFormulario(formularioDTO, "form-123", admin);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        verify(serviceFormulario).alterarFormulario(formularioDTO, "form-123");
-        verify(serviceFormulario).bucarFormPorId("form-123");
-    }
-
-    @Test
-    void alterarFormulario_UsuarioNaoAutorizado_DeveRetornarForbidden() {
-        ResponseEntity<EntityFormulario> response =
-                controller.alterarFormulario(formularioDTO, "form-123", recrutador);
-
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verifyNoInteractions(serviceFormulario);
-    }
-
-    @Test
-    void criarFormulario_Admin_DeveRetornarCriado() {
-        when(serviceFormulario.criarFormulario(any(), anyString()))
-                .thenReturn(formulario);
-
-        ResponseEntity<EntityFormulario> response =
-                controller.criarFormulario(formularioDTO, "evento-123", admin);
-
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals(formulario, response.getBody());
-        verify(serviceFormulario).criarFormulario(formularioDTO, "evento-123");
-    }
-
-    @Test
-    void criarFormulario_UsuarioNaoAutorizado_DeveRetornarForbidden() {
-        ResponseEntity<EntityFormulario> response =
-                controller.criarFormulario(formularioDTO, "evento-123", recrutador);
-
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verifyNoInteractions(serviceFormulario);
-    }
-
-    @Test
-    void removerFormulario_Admin_DeveRetornarNoContent() {
-        ResponseEntity<EntityFormulario> response =
-                controller.removerFormulario("form-123", admin);
-
+    void removerRecrutador_Admin_DeveRetornarNoContent() {
+        ResponseEntity<Void> response = controller.removerRecrutador("rec-001", admin);
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        verify(serviceFormulario).removerFormulario("form-123");
+        verify(serviceRecrutador).removerRecrutador("rec-001");
     }
 
     @Test
-    void removerFormulario_UsuarioNaoAutorizado_DeveRetornarForbidden() {
-        ResponseEntity<EntityFormulario> response =
-                controller.removerFormulario("form-123", recrutador);
-
+    void removerRecrutador_NaoAdmin_DeveRetornarForbidden() {
+        ResponseEntity<Void> response = controller.removerRecrutador("rec-001", invalido);
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verifyNoInteractions(serviceFormulario);
     }
 
     @Test
-    void buscarForm_UsuarioAutorizado_DeveRetornarFormulario() {
-        when(serviceFormulario.bucarFormPorId("form-123")).thenReturn(formulario);
+    void listarRecrutadores_Admin_DeveRetornarLista() {
+        when(serviceRecrutador.listarRecrutadores(anyString()))
+                .thenReturn(List.of(recrutador));
 
-        ResponseEntity<EntityFormulario> responseAdmin =
-                controller.buscarForm("form-123", admin);
-        assertEquals(HttpStatus.OK, responseAdmin.getStatusCode());
-
-        ResponseEntity<EntityFormulario> responseRecrutador =
-                controller.buscarForm("form-123", recrutador);
-        assertEquals(HttpStatus.OK, responseRecrutador.getStatusCode());
+        ResponseEntity<List<EntityRecrutador>> response = controller.listarRecrutadores(admin);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertFalse(response.getBody().isEmpty());
     }
 
     @Test
-    void buscarForm_FormularioNaoEncontrado_DeveRetornarNotFound() {
-        when(serviceFormulario.bucarFormPorId("form-123")).thenReturn(null);
+    void listarRecrutadores_NaoAdmin_DeveRetornarForbidden() {
+        ResponseEntity<List<EntityRecrutador>> response = controller.listarRecrutadores(invalido);
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+    }
 
-        ResponseEntity<EntityFormulario> response =
-                controller.buscarForm("form-123", admin);
+    @Test
+    void buscarRecrut_Admin_DeveRetornarRecrutador() {
+        when(serviceRecrutador.buscarRecrut(anyString())).thenReturn(recrutador);
 
+        ResponseEntity<EntityRecrutador> response = controller.buscarRecrut("rec-001", admin);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(recrutador, response.getBody());
+    }
+
+    @Test
+    void buscarRecrut_NaoEncontrado_DeveRetornarNotFound() {
+        when(serviceRecrutador.buscarRecrut(anyString())).thenReturn(null);
+
+        ResponseEntity<EntityRecrutador> response = controller.buscarRecrut("rec-001", admin);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
-    @Test
-    void buscarForm_UsuarioNaoAutorizado_DeveRetornarForbidden() {
-        ResponseEntity<EntityFormulario> response =
-                controller.buscarForm("form-123", invalido);
 
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+    @Test
+    void alterarRecrutador_Admin_DeveRetornarAtualizado() {
+        when(serviceRecrutador.alterarRecrutador(anyString(), any())).thenReturn(recrutador);
+
+        ResponseEntity<EntityRecrutador> response = controller.alterarRecrutador("rec-001", recrutadorDTO, admin);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(serviceRecrutador).alterarRecrutador("rec-001", recrutadorDTO);
     }
 
     @Test
-    void buscarFormByEventoId_DeveRetornarListaFormularios() {
-        List<EntityFormulario> formularios = List.of(formulario);
-        when(serviceFormulario.ListarFormPorEventoId("evento-123")).thenReturn(formularios);
+    void infoAdm_Admin_DeveRetornarInformacoes() {
+        when(serviceRecrutador.infoRec(anyString())).thenReturn(recrutador);
 
-        ResponseEntity<List<EntityFormulario>> responseAdmin =
-                controller.buscarFormByEventoId("evento-123", admin);
-        assertEquals(HttpStatus.OK, responseAdmin.getStatusCode());
+        ResponseEntity<EntityRecrutador> response = controller.infoAdm(admin);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(recrutador, response.getBody());
+    }
 
-        ResponseEntity<List<EntityFormulario>> responseRecrutador =
-                controller.buscarFormByEventoId("evento-123", recrutador);
-        assertEquals(HttpStatus.OK, responseRecrutador.getStatusCode());
+    @Test
+    void alterarEmail_Admin_DeveAtualizarEmail() {
+        ResponseEntity<Void> response = controller.alterarEmail(admin, "novo@test.com");
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(serviceRecrutador).alterarEmail("novo@test.com", admin.getUsuarioId());
+    }
+
+    @Test
+    void alterarSenha_Admin_DeveAtualizarSenha() {
+        ResponseEntity<Void> response = controller.alterarSenha(admin, "novaSenha");
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(serviceRecrutador).alterarSenha("novaSenha", admin.getUsuarioId());
+    }
+    @Test
+    void criarRecrutador_Admin_DeveRetornarRecrutadorCriadoComStatusCreated() {
+
+        Date dataAtual = new Date();
+
+        List<EntityEvento> eventosAdmin = List.of(
+                new EntityEvento("adm-001", "TESTE", "Descricao", dataAtual, Collections.emptyList())
+        );
+        when(serviceEvento.listarEventosPorAdmin(admin.getUsuarioId())).thenReturn(eventosAdmin);
+
+        when(passwordEncoder.encode(registerDTO.senha())).thenReturn("senhaCriptografada");
+
+        EntityRecrutador recrutadorEsperado = new EntityRecrutador(
+                registerDTO.nome(),
+                "senhaCriptografada",
+                registerDTO.telefone(),
+                registerDTO.email(),
+                admin.getUsuarioId(),
+                UserRole.USER,
+                eventosAdmin
+        );
+        recrutadorEsperado.setUsuarioId("rec-002");
+        when(serviceRecrutador.criarRecrutador(any(EntityRecrutador.class))).thenReturn(recrutadorEsperado);
+
+        ResponseEntity<EntityRecrutador> resposta = controller.criarRecrutador(registerDTO, admin);
+
+        assertEquals(HttpStatus.CREATED, resposta.getStatusCode());
+        assertSame(recrutadorEsperado, resposta.getBody());
+
+        verify(serviceEvento).listarEventosPorAdmin(admin.getUsuarioId());
+        verify(passwordEncoder).encode(registerDTO.senha());
+
+        ArgumentCaptor<EntityRecrutador> captor = ArgumentCaptor.forClass(EntityRecrutador.class);
+        verify(serviceRecrutador).criarRecrutador(captor.capture());
+
+        EntityRecrutador recrutadorCriado = captor.getValue();
+        assertAll(
+                () -> assertEquals(registerDTO.nome(), recrutadorCriado.getNome()),
+                () -> assertEquals("senhaCriptografada", recrutadorCriado.getSenha()),
+                () -> assertEquals(admin.getUsuarioId(), recrutadorCriado.getAdminId()),
+                () -> assertEquals(UserRole.USER, recrutadorCriado.getRole()),
+                () -> assertEquals(eventosAdmin, recrutadorCriado.getEventos())
+        );
+    }
+
+    @Test
+    void todosEndpoints_NaoAdmin_DeveRetornarForbidden() {
+        ResponseEntity<Void> removeResponse = controller.removerRecrutador("rec-001", invalido);
+        ResponseEntity<List<EntityRecrutador>> listResponse = controller.listarRecrutadores(invalido);
+        ResponseEntity<EntityRecrutador> buscarResponse = controller.buscarRecrut("rec-001", invalido);
+        ResponseEntity<EntityRecrutador> criarResponse = controller.criarRecrutador(registerDTO, invalido);
+        ResponseEntity<EntityRecrutador> alterarResponse = controller.alterarRecrutador("rec-001", recrutadorDTO, invalido);
+        ResponseEntity<EntityRecrutador> infoResponse = controller.infoAdm(invalido);
+        ResponseEntity<Void> emailResponse = controller.alterarEmail(invalido, "novo@test.com");
+        ResponseEntity<Void> senhaResponse = controller.alterarSenha(invalido, "novaSenha");
+
+        assertAll(
+                () -> assertEquals(HttpStatus.FORBIDDEN, removeResponse.getStatusCode()),
+                () -> assertEquals(HttpStatus.FORBIDDEN, listResponse.getStatusCode()),
+                () -> assertEquals(HttpStatus.FORBIDDEN, buscarResponse.getStatusCode()),
+                () -> assertEquals(HttpStatus.FORBIDDEN, criarResponse.getStatusCode()),
+                () -> assertEquals(HttpStatus.FORBIDDEN, alterarResponse.getStatusCode()),
+                () -> assertEquals(HttpStatus.FORBIDDEN, infoResponse.getStatusCode()),
+                () -> assertEquals(HttpStatus.FORBIDDEN, emailResponse.getStatusCode()),
+                () -> assertEquals(HttpStatus.FORBIDDEN, senhaResponse.getStatusCode())
+        );
     }
 }

@@ -5,7 +5,6 @@ import com.api.DataClick.DTO.CampoDTO;
 import com.api.DataClick.entities.EntityCampo;
 import com.api.DataClick.entities.EntityFormulario;
 import com.api.DataClick.enums.TipoCampo;
-import com.api.DataClick.exeptions.ExeceptionsMensage;
 import com.api.DataClick.exeptions.ExeptionNaoEncontrado;
 import com.api.DataClick.repositories.RepositoryCampo;
 import com.api.DataClick.repositories.RepositoryFormulario;
@@ -16,7 +15,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
