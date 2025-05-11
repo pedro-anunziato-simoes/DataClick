@@ -20,6 +20,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/eventos")
 @Tag(name = "Eventos", description = "Endpoints de funcionalidades de eventos")
+@Generated
 public class ControllerEvento {
 
     @Autowired
@@ -40,7 +41,6 @@ public class ControllerEvento {
     @GetMapping("/{eventoId}")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Buscar eventos por id", description = "Retorna a lista de eventos")
-    @Generated
     public ResponseEntity<EntityEvento> buscarEvento(@PathVariable String eventoId,@AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_USER") || a.getAuthority().equals("ROLE_ADMIN"))) {
