@@ -102,13 +102,8 @@ public class ControllerRecrutadorTest {
         recrutadorDTO.setRecrutadorSenhaDto("teste");
         recrutadorDTO.setRecrutadoTelefoneDto("11999996666");
         recrutadorDTO.setRecrutadoEmailDto("novo@test.com");
-        Date dataAtual = new Date();
 
-        List<EntityEvento> eventosAdmin = List.of(
-                new EntityEvento("adm-001", "TESTE", "Descricao", dataAtual, Collections.emptyList())
-        );
 
-        when(serviceEvento.listarEventosPorAdmin(anyString())).thenReturn(eventosAdmin);
     }
 
     @Test
