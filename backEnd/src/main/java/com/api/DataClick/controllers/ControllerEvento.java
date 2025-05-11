@@ -7,6 +7,7 @@ import com.api.DataClick.services.ServiceEvento;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.Generated;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/eventos")
 @Tag(name = "Eventos", description = "Endpoints de funcionalidades de eventos")
+@Generated
 public class ControllerEvento {
 
     @Autowired
@@ -41,8 +43,8 @@ public class ControllerEvento {
     @Operation(summary = "Buscar eventos por id", description = "Retorna a lista de eventos")
     public ResponseEntity<EntityEvento> buscarEvento(@PathVariable String eventoId,@AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
-                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            return ResponseEntity.ok(serviceEvento.buscarEventoById(eventoId));
+                .noneMatch(a -> a.getAuthority().equals("ROLE_USER") || a.getAuthority().equals("ROLE_ADMIN"))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         return ResponseEntity.ok(serviceEvento.buscarEventoById(eventoId));
     }

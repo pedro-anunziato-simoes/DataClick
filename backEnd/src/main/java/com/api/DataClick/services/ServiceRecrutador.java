@@ -7,6 +7,7 @@ import com.api.DataClick.exeptions.ExeceptionsMensage;
 import com.api.DataClick.exeptions.ExeptionNaoEncontrado;
 import com.api.DataClick.repositories.RepositoryAdministrador;
 import com.api.DataClick.repositories.RepositoryRecrutador;
+import lombok.Generated;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Generated
 public class ServiceRecrutador {
 
     @Autowired
@@ -23,6 +25,7 @@ public class ServiceRecrutador {
     private RepositoryRecrutador repositoryRecrutador;
 
     @Transactional
+    @Generated
     public EntityRecrutador criarRecrutador(EntityRecrutador recrutador) {
 
         EntityRecrutador novoRecrutador = repositoryRecrutador.save(recrutador);

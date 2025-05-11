@@ -1,6 +1,7 @@
 package com.api.DataClick.entities;
 
 import lombok.Data;
+import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
@@ -14,6 +15,7 @@ import java.util.List;
 @Setter
 @Data
 @Document(collection = "Eventos")
+@Generated
 public class EntityEvento {
 
     @Id

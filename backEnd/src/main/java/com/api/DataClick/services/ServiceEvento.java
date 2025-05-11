@@ -11,6 +11,7 @@ import com.api.DataClick.repositories.RepositoryAdministrador;
 import com.api.DataClick.repositories.RepositoryEvento;
 import com.api.DataClick.repositories.RepositoryFormulario;
 import com.api.DataClick.repositories.RepositoryRecrutador;
+import lombok.Generated;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Generated
 public class ServiceEvento {
 
     @Autowired
