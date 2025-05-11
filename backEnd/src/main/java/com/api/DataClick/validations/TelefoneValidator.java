@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 public class TelefoneValidator implements ConstraintValidator<Telefone, String> {
 
     private static final Pattern TELEFONE_PATTERN = Pattern.compile(
-            "^(\\(?\\d{2}\\)?)?\\s?(9?\\d{4}[-. ]?\\d{4})$"
+            "^\\(?(\\d{2})\\)?[-.\\s]?(9?\\d{4})[-.\\s]?(\\d{4})$"
     );
 
     @Override
@@ -17,6 +17,7 @@ public class TelefoneValidator implements ConstraintValidator<Telefone, String> 
 
         String cleaned = telefone.replaceAll("[^\\d]", "");
 
-        return cleaned.matches("^(55)?\\d{10,11}$") && TELEFONE_PATTERN.matcher(telefone).matches();
+        return cleaned.matches("^\\d{10,11}$") &&
+                TELEFONE_PATTERN.matcher(telefone).matches();
     }
 }
