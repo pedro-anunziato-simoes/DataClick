@@ -28,7 +28,7 @@ public class ServiceFormulariosPreenchidosTest {
 
 
     @Mock
-    private RepositoryFormualriosPreenchidos repositoryFormulariosPreenchidos; // Corrected typo here
+    private RepositoryFormualriosPreenchidos repositoryFormulariosPreenchidos;
 
     @Mock
     private RepositoryRecrutador repositoryRecrutador;
@@ -100,5 +100,43 @@ public class ServiceFormulariosPreenchidosTest {
 
         verify(repositoryRecrutador, times(1)).findById("recrutadorId1");
         verify(repositoryFormulariosPreenchidos, times(1)).findByrecrutadorId("recrutadorId1");
+    }
+
+    @Test
+    void adicionarFormulariosPreenchidos_DeveSalvarComDadosCorretos_QuandoRecrutadorExiste() {
+        String recrutadorId = "recrutadorId1";
+        EntityFormulariosPreenchidos novoForm = new EntityFormulariosPreenchidos(new ArrayList<>());
+
+        when(repositoryRecrutador.findById(recrutadorId)).thenReturn(Optional.of(recrutador));
+        when(repositoryFormulariosPreenchidos.save(any(EntityFormulariosPreenchidos.class))).thenAnswer(invocation -> {
+            EntityFormulariosPreenchidos form = invocation.getArgument(0);
+            form.setFormulariosPreId("novoFormId");
+            return form;
+        });
+
+        EntityFormulariosPreenchidos resultado = serviceFormulariosPreenchidos.adicionarFormulariosPreenchidos(novoForm, recrutadorId);
+
+        assertAll(
+                () -> assertEquals(recrutadorId, resultado.getRecrutadorId()),
+                () -> assertEquals("adminId1", resultado.getAdminId()),
+                () -> assertNotNull(resultado.getFormulariosPreId()),
+                () -> verify(repositoryRecrutador, times(1)).findById(recrutadorId),
+                () -> verify(repositoryFormulariosPreenchidos, times(1)).save(novoForm)
+        );
+    }
+
+    @Test
+    void adicionarFormulariosPreenchidos_DeveLancarExcecao_QuandoRecrutadorNaoExiste() {
+        String recrutadorIdInexistente = "recrutadorInexistente";
+        EntityFormulariosPreenchidos novoForm = new EntityFormulariosPreenchidos(new ArrayList<>());
+
+        when(repositoryRecrutador.findById(recrutadorIdInexistente)).thenReturn(Optional.empty());
+
+        assertThrows(ExeptionNaoEncontrado.class, () -> {
+            serviceFormulariosPreenchidos.adicionarFormulariosPreenchidos(novoForm, recrutadorIdInexistente);
+        });
+
+        verify(repositoryRecrutador, times(1)).findById(recrutadorIdInexistente);
+        verify(repositoryFormulariosPreenchidos, never()).save(any());
     }
 }
