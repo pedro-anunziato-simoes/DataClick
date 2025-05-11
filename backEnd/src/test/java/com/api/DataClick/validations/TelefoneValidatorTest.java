@@ -56,4 +56,13 @@ public class TelefoneValidatorTest {
                 () -> assertFalse(validator.isValid("33334444", context))
         );
     }
+    @Test
+    void isValid_DeveRetornarFalse_QuandoTelefoneENulo() {
+
+        String telefoneNulo = null;
+
+        boolean resultado = validator.isValid(telefoneNulo, context);
+
+        assertFalse(resultado, "Deve retornar false para telefone nulo");
+    }
 }
