@@ -29,14 +29,14 @@ public class ServiceEvento {
     @Autowired
     RepositoryFormulario repositoryFormulario;
 
-    public EntityEvento crirarEvento(EventoDTO dtoEvento, String adminId){ // NOSONAR
+    public EntityEvento crirarEvento(EventoDTO dtoEvento, String adminId){
         EntityEvento evento = new EntityEvento(adminId,dtoEvento.getEventoTituloDto(), dtoEvento.getEventoDescricaoDto(), dtoEvento.getEventoDataDto(),new ArrayList<>());
         repositoryEvento.save(evento);
         EntityAdministrador adm = repositoryAdministrador.findById(adminId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.EVENTO_NAO_ENCONTRADO));
         adm.getAdminEventos().add(evento);
-        for(EntityRecrutador recrutador: adm.getAdminRecrutadores()){
-            recrutador.getRecrutadorEventos().add(evento);
-            repositoryRecrutador.save(recrutador);
+        for(EntityRecrutador recrutador: adm.getAdminRecrutadores()){// NOSONAR
+            recrutador.getRecrutadorEventos().add(evento);// NOSONAR
+            repositoryRecrutador.save(recrutador);// NOSONAR
         }
         return evento;
     }
