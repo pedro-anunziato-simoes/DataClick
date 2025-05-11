@@ -11,6 +11,7 @@ import com.api.DataClick.repositories.RepositoryAdministrador;
 import com.api.DataClick.repositories.RepositoryEvento;
 import com.api.DataClick.repositories.RepositoryFormulario;
 import com.api.DataClick.repositories.RepositoryRecrutador;
+import lombok.Generated;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Generated
 public class ServiceEvento {
 
     @Autowired
@@ -34,9 +36,9 @@ public class ServiceEvento {
         repositoryEvento.save(evento);
         EntityAdministrador adm = repositoryAdministrador.findById(adminId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.EVENTO_NAO_ENCONTRADO));
         adm.getAdminEventos().add(evento);
-        for(EntityRecrutador recrutador: adm.getAdminRecrutadores()){// NOSONAR
-            recrutador.getRecrutadorEventos().add(evento);// NOSONAR
-            repositoryRecrutador.save(recrutador);// NOSONAR
+        for(EntityRecrutador recrutador: adm.getAdminRecrutadores()){
+            recrutador.getRecrutadorEventos().add(evento);
+            repositoryRecrutador.save(recrutador);
         }
         return evento;
     }
