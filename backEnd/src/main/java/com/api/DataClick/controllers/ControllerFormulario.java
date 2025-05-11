@@ -68,7 +68,7 @@ public class ControllerFormulario {
     //Adm/Recrutador
     @GetMapping("/{id}")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Busca um formulario pelo id-formulario", description = "Retorna um formaulario cujo id foi inserido")
+    @Operation(summary = "Busca um formulario pelo id-formulario", description = "Retorna um formulario cujo id foi inserido")
     public ResponseEntity<EntityFormulario> buscarForm(@PathVariable String id, @AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_USER") || a.getAuthority().equals("ROLE_ADMIN"))) {

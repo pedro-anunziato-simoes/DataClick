@@ -41,8 +41,8 @@ public class ControllerEvento {
     @Operation(summary = "Buscar eventos por id", description = "Retorna a lista de eventos")
     public ResponseEntity<EntityEvento> buscarEvento(@PathVariable String eventoId,@AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
-                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            return ResponseEntity.ok(serviceEvento.buscarEventoById(eventoId));
+                .noneMatch(a -> a.getAuthority().equals("ROLE_USER") || a.getAuthority().equals("ROLE_ADMIN"))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         return ResponseEntity.ok(serviceEvento.buscarEventoById(eventoId));
     }
