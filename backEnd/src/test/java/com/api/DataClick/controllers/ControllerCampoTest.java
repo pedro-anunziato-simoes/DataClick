@@ -161,4 +161,68 @@ public class ControllerCampoTest {
 
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
     }
+
+    @Test
+    void listarCampos_QuandoListaVazia_DeveRetornarListaVazia() {
+        when(serviceCampo.listarCamposByFormularioId(anyString()))
+                .thenReturn(Collections.emptyList());
+
+        ResponseEntity<List<EntityCampo>> response =
+                controller.listarCamposPorFormularioId("form-123", adminUser);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody().isEmpty());
+    }
+
+    @Test
+    void buscarCampo_QuandoNaoEncontrado_DeveRetornarNotFound() {
+        when(serviceCampo.buscarCampoById(anyString()))
+                .thenReturn(null);
+
+        ResponseEntity<EntityCampo> response =
+                controller.buscarCampoById("campo-inexistente", adminUser);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    void listarCampos_ComPermissaoUserEListaVazia_DeveRetornarOk() {
+        when(serviceCampo.listarCamposByFormularioId(anyString()))
+                .thenReturn(Collections.emptyList());
+
+        ResponseEntity<List<EntityCampo>> response =
+                controller.listarCamposPorFormularioId("form-123", comumUser);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody().isEmpty());
+    }
+
+    @Test
+    void buscarCampo_ComPermissaoUser_DeveRetornarCampo() {
+        when(serviceCampo.buscarCampoById(anyString()))
+                .thenReturn(campo);
+
+        ResponseEntity<EntityCampo> response =
+                controller.buscarCampoById("campo-123", comumUser);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(campo, response.getBody());
+    }
+
+    @Test
+    void listarCampos_ComPermissaoAdminOuUserEListaVazia_DeveRetornarOk() {
+
+        when(serviceCampo.listarCamposByFormularioId(anyString()))
+                .thenReturn(Collections.emptyList());
+
+        ResponseEntity<List<EntityCampo>> responseAdmin =
+                controller.listarCamposPorFormularioId("form-123", adminUser);
+        assertEquals(HttpStatus.OK, responseAdmin.getStatusCode());
+        assertTrue(responseAdmin.getBody().isEmpty());
+
+        ResponseEntity<List<EntityCampo>> responseUser =
+                controller.listarCamposPorFormularioId("form-123", comumUser);
+        assertEquals(HttpStatus.OK, responseUser.getStatusCode());
+        assertTrue(responseUser.getBody().isEmpty());
+    }
 }

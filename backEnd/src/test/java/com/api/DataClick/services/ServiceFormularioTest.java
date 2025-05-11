@@ -1,10 +1,7 @@
 package com.api.DataClick.services;
 
 import com.api.DataClick.DTO.FormularioDTO;
-import com.api.DataClick.entities.EntityAdministrador;
-import com.api.DataClick.entities.EntityCampo;
-import com.api.DataClick.entities.EntityEvento;
-import com.api.DataClick.entities.EntityFormulario;
+import com.api.DataClick.entities.*;
 import com.api.DataClick.enums.TipoCampo;
 import com.api.DataClick.enums.UserRole;
 import com.api.DataClick.exeptions.ExeptionNaoEncontrado;
@@ -15,6 +12,7 @@ import com.api.DataClick.repositories.RepositoryFormulario;
 import com.api.DataClick.repositories.RepositoryRecrutador;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -242,5 +240,44 @@ public class ServiceFormularioTest {
         });
         verify(repositoryFormulario, times(1)).findById("nonExistentFormId");
         verify(repositoryFormulario, never()).save(any(EntityFormulario.class));
+    }
+
+    @Test
+    void criarFormulario_DeveAtualizarRecrutadores_QuandoExistemRecrutadoresAssociados() {
+        EntityRecrutador recrutador1 = new EntityRecrutador(
+                "Recrutador 1", "senha1", "11999991111",
+                "rec1@empresa.com", "adminId1", UserRole.USER, new ArrayList<>()
+        );
+
+        EntityRecrutador recrutador2 = new EntityRecrutador(
+                "Recrutador 2", "senha2", "11999992222",
+                "rec2@empresa.com", "adminId1", UserRole.USER, new ArrayList<>()
+        );
+
+        admin.getAdminRecrutadores().addAll(List.of(recrutador1, recrutador2));
+
+        when(repositoryEvento.findById("eventoId1")).thenReturn(Optional.of(evento));
+        when(repositoryAdministrador.findById("adminId1")).thenReturn(Optional.of(admin));
+        when(repositoryFormulario.save(any())).thenAnswer(inv -> {
+            EntityFormulario f = inv.getArgument(0);
+            f.setFormId("formIdNovo");
+            return f;
+        });
+        when(repositoryRecrutador.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        serviceFormulario.criarFormulario(formularioDTO, "eventoId1");
+
+        ArgumentCaptor<EntityRecrutador> captor = ArgumentCaptor.forClass(EntityRecrutador.class);
+        verify(repositoryRecrutador, times(2)).save(captor.capture());
+
+        List<EntityRecrutador> recruitersSalvos = captor.getAllValues();
+
+        assertAll(
+                () -> assertEquals(2, recruitersSalvos.size(), "Deve salvar 2 recrutadores"),
+                () -> assertTrue(recruitersSalvos.contains(recrutador1), "Recrutador 1 não foi salvo"),
+                () -> assertTrue(recruitersSalvos.contains(recrutador2), "Recrutador 2 não foi salvo"),
+                () -> assertTrue(recrutador1.getRecrutadorEventos().contains(evento), "Evento não associado ao Recrutador 1"),
+                () -> assertTrue(recrutador2.getRecrutadorEventos().contains(evento), "Evento não associado ao Recrutador 2")
+        );
     }
 }

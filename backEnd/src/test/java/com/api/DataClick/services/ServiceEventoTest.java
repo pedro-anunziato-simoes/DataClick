@@ -252,4 +252,6 @@ public class ServiceEventoTest {
         verify(repositoryAdministrador, never()).save(any(EntityAdministrador.class));
         verify(repositoryEvento, never()).delete(any(EntityEvento.class));
     }
+
+
 }

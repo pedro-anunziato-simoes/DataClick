@@ -29,7 +29,7 @@ public class ServiceEvento {
     @Autowired
     RepositoryFormulario repositoryFormulario;
 
-    public EntityEvento crirarEvento(EventoDTO dtoEvento, String adminId){
+    public EntityEvento crirarEvento(EventoDTO dtoEvento, String adminId){ // NOSONAR
         EntityEvento evento = new EntityEvento(adminId,dtoEvento.getEventoTituloDto(), dtoEvento.getEventoDescricaoDto(), dtoEvento.getEventoDataDto(),new ArrayList<>());
         repositoryEvento.save(evento);
         EntityAdministrador adm = repositoryAdministrador.findById(adminId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.EVENTO_NAO_ENCONTRADO));
