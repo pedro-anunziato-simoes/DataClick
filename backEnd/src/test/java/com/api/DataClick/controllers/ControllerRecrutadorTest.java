@@ -136,6 +136,17 @@ public class ControllerRecrutadorTest {
     }
 
     @Test
+    void listarRecrutadores_AdminComListaVazia_DeveRetornarListaVazia() {
+        when(serviceRecrutador.listarRecrutadores(anyString()))
+                .thenReturn(Collections.emptyList());
+
+        ResponseEntity<List<EntityRecrutador>> response = controller.listarRecrutadores(admin);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody().isEmpty());
+        verify(serviceRecrutador).listarRecrutadores(admin.getUsuarioId());
+    }
+    @Test
     void buscarRecrut_Admin_DeveRetornarRecrutador() {
         when(serviceRecrutador.buscarRecrut(anyString())).thenReturn(recrutador);
 

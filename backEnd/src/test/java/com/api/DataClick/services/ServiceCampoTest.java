@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -162,5 +163,34 @@ public class ServiceCampoTest {
         });
         verify(repositoryCampo, times(1)).findById("nonExistentCampoId");
         verify(repositoryCampo, never()).save(any(EntityCampo.class));
+    }
+
+    @Test
+    void listarCamposByFormularioId_DeveRetornarCampos_QuandoFormularioExiste() {
+        String formId = "formId1";
+        List<EntityCampo> campos = List.of(
+                new EntityCampo("Campo 1", TipoCampo.TEXTO),
+                new EntityCampo("Campo 2", TipoCampo.NUMERO)
+        );
+
+        when(repositoryCampo.findAllByformId(formId)).thenReturn(Optional.of(campos));
+
+        List<EntityCampo> resultado = serviceCampo.listarCamposByFormularioId(formId);
+
+        assertNotNull(resultado);
+        assertEquals(2, resultado.size());
+        verify(repositoryCampo, times(1)).findAllByformId(formId);
+    }
+
+    @Test
+    void listarCamposByFormularioId_DeveLancarExcecao_QuandoSemCampos() {
+        String formId = "formIdInexistente";
+        when(repositoryCampo.findAllByformId(formId)).thenReturn(Optional.empty());
+
+        assertThrows(ExeptionNaoEncontrado.class, () -> {
+            serviceCampo.listarCamposByFormularioId(formId);
+        });
+
+        verify(repositoryCampo, times(1)).findAllByformId(formId);
     }
 }
