@@ -1,4 +1,4 @@
-import EventosList from "../../components/eventos/EventoList";
+import CriarEvento from "../../components/eventos/CrirarEvento";
 import Sidebar from "../../components/sideBar/Sidebar";
 
 
@@ -7,8 +7,7 @@ const ListaEventosPage = () => {
     <div>
       <Sidebar />
       <div>
-        <h1>Eventos</h1>
-        <EventosList />
+        <CriarEvento />
       </div>
     </div>
   );
