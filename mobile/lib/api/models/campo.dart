@@ -13,8 +13,8 @@ class Campo {
 
   factory Campo.fromJson(Map<String, dynamic> json) {
     return Campo(
-      titulo: json['titulo'] ?? '',
-      tipo: json['tipo'] ?? '',
+      titulo: json['campoTitulo'] ?? json['titulo'] ?? '',
+      tipo: json['campoTipo'] ?? json['tipo'] ?? '',
       resposta: Map<String, dynamic>.from(json['resposta'] ?? {}),
       campoId: json['campoId'] ?? '',
     );
@@ -22,10 +22,18 @@ class Campo {
 
   Map<String, dynamic> toJson() {
     return {
-      'titulo': titulo,
-      'tipo': tipo,
+      'campoTitulo': titulo,
+      'campoTipo': tipo,
       'resposta': resposta,
       'campoId': campoId,
+    };
+  }
+
+  Map<String, dynamic> toCreateDto() {
+    return {
+      'campoTituloDto': titulo,
+      'campoTipoDto': tipo,
+      'resposta': resposta,
     };
   }
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/api/repository/viewmodel/auth_viewmodel.dart';
-import 'package:logging/logging.dart';
+import 'package:mobile/api/models/recrutador.dart';
 
 class RecruiterRegisterScreen extends StatefulWidget {
   const RecruiterRegisterScreen({super.key});
@@ -15,22 +15,17 @@ class _RecruiterRegisterScreenState extends State<RecruiterRegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nomeController = TextEditingController();
   final _emailController = TextEditingController();
-  final _empresaController = TextEditingController();
-  final _cargoController = TextEditingController();
   final _telefoneController = TextEditingController();
   final _senhaController = TextEditingController();
   final _confirmarSenhaController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _concordaTermos = false;
-  final Logger _logger = Logger('RecruiterRegisterScreen');
 
   @override
   void dispose() {
     _nomeController.dispose();
     _emailController.dispose();
-    _empresaController.dispose();
-    _cargoController.dispose();
     _telefoneController.dispose();
     _senhaController.dispose();
     _confirmarSenhaController.dispose();
@@ -55,18 +50,14 @@ class _RecruiterRegisterScreenState extends State<RecruiterRegisterScreen> {
     final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
 
     try {
-      _logger.fine('Iniciando processo de registro como recrutador');
-      final success = await authViewModel.registerRecruiter(
+      final success = await authViewModel.registerRecrutador(
         nome: _nomeController.text.trim(),
         email: _emailController.text.trim(),
-        empresa: _empresaController.text.trim(),
-        cargo: _cargoController.text.trim(),
         telefone: _telefoneController.text.trim(),
         senha: _senhaController.text.trim(),
       );
 
       if (success && mounted) {
-        _logger.fine('Solicitação enviada');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
@@ -87,7 +78,6 @@ class _RecruiterRegisterScreenState extends State<RecruiterRegisterScreen> {
         );
       }
     } catch (e) {
-      _logger.severe('Erro no registro: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -203,8 +193,8 @@ class _RecruiterRegisterScreenState extends State<RecruiterRegisterScreen> {
                         TextFormField(
                           controller: _emailController,
                           decoration: InputDecoration(
-                            labelText: 'E-mail corporativo',
-                            hintText: 'Seu e-mail corporativo',
+                            labelText: 'E-mail',
+                            hintText: 'Seu e-mail',
                             prefixIcon: const Icon(Icons.email),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10.0),
@@ -242,59 +232,6 @@ class _RecruiterRegisterScreenState extends State<RecruiterRegisterScreen> {
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Por favor, insira seu telefone';
-                            }
-                            return null;
-                          },
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        const Text(
-                          'Dados Profissionais',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF26A69A),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        TextFormField(
-                          controller: _empresaController,
-                          decoration: InputDecoration(
-                            labelText: 'Empresa',
-                            hintText: 'Nome da empresa',
-                            prefixIcon: const Icon(Icons.business),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            filled: true,
-                            fillColor: Colors.grey[100],
-                          ),
-                          textInputAction: TextInputAction.next,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Por favor, insira o nome da empresa';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 12),
-                        TextFormField(
-                          controller: _cargoController,
-                          decoration: InputDecoration(
-                            labelText: 'Cargo',
-                            hintText: 'Seu cargo na empresa',
-                            prefixIcon: const Icon(Icons.work),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            filled: true,
-                            fillColor: Colors.grey[100],
-                          ),
-                          textInputAction: TextInputAction.next,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Por favor, insira seu cargo';
                             }
                             return null;
                           },

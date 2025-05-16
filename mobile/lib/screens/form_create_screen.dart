@@ -12,6 +12,7 @@ class FormularioScreen extends StatefulWidget {
   final bool isEditingCampo;
   final Campo? campoToEdit;
   final String? formIdForAddCampo;
+  final String? eventoId;
 
   const FormularioScreen({
     super.key,
@@ -21,6 +22,7 @@ class FormularioScreen extends StatefulWidget {
     this.isEditingCampo = false,
     this.campoToEdit,
     this.formIdForAddCampo,
+    this.eventoId,
   });
 
   @override
@@ -146,11 +148,6 @@ class _FormularioScreenState extends State<FormularioScreen> {
             'tipo': _tipoCampoSelecionado,
             'resposta': {},
           };
-
-          await widget.campoService.adicionarCampo(
-            widget.formIdForAddCampo!,
-            campoData,
-          );
         }
       } else {
         final formData = {
@@ -159,12 +156,15 @@ class _FormularioScreenState extends State<FormularioScreen> {
         };
 
         if (widget.formularioExistente != null) {
-          await widget.formularioService.alterarForms(
-            widget.formularioExistente!.id,
-            formData,
+          await widget.formularioService.atualizarFormulario(
+            formId: widget.formularioExistente!.id,
+            titulo: _tituloController.text,
           );
         } else {
-          await widget.formularioService.criarForms(formData);
+          await widget.formularioService.criarFormulario(
+            titulo: _tituloController.text,
+            eventoId: widget.eventoId!,
+          );
         }
       }
 
@@ -340,7 +340,6 @@ class _FormularioScreenState extends State<FormularioScreen> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    // Form title section
                     Container(
                       padding: const EdgeInsets.all(16),
                       color: const Color(0xFF26A69A),
@@ -383,8 +382,6 @@ class _FormularioScreenState extends State<FormularioScreen> {
                         },
                       ),
                     ),
-
-                    // Main content
                     Expanded(
                       child: SingleChildScrollView(
                         padding: const EdgeInsets.all(16),
@@ -393,7 +390,7 @@ class _FormularioScreenState extends State<FormularioScreen> {
                             _buildAdicionarCampoCard(),
                             const SizedBox(height: 16),
                             if (_campos.isNotEmpty) _buildListaCampos(),
-                            const SizedBox(height: 72), // Space for FAB
+                            const SizedBox(height: 72),
                           ],
                         ),
                       ),
@@ -420,7 +417,7 @@ class _FormularioScreenState extends State<FormularioScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(),
             blurRadius: 10,
             spreadRadius: 1,
           ),
@@ -435,7 +432,7 @@ class _FormularioScreenState extends State<FormularioScreen> {
               child: Row(
                 children: [
                   CircleAvatar(
-                    backgroundColor: const Color(0xFF26A69A).withOpacity(0.1),
+                    backgroundColor: const Color(0xFF26A69A).withValues(),
                     child: const Icon(
                       Icons.add_circle_outline,
                       color: Color(0xFF26A69A),
@@ -462,7 +459,6 @@ class _FormularioScreenState extends State<FormularioScreen> {
               ),
             ),
           ),
-
           AnimatedCrossFade(
             firstChild: const SizedBox.shrink(),
             secondChild: Padding(
@@ -472,8 +468,6 @@ class _FormularioScreenState extends State<FormularioScreen> {
                 children: [
                   const Divider(),
                   const SizedBox(height: 8),
-
-                  // Field title
                   TextFormField(
                     controller: _campoTituloController,
                     decoration: InputDecoration(
@@ -488,7 +482,6 @@ class _FormularioScreenState extends State<FormularioScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-
                   DropdownButtonFormField<String>(
                     value: _tipoCampoSelecionado,
                     isExpanded: true,
@@ -523,13 +516,10 @@ class _FormularioScreenState extends State<FormularioScreen> {
                       });
                     },
                   ),
-
                   if (_tipoCampoSelecionado == 'SELECT' ||
                       _tipoCampoSelecionado == 'CHECKBOX')
                     _buildOpcoesCampo(),
-
                   const SizedBox(height: 16),
-
                   SwitchListTile(
                     title: const Text('Campo Obrigatório'),
                     subtitle: const Text(
@@ -544,10 +534,7 @@ class _FormularioScreenState extends State<FormularioScreen> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-
                   const SizedBox(height: 16),
-
-                  // Add field button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
@@ -592,8 +579,6 @@ class _FormularioScreenState extends State<FormularioScreen> {
           ),
         ),
         const SizedBox(height: 8),
-
-        // Add new option row
         Row(
           children: [
             Expanded(
@@ -629,7 +614,6 @@ class _FormularioScreenState extends State<FormularioScreen> {
             ),
           ],
         ),
-
         if (_opcoes.isNotEmpty)
           Container(
             margin: const EdgeInsets.only(top: 16),
@@ -690,7 +674,7 @@ class _FormularioScreenState extends State<FormularioScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(),
             blurRadius: 10,
             spreadRadius: 1,
           ),
@@ -703,7 +687,7 @@ class _FormularioScreenState extends State<FormularioScreen> {
           Row(
             children: [
               CircleAvatar(
-                backgroundColor: const Color(0xFF26A69A).withOpacity(0.1),
+                backgroundColor: const Color(0xFF26A69A).withValues(),
                 child: const Icon(Icons.list_alt, color: Color(0xFF26A69A)),
               ),
               const SizedBox(width: 16),
@@ -734,7 +718,6 @@ class _FormularioScreenState extends State<FormularioScreen> {
           ),
           const SizedBox(height: 8),
           const Divider(),
-
           _campos.isEmpty
               ? Container(
                 padding: const EdgeInsets.symmetric(vertical: 24),
@@ -769,7 +752,7 @@ class _FormularioScreenState extends State<FormularioScreen> {
                   return ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: CircleAvatar(
-                      backgroundColor: const Color(0xFF26A69A).withOpacity(0.1),
+                      backgroundColor: const Color(0xFF26A69A).withValues(),
                       child: _getTipoIcon(campo.tipo),
                     ),
                     title: Text(

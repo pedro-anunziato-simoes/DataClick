@@ -8,10 +8,10 @@ class FormularioService {
 
   FormularioService(this._apiClient);
 
-  Future<List<Formulario>> getFormularios() async {
+  Future<List<Formulario>> getFormulariosByEvento(String eventoId) async {
     try {
       final response = await _apiClient.get(
-        '/formularios/todos-formularios',
+        '/formularios/formulario/evento/$eventoId',
         includeAuth: true,
       );
 
@@ -20,14 +20,17 @@ class FormularioService {
         return data.map((json) => Formulario.fromJson(json)).toList();
       } else {
         throw ApiException(
-          _getErrorMessage(response, 'buscar formulários'),
+          _getErrorMessage(response, 'buscar formulários do evento'),
           response.statusCode,
         );
       }
     } on ApiException {
       rethrow;
     } catch (e) {
-      throw ApiException('Erro ao buscar formulários: ${e.toString()}', 0);
+      throw ApiException(
+        'Erro ao buscar formulários do evento: ${e.toString()}',
+        0,
+      );
     }
   }
 
@@ -53,11 +56,14 @@ class FormularioService {
     }
   }
 
-  Future<Formulario> criarForms(Map<String, dynamic> data) async {
+  Future<Formulario> criarFormulario({
+    required String titulo,
+    required String eventoId,
+  }) async {
     try {
       final response = await _apiClient.post(
-        '/formularios/add',
-        body: json.encode(data),
+        '/formularios/add/$eventoId',
+        body: json.encode({'formularioTituloDto': titulo}),
         includeAuth: true,
       );
 
@@ -76,14 +82,14 @@ class FormularioService {
     }
   }
 
-  Future<Formulario> alterarForms(
-    String formId,
-    Map<String, dynamic> data,
-  ) async {
+  Future<Formulario> atualizarFormulario({
+    required String formId,
+    required String titulo,
+  }) async {
     try {
       final response = await _apiClient.post(
         '/formularios/alterar/$formId',
-        body: json.encode(data),
+        body: json.encode({'formularioTituloDto': titulo}),
         includeAuth: true,
       );
 
@@ -91,27 +97,25 @@ class FormularioService {
         return Formulario.fromJson(json.decode(response.body));
       } else {
         throw ApiException(
-          _getErrorMessage(response, 'alterar formulário'),
+          _getErrorMessage(response, 'atualizar formulário'),
           response.statusCode,
         );
       }
     } on ApiException {
       rethrow;
     } catch (e) {
-      throw ApiException('Erro ao alterar formulário: ${e.toString()}', 0);
+      throw ApiException('Erro ao atualizar formulário: ${e.toString()}', 0);
     }
   }
 
-  Future<Formulario> removerForms(String id) async {
+  Future<void> removerFormulario(String formId) async {
     try {
       final response = await _apiClient.delete(
-        '/formularios/remove/$id',
+        '/formularios/remove/$formId',
         includeAuth: true,
       );
 
-      if (response.statusCode == 200) {
-        return Formulario.fromJson(json.decode(response.body));
-      } else {
+      if (response.statusCode != 200) {
         throw ApiException(
           _getErrorMessage(response, 'remover formulário'),
           response.statusCode,
@@ -121,6 +125,32 @@ class FormularioService {
       rethrow;
     } catch (e) {
       throw ApiException('Erro ao remover formulário: ${e.toString()}', 0);
+    }
+  }
+
+  Future<List<Formulario>> getFormulariosPreenchidos(String eventoId) async {
+    try {
+      final response = await _apiClient.get(
+        '/formulariosPreenchidos/$eventoId',
+        includeAuth: true,
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Formulario.fromJson(json)).toList();
+      } else {
+        throw ApiException(
+          _getErrorMessage(response, 'buscar formulários preenchidos'),
+          response.statusCode,
+        );
+      }
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(
+        'Erro ao buscar formulários preenchidos: ${e.toString()}',
+        0,
+      );
     }
   }
 
