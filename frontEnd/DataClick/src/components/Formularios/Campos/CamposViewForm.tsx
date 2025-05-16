@@ -66,13 +66,13 @@ const CamposViewForm: React.FC<CamposViewFormProps> = ({ formId }) => {
           <Box key={campo.campoId || index}>
             <Paper elevation={2} sx={{ p: 2 }}>
               <Typography variant="h6" gutterBottom>
-                {campo.titulo}
+                {campo.campoTitulo}
               </Typography>
 
               <Box mb={2}>
                 <FormControl fullWidth>
                   <InputLabel>Tipo</InputLabel>
-                  <Select disabled value={campo.tipo} label="Tipo">
+                  <Select disabled value={campo.campoTipo} label="Tipo">
                     {tiposPermitidos.map((tipo) => (
                       <MenuItem key={tipo} value={tipo}>
                         {tipo}

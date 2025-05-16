@@ -5,7 +5,7 @@ import Sidebar from "../../components/sideBar/Sidebar";
 const ListaEventosPage = () => {
   return (
     <div>
-      <Sidebar />
+      
       <div>
         <h1>Eventos</h1>
         <EventosList />

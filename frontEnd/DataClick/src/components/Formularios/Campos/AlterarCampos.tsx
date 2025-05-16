@@ -53,7 +53,7 @@ const AlterarCamposForms = () => {
     const novosCampos = [...campos];
     novosCampos[index] = {
       ...novosCampos[index],
-      tipo: e.target.value,
+      campoTipo: e.target.value,
     };
     setCampos(novosCampos);
   };
@@ -65,7 +65,7 @@ const AlterarCamposForms = () => {
     const novosCampos = [...campos];
     novosCampos[index] = {
       ...novosCampos[index],
-      titulo: e.target.value,
+      campoTitulo: e.target.value,
     };
     setCampos(novosCampos);
   };
@@ -130,7 +130,7 @@ const AlterarCamposForms = () => {
           <TextField
             fullWidth
             label="Título do Campo"
-            value={campo.titulo}
+            value={campo.campoTitulo}
             onChange={(e) => handleTituloChange(index, e)}
             variant="outlined"
             sx={{ mb: 2 }}
@@ -139,7 +139,7 @@ const AlterarCamposForms = () => {
           <FormControl fullWidth sx={{ mb: 2 }}>
             <InputLabel>Tipo</InputLabel>
             <Select
-              value={campo.tipo}
+              value={campo.campoTipo}
               label="Tipo"
               onChange={(e) => handleTipoChange(index, e)}
             >
@@ -155,7 +155,7 @@ const AlterarCamposForms = () => {
             <Button
               variant="contained"
               color="primary"
-              onClick={() => handleSalvarCampo(campo.campoId, campo.tipo, campo.titulo, index)}
+              onClick={() => handleSalvarCampo(campo.campoId, campo.campoTipo, campo.campoTitulo, index)}
             >
               Salvar
             </Button>

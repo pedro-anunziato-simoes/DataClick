@@ -16,6 +16,7 @@ import Register from "./pages/registrar/Register";
 import SuportePage from "./pages/suporte/SuportePage";
 import ListaEventosPage from "./pages/evento/ListaEventosPage";
 import CriarEventoPage from "./pages/evento/CriarEventoPage";
+import FormulariosPreenchidosPage from "./pages/formulariosPreechidos/FormulariosPreenchidosPage";
 
 const App = () => {
   return (
@@ -36,6 +37,7 @@ const App = () => {
         <Route path="/perfilAdministrador" element={<PrivateRoute><PerfilAdminitradorPage /></PrivateRoute>} />
         <Route path="/eventos" element={<PrivateRoute><ListaEventosPage /></PrivateRoute>} />
         <Route path="/criarEventos" element={<PrivateRoute><CriarEventoPage /></PrivateRoute>} />
+        <Route path="/visualizarLeads/:eventoId" element={<PrivateRoute><FormulariosPreenchidosPage /></PrivateRoute>} />
         <Route path="/suporte" element={<PrivateRoute><SuportePage /></PrivateRoute>} />
       </Routes>
     </Router>

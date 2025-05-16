@@ -1,7 +1,7 @@
 import { EntityCampo } from "./EntityCampo"
 
 export interface EntityFormulario {
-    titulo:string
-    adminId:string
+    formularioTitulo:string
+    formAdminId:string
     campos:EntityCampo[]
   }
