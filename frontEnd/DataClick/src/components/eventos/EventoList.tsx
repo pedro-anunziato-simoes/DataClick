@@ -1,4 +1,3 @@
-// EventosList.tsx
 import React, { useEffect, useState } from 'react';
 import { EntityEvento } from '../../types/entityes/EntityEvento';
 import { EventoService } from '../../api/EventoService';
@@ -99,6 +98,15 @@ const EventosList: React.FC = () => {
                   >
                     Formulários
                   </Button>
+                  <Box mt={4} display="flex" justifyContent="center">
+                    <Button
+                      variant="outlined"
+                      color="secondary"
+                      onClick={() => navigate(`/visualizarLeads/${evento.eventoId}`)}
+                    >
+                      Visualizar leads do evento
+                    </Button>
+                  </Box>
                   <Button
                     variant="outlined"
                     color="error"

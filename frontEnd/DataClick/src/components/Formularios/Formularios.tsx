@@ -13,6 +13,7 @@ import {
   Dialog,
   DialogTitle,
   DialogActions,
+  Alert,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -24,6 +25,7 @@ const Formularios = () => {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const navigate = useNavigate();
   const formularioService = FormularioService();
+
   useEffect(() => {
     buscarFormularios();
   }, []);
@@ -31,10 +33,11 @@ const Formularios = () => {
   const buscarFormularios = async () => {
     try {
       setLoading(true);
-      const data = await formularioService.getFormulariosEvento(idEvento||'');
-      setFormularios(data);
+      const data = await formularioService.getFormulariosEvento(idEvento || '');
+      setFormularios(data ?? []); // garante que não será null
     } catch (error) {
       console.error("Erro ao buscar formulários:", error);
+      setFormularios([]); // fallback seguro
     } finally {
       setLoading(false);
     }
@@ -47,7 +50,6 @@ const Formularios = () => {
   const handleEditarFormulario = (formId: string) => {
     navigate(`/editarFormulario/${formId}`);
   };
-
 
   const handleDelete = async () => {
     if (!confirmDeleteId) return;
@@ -78,45 +80,48 @@ const Formularios = () => {
         <Typography variant="h5">Formulários Cadastrados</Typography>
       </Box>
 
-      <Stack spacing={3}>
-        {formularios.map((formulario) => (
-          <Paper key={formulario.formId} elevation={3} sx={{ p: 3 }}>
-            <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Typography variant="h6">{formulario.titulo}</Typography>
-              <IconButton
-                onClick={() => setConfirmDeleteId(formulario.formId)}
-                color="error"
-              >
-                <DeleteIcon />
-              </IconButton>
-            </Box>
+      {formularios.length === 0 ? (
+        <Alert severity="info" sx={{ mb: 3 }}>
+          Nenhum formulário cadastrado para este evento.
+        </Alert>
+      ) : (
+        <Stack spacing={3}>
+          {formularios
+            .filter((formulario) => formulario !== null)
+            .map((formulario) => (
+              <Paper key={formulario.formId} elevation={3} sx={{ p: 3 }}>
+                <Box display="flex" justifyContent="space-between" alignItems="center">
+                  <Typography variant="h6">{formulario.titulo}</Typography>
+                  <IconButton onClick={() => setConfirmDeleteId(formulario.formId)} color="error">
+                    <DeleteIcon />
+                  </IconButton>
+                </Box>
 
-            <CamposViewForm formId={formulario.formId} />
+                <CamposViewForm formId={formulario.formId} />
 
-            <Box mt={2}>
-              <Stack direction="row" spacing={2}>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  onClick={() => handleEditarCampos(formulario.formId)}
-                >
-                  Editar Campos
-                </Button>
+                <Box mt={2}>
+                  <Stack direction="row" spacing={2}>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      onClick={() => handleEditarCampos(formulario.formId)}
+                    >
+                      Editar Campos
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="secondary"
+                      onClick={() => handleEditarFormulario(formulario.formId)}
+                    >
+                      Editar Formulário
+                    </Button>
+                  </Stack>
+                </Box>
+              </Paper>
+            ))}
 
-                <Button
-                  variant="outlined"
-                  color="secondary"
-                  onClick={() => handleEditarFormulario(formulario.formId)}
-                >
-                  Editar Formulário
-                </Button>
-              </Stack>
-            </Box>
-
-          </Paper>
-        ))}
-      </Stack>
-
+        </Stack>
+      )}
       <Box mt={4} textAlign="center">
         <Button
           variant="contained"

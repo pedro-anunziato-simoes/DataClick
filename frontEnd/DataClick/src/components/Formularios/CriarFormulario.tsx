@@ -10,6 +10,7 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { EntityFormulario } from "../../types/entityes/EntityFormulario";
 import { FormularioService } from "../../api/FormularioService";
+import { FormularioCreateDTO } from "../../types/entityes/DTO/FormualrioCreateDTO";
 
 const CriarFormulario = () => {
   const { idEvento } = useParams<{ idEvento: string }>();
@@ -17,18 +18,14 @@ const CriarFormulario = () => {
   const [salvando, setSalvando] = useState(false);
   const navigate = useNavigate();
   const formularioService = FormularioService();
-
   const handleCriarFormulario = async () => {
-    const novoFormulario: EntityFormulario = {
+    const novoFormulario: FormularioCreateDTO = {
       titulo,
-      adminId: "",
-      campos: [],
     };
-
     try {
       setSalvando(true);
       await formularioService.criarForms(novoFormulario,idEvento||'');
-      navigate("/formularios"); 
+      navigate("/eventos"); 
     } catch (error) {
       console.error("Erro ao criar formulário:", error);
     } finally {
@@ -50,7 +47,7 @@ const CriarFormulario = () => {
             fullWidth
           />
           <Box display="flex" justifyContent="flex-end" gap={2}>
-            <Button onClick={() => navigate(-1)} color="inherit">
+            <Button onClick={() => navigate("/eventos")} color="inherit">
               Cancelar
             </Button>
             <Button

@@ -1,6 +1,6 @@
 export interface EntityCampo {
-    titulo: string;
-    tipo: string;
+    campoTitulo: string;
+    campoTipo: string;
     resposta: {
       tipo: string | number | boolean;
     };

@@ -1,5 +1,5 @@
 export interface CampoCreateDTO {
-    titulo: string,
-    tipo: string,
+    campoTituloDto: string,
+    campoTipoDto: string,
     resposta: object
   }
