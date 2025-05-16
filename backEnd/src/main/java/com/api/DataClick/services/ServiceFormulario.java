@@ -8,6 +8,7 @@ import com.api.DataClick.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -29,7 +30,7 @@ public class ServiceFormulario {
                 .orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.EVENTO_NAO_ENCONTRADO));
         EntityAdministrador admin = repositoryAdministrador.findById(evento.getEventoAdminId()).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.ADM_NAO_ENCONTRADO));
         System.out.println(dto.getFormularioTituloDto());
-        EntityFormulario formulario = new EntityFormulario(admin.getUsuarioId(),dto.getFormularioTituloDto());
+        EntityFormulario formulario = new EntityFormulario(dto.getFormularioTituloDto(),admin.getUsuarioId(),eventoId,new ArrayList<>());
         formulario.setFormAdminId(evento.getEventoAdminId());
         repositoryFormulario.save(formulario);
         evento.getEventoFormularios().add(formulario);

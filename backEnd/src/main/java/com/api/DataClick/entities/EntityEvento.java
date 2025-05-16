@@ -74,4 +74,8 @@ public class EntityEvento {
     public void setEventoFormularios(List<EntityFormulario> formularios) {
         this.eventoFormularios = formularios;
     }
+
+    public void setEventoId(String eventoId) {
+        this.eventoId = eventoId;
+    }
 }

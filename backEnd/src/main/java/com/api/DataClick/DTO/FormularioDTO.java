@@ -12,4 +12,8 @@ public class FormularioDTO {
     public String getFormularioTituloDto() {
         return formularioTituloDto;
     }
+
+    public void setFormularioTituloDto(String formularioTituloDto) {
+        this.formularioTituloDto = formularioTituloDto;
+    }
 }

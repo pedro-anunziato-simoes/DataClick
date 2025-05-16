@@ -22,12 +22,12 @@ public class ServiceCampo {
     RepositoryFormulario repositoryFormulario;
 
     public List<EntityCampo> listarCamposByFormularioId(String formId){
-        return repositoryCampo.findAllByformId(formId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.CAMPO_NAO_ENCONTRADO));
+        return repositoryCampo.findAllBycampoFormId(formId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.CAMPO_NAO_ENCONTRADO));
     }
 
     public EntityCampo adicionarCampo(CampoDTO dto, String formId) {
         EntityFormulario form = repositoryFormulario.findById(formId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.FORM_NAO_ENCONTRADO));
-        EntityCampo campo = new EntityCampo(dto.getCampoTituloDto(), dto.getCampoTipoDto());
+        EntityCampo campo = new EntityCampo(dto.getCampoTituloDto(), dto.getCampoTipoDto(),null);
         campo.setCampoFormId(formId);
         repositoryCampo.save(campo);
         form.getCampos().add(campo);

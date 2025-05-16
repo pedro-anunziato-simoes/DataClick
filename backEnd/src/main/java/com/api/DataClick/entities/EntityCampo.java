@@ -16,50 +16,50 @@ public class EntityCampo {
 
     @Id
     private String campoId;
-    private String formId;
-    private String titulo;
-    private TipoCampo tipo;
+    private String campoFormId;
+    private String campoTitulo;
+    private TipoCampo campoTipo;
     private Object resposta;
 
-    public EntityCampo(String titulo, TipoCampo tipo) {
-        this.titulo = titulo;
-        this.tipo = tipo;
-    }
-
-    public String getCampoId() {
-        return campoId;
-    }
-
-    public String getCampoFormId() {
-        return formId;
-    }
-
-    public void setCampoFormId(String formId) {
-        this.formId = formId;
-    }
-
-    public String getCampoTitulo() {
-        return titulo;
-    }
-
-    public void setCampoTitulo(String titulo) {
-        this.titulo = titulo;
-    }
-
-    public TipoCampo getCampoTipo() {
-        return tipo;
-    }
-
-    public void setCampoTipo(TipoCampo tipo) {
-        this.tipo = tipo;
-    }
-
-    public Object getCampoResposta() {
-        return resposta;
-    }
-
-    public void setCampoResposta(Object resposta) {
+    public EntityCampo(String campoTitulo, TipoCampo campoTipo, Object resposta) {
+        this.campoTitulo = campoTitulo;
+        this.campoTipo = campoTipo;
         this.resposta = resposta;
     }
 
+    public String getCampoFormId() {
+        return campoFormId;
+    }
+
+    public void setCampoFormId(String campoFormId) {
+        this.campoFormId = campoFormId;
+    }
+
+    public String getCampoTitulo() {
+        return campoTitulo;
+    }
+
+    public void setCampoTitulo(String campoTitulo) {
+        this.campoTitulo = campoTitulo;
+    }
+
+    public TipoCampo getCampoTipo() {
+        return campoTipo;
+    }
+
+    public void setCampoTipo(TipoCampo campoTipo) {
+        this.campoTipo = campoTipo;
+    }
+
+    public Object getResposta() {
+        return resposta;
+    }
+
+    public void setResposta(Object resposta) {
+        this.resposta = resposta;
+    }
+
+    public void setCampoId(String campoId) {
+        this.campoId = campoId;
+    }
 }

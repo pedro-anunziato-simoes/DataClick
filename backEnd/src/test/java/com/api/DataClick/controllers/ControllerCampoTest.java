@@ -57,7 +57,7 @@ public class ControllerCampoTest {
                 .authorities(Collections.emptyList())
                 .build();
 
-        campo = new EntityCampo("Nome", TipoCampo.TEXTO);
+        campo = new EntityCampo("Nome", TipoCampo.TEXTO,null);
         campo.setCampoId("campo-123");
 
         campoDTO = new CampoDTO();

@@ -18,14 +18,24 @@ public class EntityFormulario {
 
     @Id
     private String formId;
-    private String FormularioTitulo;
+    private String formularioTitulo;
     private String formAdminId;
-    @DBRef
-    private List<EntityCampo> campos = new ArrayList<>();
+    private String formularioEventoId;
+    private List<EntityCampo> campos;
 
-    public EntityFormulario( String formAdminId, String FormularioTitulo) {
+    public EntityFormulario(String formularioTitulo, String formAdminId, String formularioEventoId, List<EntityCampo> campos) {
+        this.formularioTitulo = formularioTitulo;
         this.formAdminId = formAdminId;
-        this.FormularioTitulo = FormularioTitulo;
+        this.formularioEventoId = formularioEventoId;
+        this.campos = campos;
+    }
+
+    public String getFormularioEventoId() {
+        return formularioEventoId;
+    }
+
+    public void setFormularioEventoId(String formularioEventoId) {
+        this.formularioEventoId = formularioEventoId;
     }
 
     public String getFormId() {
@@ -33,11 +43,11 @@ public class EntityFormulario {
   }
 
     public String getFormularioTitulo() {
-        return FormularioTitulo;
+        return formularioTitulo;
     }
 
-    public void setFomularioTitulo(String FormularioTitulo) {
-        this.FormularioTitulo = FormularioTitulo;
+    public void setFomularioTitulo(String formularioTitulo) {
+        this.formularioTitulo = formularioTitulo;
     }
 
     public String getFormAdminId() {
@@ -50,5 +60,17 @@ public class EntityFormulario {
 
     public List<EntityCampo> getCampos() {
         return campos;
+    }
+
+    public void setFormId(String formId) {
+        this.formId = formId;
+    }
+
+    public void setFormularioTitulo(String formularioTitulo) {
+        this.formularioTitulo = formularioTitulo;
+    }
+
+    public void setCampos(List<EntityCampo> campos) {
+        this.campos = campos;
     }
 }

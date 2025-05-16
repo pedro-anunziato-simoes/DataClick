@@ -122,4 +122,8 @@ public abstract class Usuario implements UserDetails {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public UserRole getRole() {
+        return role;
+    }
 }

@@ -47,4 +47,11 @@ public class EntityRecrutador extends Usuario {
         return adminId;
     }
 
+    public List<EntityEvento> getEventos() {
+        return eventos;
+    }
+
+    public void setEventos(List<EntityEvento> eventos) {
+        this.eventos = eventos;
+    }
 }

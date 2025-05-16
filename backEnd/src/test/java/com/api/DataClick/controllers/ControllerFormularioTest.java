@@ -15,6 +15,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -73,7 +75,7 @@ public class ControllerFormularioTest {
         );
         recrutador.setUsuarioId("rec-001");
 
-        formulario = new EntityFormulario("admin-001", "novo-form");
+        formulario = new EntityFormulario( "novo-form","admin-001","",new ArrayList<>());
         formulario.setFormId("form-123");
         formulario.setFormularioTitulo("Formulário Teste");
 

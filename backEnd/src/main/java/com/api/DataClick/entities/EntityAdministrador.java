@@ -1,5 +1,6 @@
 package com.api.DataClick.entities;
 
+import com.api.DataClick.DTO.FormularioPreenchidosDTO;
 import com.api.DataClick.enums.UserRole;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -23,9 +24,10 @@ public class EntityAdministrador extends Usuario{
     @Setter
     private String cnpj;
     @DBRef
-    private List<EntityRecrutador> AdminRecrutadores = new ArrayList<>();
+    private List<EntityRecrutador> adminRecrutadores = new ArrayList<>();
     @DBRef
-    private List<EntityEvento> AdminEventos = new ArrayList<>();
+    private List<EntityEvento> adminEventos = new ArrayList<>();
+    private List<EntityFormulariosPreenchidos> adminFormsPreenchidos = new ArrayList<>();
 
 
     public EntityAdministrador
@@ -47,12 +49,27 @@ public class EntityAdministrador extends Usuario{
         this.cnpj = cnpj;
     }
 
+    public void setAdminRecrutadores(List<EntityRecrutador> adminRecrutadores) {
+        this.adminRecrutadores = adminRecrutadores;
+    }
+
+    public void setAdminEventos(List<EntityEvento> adminEventos) {
+        this.adminEventos = adminEventos;
+    }
+
+    public List<EntityFormulariosPreenchidos> getAdminFormsPreenchidos() {
+        return adminFormsPreenchidos;
+    }
+
+    public void setAdminFormsPreenchidos(List<EntityFormulariosPreenchidos> adminFormsPreenchidos) {
+        this.adminFormsPreenchidos = adminFormsPreenchidos;
+    }
+
     public List<EntityRecrutador> getAdminRecrutadores() {
-        return AdminRecrutadores;
+        return adminRecrutadores;
     }
 
     public List<EntityEvento> getAdminEventos() {
-        return AdminEventos;
+        return adminEventos;
     }
-
 }
