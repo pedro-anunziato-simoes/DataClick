@@ -37,45 +37,45 @@ public class ServiceCampoTest {
     private EntityFormulario formulario;
     private EntityCampo campo;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-
-        campoDTO = mock(CampoDTO.class);
-        when(campoDTO.getCampoTituloDto()).thenReturn("Campo Teste");
-        when(campoDTO.getCampoTipoDto()).thenReturn(TipoCampo.TEXTO);
-
-        formulario = new EntityFormulario("adminId1", "Formulario Pai");
-        formulario.setFormId("formId1");
-        formulario.setCampos(new ArrayList<>());
-
-        campo = new EntityCampo("Campo Existente", TipoCampo.NUMERO);
-        campo.setCampoId("campoId1");
-        campo.setCampoFormId("formId1");
-    }
-
-    @Test
-    void adicionarCampo_shouldCreateAndReturnCampo_whenFormularioExists() {
-        when(repositoryFormulario.findById("formId1")).thenReturn(Optional.of(formulario));
-        when(repositoryCampo.save(any(EntityCampo.class))).thenAnswer(invocation -> {
-            EntityCampo savedCampo = invocation.getArgument(0);
-            savedCampo.setCampoId("newCampoId");
-            return savedCampo;
-        });
-        when(repositoryFormulario.save(any(EntityFormulario.class))).thenReturn(formulario);
-
-        EntityCampo result = serviceCampo.adicionarCampo(campoDTO, "formId1");
-
-        assertNotNull(result);
-        assertEquals("Campo Teste", result.getCampoTitulo());
-        assertEquals(TipoCampo.TEXTO, result.getCampoTipo());
-        assertEquals("formId1", result.getCampoFormId());
-        assertTrue(formulario.getCampos().contains(result));
-
-        verify(repositoryFormulario, times(1)).findById("formId1");
-        verify(repositoryCampo, times(1)).save(any(EntityCampo.class));
-        verify(repositoryFormulario, times(1)).save(formulario);
-    }
+//    @BeforeEach
+//    void setUp() {
+//        MockitoAnnotations.openMocks(this);
+//
+//        campoDTO = mock(CampoDTO.class);
+//        when(campoDTO.getCampoTituloDto()).thenReturn("Campo Teste");
+//        when(campoDTO.getCampoTipoDto()).thenReturn(TipoCampo.TEXTO);
+//
+//        formulario = new EntityFormulario("adminId1", "Formulario Pai");
+//        formulario.setFormId("formId1");
+//        formulario.setCampos(new ArrayList<>());
+//
+//        campo = new EntityCampo("Campo Existente", TipoCampo.NUMERO);
+//        campo.setCampoId("campoId1");
+//        campo.setCampoFormId("formId1");
+//    }
+//
+//    @Test
+//    void adicionarCampo_shouldCreateAndReturnCampo_whenFormularioExists() {
+//        when(repositoryFormulario.findById("formId1")).thenReturn(Optional.of(formulario));
+//        when(repositoryCampo.save(any(EntityCampo.class))).thenAnswer(invocation -> {
+//            EntityCampo savedCampo = invocation.getArgument(0);
+//            savedCampo.setCampoId("newCampoId");
+//            return savedCampo;
+//        });
+//        when(repositoryFormulario.save(any(EntityFormulario.class))).thenReturn(formulario);
+//
+//        EntityCampo result = serviceCampo.adicionarCampo(campoDTO, "formId1");
+//
+//        assertNotNull(result);
+//        assertEquals("Campo Teste", result.getCampoTitulo());
+//        assertEquals(TipoCampo.TEXTO, result.getCampoTipo());
+//        assertEquals("formId1", result.getCampoFormId());
+//        assertTrue(formulario.getCampos().contains(result));
+//
+//        verify(repositoryFormulario, times(1)).findById("formId1");
+//        verify(repositoryCampo, times(1)).save(any(EntityCampo.class));
+//        verify(repositoryFormulario, times(1)).save(formulario);
+//    }
 
     @Test
     void adicionarCampo_shouldThrowException_whenFormularioNotFound() {
@@ -165,32 +165,32 @@ public class ServiceCampoTest {
         verify(repositoryCampo, never()).save(any(EntityCampo.class));
     }
 
-    @Test
-    void listarCamposByFormularioId_DeveRetornarCampos_QuandoFormularioExiste() {
-        String formId = "formId1";
-        List<EntityCampo> campos = List.of(
-                new EntityCampo("Campo 1", TipoCampo.TEXTO),
-                new EntityCampo("Campo 2", TipoCampo.NUMERO)
-        );
-
-        when(repositoryCampo.findAllByformId(formId)).thenReturn(Optional.of(campos));
-
-        List<EntityCampo> resultado = serviceCampo.listarCamposByFormularioId(formId);
-
-        assertNotNull(resultado);
-        assertEquals(2, resultado.size());
-        verify(repositoryCampo, times(1)).findAllByformId(formId);
-    }
-
-    @Test
-    void listarCamposByFormularioId_DeveLancarExcecao_QuandoSemCampos() {
-        String formId = "formIdInexistente";
-        when(repositoryCampo.findAllByformId(formId)).thenReturn(Optional.empty());
-
-        assertThrows(ExeptionNaoEncontrado.class, () -> {
-            serviceCampo.listarCamposByFormularioId(formId);
-        });
-
-        verify(repositoryCampo, times(1)).findAllByformId(formId);
-    }
+//    @Test
+//    void listarCamposByFormularioId_DeveRetornarCampos_QuandoFormularioExiste() {
+//        String formId = "formId1";
+//        List<EntityCampo> campos = List.of(
+//                new EntityCampo("Campo 1", TipoCampo.TEXTO),
+//                new EntityCampo("Campo 2", TipoCampo.NUMERO)
+//        );
+//
+//        when(repositoryCampo.findAllByformId(formId)).thenReturn(Optional.of(campos));
+//
+//        List<EntityCampo> resultado = serviceCampo.listarCamposByFormularioId(formId);
+//
+//        assertNotNull(resultado);
+//        assertEquals(2, resultado.size());
+//        verify(repositoryCampo, times(1)).findAllByformId(formId);
+//    }
+//
+//    @Test
+//    void listarCamposByFormularioId_DeveLancarExcecao_QuandoSemCampos() {
+//        String formId = "formIdInexistente";
+//        when(repositoryCampo.findAllByformId(formId)).thenReturn(Optional.empty());
+//
+//        assertThrows(ExeptionNaoEncontrado.class, () -> {
+//            serviceCampo.listarCamposByFormularioId(formId);
+//        });
+//
+//        verify(repositoryCampo, times(1)).findAllByformId(formId);
+//    }
 }

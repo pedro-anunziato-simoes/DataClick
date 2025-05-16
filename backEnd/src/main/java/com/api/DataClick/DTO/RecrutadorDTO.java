@@ -28,4 +28,20 @@ public class RecrutadorDTO {
     public String getRecrutadorSenhaDto() {
         return recrutadorSenhaDto;
     }
+
+    public void setRecrutadorNomeDto(String recrutadorNomeDto) {
+        this.recrutadorNomeDto = recrutadorNomeDto;
+    }
+
+    public void setRecrutadoTelefoneDto(String recrutadoTelefoneDto) {
+        this.recrutadoTelefoneDto = recrutadoTelefoneDto;
+    }
+
+    public void setRecrutadoEmailDto(String recrutadoEmailDto) {
+        this.recrutadoEmailDto = recrutadoEmailDto;
+    }
+
+    public void setRecrutadorSenhaDto(String recrutadorSenhaDto) {
+        this.recrutadorSenhaDto = recrutadorSenhaDto;
+    }
 }

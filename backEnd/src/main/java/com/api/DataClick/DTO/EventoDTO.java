@@ -24,4 +24,16 @@ public class EventoDTO {
     public Date getEventoDataDto() {
         return eventoDataDto;
     }
+
+    public void setEventoTituloDto(String eventoTituloDto) {
+        this.eventoTituloDto = eventoTituloDto;
+    }
+
+    public void setEventoDescricaoDto(String eventoDescricaoDto) {
+        this.eventoDescricaoDto = eventoDescricaoDto;
+    }
+
+    public void setEventoDataDto(Date eventoDataDto) {
+        this.eventoDataDto = eventoDataDto;
+    }
 }
