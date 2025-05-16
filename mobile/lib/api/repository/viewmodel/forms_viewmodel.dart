@@ -144,7 +144,6 @@ class FormViewModel extends ChangeNotifier {
 
       _formularioAtual = SuccessState(result);
 
-      // Recarrega a lista de formulários se tivermos o eventoId
       if (_formularios is SuccessState<List<Formulario>>) {
         final currentList =
             (_formularios as SuccessState<List<Formulario>>).data;
@@ -167,7 +166,6 @@ class FormViewModel extends ChangeNotifier {
         throw Exception('Apenas administradores podem remover formulários');
       }
 
-      // Guarda o eventoId antes de remover para recarregar a lista depois
       String? eventoId;
       if (_formularios is SuccessState<List<Formulario>>) {
         final formulario = (_formularios as SuccessState<List<Formulario>>).data
