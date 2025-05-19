@@ -25,7 +25,7 @@ class ApiClient {
     }
   }
 
-  String? getAuthToken() => _authToken;
+  String? get authToken => _authToken;
 
   Future<http.Response> get(String endpoint, {bool includeAuth = true}) async {
     final headers = await _buildHeaders(includeAuth);

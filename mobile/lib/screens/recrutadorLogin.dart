@@ -33,40 +33,38 @@ class _RecruiterLoginScreenState extends State<RecruiterLoginScreen> {
     final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
 
     try {
-      _logger.fine('Iniciando processo de login como recrutador');
-      final success = await authViewModel.loginRecruiter(
+      _logger.fine('Iniciando login como recrutador');
+      final success = await authViewModel.login(
         _emailController.text.trim(),
         _senhaController.text.trim(),
       );
 
       if (success && mounted) {
-        _logger.fine('Navegando para dashboard de recrutador');
+        _logger.fine('Login bem-sucedido, navegando para dashboard');
         Navigator.pushReplacementNamed(context, '/recruiter/dashboard');
       } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              authViewModel.errorMessage ?? 'Erro no login como recrutador',
-            ),
-            backgroundColor: Colors.red,
-          ),
-        );
+        _showErrorSnackbar(authViewModel.errorMessage ?? 'Erro no login');
       }
     } catch (e) {
       _logger.severe('Erro no login: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Erro ao tentar fazer login como recrutador'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        _showErrorSnackbar('Erro ao tentar fazer login');
       }
     }
   }
 
+  void _showErrorSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
   void _navigateToRecruiterRegister() {
-    _logger.fine('Navegando para registro de recrutador');
+    _logger.fine('Navegando para tela de registro');
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const RecruiterRegisterScreen()),
@@ -74,7 +72,7 @@ class _RecruiterLoginScreenState extends State<RecruiterLoginScreen> {
   }
 
   void _navigateToUserLogin() {
-    _logger.fine('Retornando para login normal');
+    _logger.fine('Retornando para login de administrador');
     Navigator.pop(context);
   }
 
@@ -91,8 +89,13 @@ class _RecruiterLoginScreenState extends State<RecruiterLoginScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
+          onPressed: _navigateToUserLogin,
         ),
+        title: const Text(
+          'Acesso Recrutador',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
       ),
       body: SafeArea(
         child: GestureDetector(
@@ -102,17 +105,17 @@ class _RecruiterLoginScreenState extends State<RecruiterLoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 30),
+                const SizedBox(height: 40),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(20.0),
                   child: Image.asset(
                     'assets/images/Logo DataClick.jpg',
-                    width: 120,
-                    height: 120,
+                    width: 150,
+                    height: 150,
                     fit: BoxFit.cover,
                   ),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 40),
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -131,26 +134,20 @@ class _RecruiterLoginScreenState extends State<RecruiterLoginScreen> {
                     child: Column(
                       children: [
                         const Text(
-                          'Acesso de Recrutador',
+                          'Login do Recrutador',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF26A69A),
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Entre com suas credenciais de recrutador',
-                          style: TextStyle(fontSize: 14, color: Colors.grey),
-                          textAlign: TextAlign.center,
-                        ),
                         const SizedBox(height: 24),
                         TextFormField(
                           controller: _emailController,
                           decoration: InputDecoration(
-                            labelText: 'E-mail do recrutador',
-                            hintText: 'Insira seu e-mail corporativo',
-                            prefixIcon: const Icon(Icons.business),
+                            labelText: 'E-mail corporativo',
+                            hintText: 'seu.email@empresa.com',
+                            prefixIcon: const Icon(Icons.email),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10.0),
                             ),
@@ -200,6 +197,9 @@ class _RecruiterLoginScreenState extends State<RecruiterLoginScreen> {
                             if (value == null || value.isEmpty) {
                               return 'Por favor, insira sua senha';
                             }
+                            if (value.length < 6) {
+                              return 'A senha deve ter pelo menos 6 caracteres';
+                            }
                             return null;
                           },
                           onFieldSubmitted: (_) => _loginRecruiter(),
@@ -208,7 +208,16 @@ class _RecruiterLoginScreenState extends State<RecruiterLoginScreen> {
                         Align(
                           alignment: Alignment.centerRight,
                           child: TextButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Redefinição de senha disponível em breve',
+                                  ),
+                                  backgroundColor: Color(0xFF26A69A),
+                                ),
+                              );
+                            },
                             child: const Text(
                               'Esqueci minha senha',
                               style: TextStyle(color: Color(0xFF26A69A)),
@@ -261,14 +270,6 @@ class _RecruiterLoginScreenState extends State<RecruiterLoginScreen> {
                           child: const Text(
                             'Solicitar acesso como recrutador',
                             style: TextStyle(color: Color(0xFF26A69A)),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        TextButton(
-                          onPressed: isLoading ? null : _navigateToUserLogin,
-                          child: const Text(
-                            'Voltar para login normal',
-                            style: TextStyle(color: Colors.grey),
                           ),
                         ),
                       ],

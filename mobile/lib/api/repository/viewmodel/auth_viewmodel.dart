@@ -1,102 +1,60 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/api/models/administrador.dart';
 import 'package:mobile/api/models/recrutador.dart';
+import 'package:mobile/api/models/user.dart';
 import 'package:mobile/api/services/auth_service.dart';
+import 'package:mobile/api/services/recrutador_service.dart';
 import 'package:mobile/api/services/api_exception.dart';
-import 'package:intl/intl.dart';
 
 class AuthViewModel with ChangeNotifier {
   final AuthService _authService;
-  bool _isLoading = false;
+  final RecrutadorService _recrutadorService;
+  User? _currentUser;
   String? _errorMessage;
-  dynamic _currentUser;
-  DateTime? _lastLogin;
+  bool _isLoading = false;
 
-  AuthViewModel(this._authService);
+  AuthViewModel({
+    required AuthService authService,
+    required RecrutadorService recrutadorService,
+  }) : _authService = authService,
+       _recrutadorService = recrutadorService;
 
-  bool get isLoading => _isLoading;
+  User? get currentUser => _currentUser;
   String? get errorMessage => _errorMessage;
-  dynamic get currentUser => _currentUser;
-  DateTime? get lastLogin => _lastLogin;
-  bool get isAuthenticated => _authService.isAuthenticated();
-  bool get isAdmin => _currentUser is Administrador;
-  bool get isRecruiter => _currentUser is Recrutador;
+  bool get isLoading => _isLoading;
+
+  bool get isAdmin => _currentUser?.tipo == 'admin';
+  bool get isRecruiter => _currentUser?.tipo == 'recrutador';
 
   Future<void> initialize() async {
-    _startLoading();
+    await _loadCurrentUser();
+  }
+
+  String? _getErrorMessage(dynamic error) {
+    if (error is ApiException) {
+      return error.message;
+    } else if (error is String) {
+      return error;
+    }
+    return 'Ocorreu um erro desconhecido';
+  }
+
+  Future<bool> login(String email, String senha) async {
+    _isLoading = true;
+    notifyListeners();
+    _errorMessage = null;
+
     try {
-      if (isAuthenticated) {
+      final success = await _authService.login(email, senha);
+      if (success) {
         await _loadCurrentUser();
-        _lastLogin = DateTime.now();
       }
+      return success;
     } catch (e) {
-      _setError('Erro ao carregar dados do usuário');
-    } finally {
-      _stopLoading();
-    }
-  }
-
-  Future<bool> login(String email, String password) async {
-    try {
-      _startLoading();
-      _clearError();
-
-      final success = await _authService.login(email, password);
-
-      if (!success) {
-        _setError('Credenciais inválidas ou serviço indisponível');
-        return false;
-      }
-
-      await _loadCurrentUser();
-      _lastLogin = DateTime.now();
-
-      if (_currentUser == null) {
-        _setError('Falha ao carregar dados do usuário');
-        return false;
-      }
-
-      return true;
-    } on ApiException catch (e) {
-      _setError(e.message);
-      return false;
-    } catch (e) {
-      _setError('Ocorreu um erro inesperado durante o login');
+      _errorMessage = _getErrorMessage(e);
       return false;
     } finally {
-      _stopLoading();
-    }
-  }
-
-  Future<bool> loginRecruiter(String email, String password) async {
-    try {
-      _startLoading();
-      _clearError();
-
-      final success = await _authService.login(email, password);
-
-      if (!success) {
-        _setError('Credenciais inválidas ou serviço indisponível');
-        return false;
-      }
-
-      await _loadCurrentUser();
-      _lastLogin = DateTime.now();
-
-      if (_currentUser == null || !isRecruiter) {
-        _setError('Falha ao carregar dados do recrutador');
-        return false;
-      }
-
-      return true;
-    } on ApiException catch (e) {
-      _setError(e.message);
-      return false;
-    } catch (e) {
-      _setError('Ocorreu um erro inesperado durante o login');
-      return false;
-    } finally {
-      _stopLoading();
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
@@ -107,176 +65,192 @@ class AuthViewModel with ChangeNotifier {
     required String cnpj,
     required String senha,
   }) async {
-    try {
-      _startLoading();
-      _clearError();
+    _isLoading = true;
+    notifyListeners();
+    _errorMessage = null;
 
-      await _authService.register(
+    try {
+      final success = await _authService.register(
         nome: nome,
         email: email,
         telefone: telefone,
         cnpj: cnpj,
         senha: senha,
       );
-
-      final loginSuccess = await _authService.login(email, senha);
-
-      if (loginSuccess) {
-        await _loadCurrentUser();
-        _lastLogin = DateTime.now();
-        return true;
-      } else {
-        _setError('Registro realizado, mas falha no login automático');
-        return false;
-      }
-    } on ApiException catch (e) {
-      _setError(e.message);
-      return false;
+      return success;
     } catch (e) {
-      _setError('Ocorreu um erro inesperado durante o registro');
+      _errorMessage = _getErrorMessage(e);
       return false;
     } finally {
-      _stopLoading();
-    }
-  }
-
-  Future<bool> registerRecruiter({
-    required String nome,
-    required String email,
-    required String telefone,
-    required String senha,
-    required String empresa,
-    required String cargo,
-  }) async {
-    try {
-      _startLoading();
-      _clearError();
-
-      await _authService.registerRecruiter(
-        nome: nome,
-        email: email,
-        telefone: telefone,
-        senha: senha,
-        empresa: empresa,
-        cargo: cargo,
-      );
-
-      final loginSuccess = await _authService.login(email, senha);
-
-      if (loginSuccess) {
-        await _loadCurrentUser();
-        _lastLogin = DateTime.now();
-        return true;
-      } else {
-        _setError('Registro realizado, mas falha no login automático');
-        return false;
-      }
-    } on ApiException catch (e) {
-      _setError(e.message);
-      return false;
-    } catch (e) {
-      _setError('Ocorreu um erro inesperado durante o registro de recrutador');
-      return false;
-    } finally {
-      _stopLoading();
-    }
-  }
-
-  Future<void> _loadCurrentUser() async {
-    try {
-      _currentUser = await _authService.getCurrentUser();
-      notifyListeners();
-
-      if (_currentUser == null) {
-        await _authService.logout();
-      }
-    } catch (e) {
-      await _authService.logout();
-      _currentUser = null;
-      notifyListeners();
-      throw Exception('Falha ao carregar dados do usuário');
-    }
-  }
-
-  Future<void> logout() async {
-    try {
-      _startLoading();
-      await _authService.logout();
-      _currentUser = null;
-      _lastLogin = null;
-      _clearError();
-    } catch (e) {
-      _setError('Falha ao realizar logout');
-      rethrow;
-    } finally {
-      _stopLoading();
-    }
-  }
-
-  Future<void> checkAuthStatus() async {
-    try {
-      if (isAuthenticated) {
-        await _loadCurrentUser();
-        _lastLogin = DateTime.now();
-      }
-    } catch (e) {
-      debugPrint('Erro ao verificar status de autenticação: $e');
-    }
-  }
-
-  void _startLoading() {
-    if (!_isLoading) {
-      _isLoading = true;
-      notifyListeners();
-    }
-  }
-
-  void _stopLoading() {
-    if (_isLoading) {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  void _setError(String message) {
-    _errorMessage = message;
+  Future<bool> registerRecrutador({
+    required String nome,
+    required String email,
+    required String telefone,
+    required String senha,
+  }) async {
+    _isLoading = true;
     notifyListeners();
-  }
+    _errorMessage = null;
 
-  void _clearError() {
-    if (_errorMessage != null) {
-      _errorMessage = null;
+    try {
+      final recrutadorData = RecrutadorCreateDTO(
+        nome: nome,
+        email: email,
+        telefone: telefone,
+        senha: senha,
+      );
+
+      final recrutador = await _recrutadorService.criarRecrutador(
+        recrutadorData,
+      );
+      if (recrutador != null) {
+        return await login(email, senha);
+      }
+      return false;
+    } catch (e) {
+      _errorMessage = _getErrorMessage(e);
+      return false;
+    } finally {
+      _isLoading = false;
       notifyListeners();
     }
   }
 
-  String get formattedLastLogin {
-    return _lastLogin != null
-        ? DateFormat('dd/MM/yyyy HH:mm').format(_lastLogin!)
-        : 'N/A';
+  Future<void> logout() async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      await _authService.logout();
+      _currentUser = null;
+    } catch (e) {
+      _errorMessage = _getErrorMessage(e);
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
-  String get userRole {
-    if (isAdmin) return 'Administrador';
-    if (isRecruiter) return 'Recrutador';
-    return 'Usuário';
+  Future<void> _loadCurrentUser() async {
+    try {
+      final user = await _authService.getCurrentUser();
+      _currentUser = user;
+    } catch (e) {
+      _errorMessage = _getErrorMessage(e);
+      _currentUser = null;
+    }
+    notifyListeners();
   }
 
-  Future<void> updateProfile({
+  Future<bool> isAuthenticated() async {
+    try {
+      final isAuth = await _authService.isAuthenticated();
+      if (isAuth && _currentUser == null) {
+        await _loadCurrentUser();
+      }
+      return isAuth && _currentUser != null;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  String? getToken() {
+    return _authService.getToken();
+  }
+
+  Future<bool> updateProfile({
     String? nome,
     String? email,
     String? telefone,
   }) async {
-    try {
-      _startLoading();
-      _clearError();
+    _isLoading = true;
+    notifyListeners();
+    _errorMessage = null;
 
-      notifyListeners();
+    try {
+      await Future.delayed(const Duration(seconds: 1));
+
+      if (_currentUser != null) {
+        _currentUser = _currentUser!.copyWith(
+          nome: nome ?? _currentUser!.nome,
+          email: email ?? _currentUser!.email,
+          telefone: telefone ?? _currentUser!.telefone,
+        );
+      }
+
+      return true;
     } catch (e) {
-      _setError('Falha ao atualizar perfil: ${e.toString()}');
-      rethrow;
+      _errorMessage = _getErrorMessage(e);
+      return false;
     } finally {
-      _stopLoading();
+      _isLoading = false;
+      notifyListeners();
     }
+  }
+
+  Future<List<Recrutador>> getRecrutadores() async {
+    _isLoading = true;
+    notifyListeners();
+    _errorMessage = null;
+
+    try {
+      return await _recrutadorService.getRecrutadores();
+    } catch (e) {
+      _errorMessage = _getErrorMessage(e);
+      return [];
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> atualizarRecrutador({
+    required String recrutadorId,
+    required RecrutadorUpdateDTO recrutadorData,
+  }) async {
+    _isLoading = true;
+    notifyListeners();
+    _errorMessage = null;
+
+    try {
+      await _recrutadorService.alterarRecrutador(
+        recrutadorId: recrutadorId,
+        recrutadorData: recrutadorData,
+      );
+      return true;
+    } catch (e) {
+      _errorMessage = _getErrorMessage(e);
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> excluirRecrutador(String recrutadorId) async {
+    _isLoading = true;
+    notifyListeners();
+    _errorMessage = null;
+
+    try {
+      await _recrutadorService.excluirRecrutador(recrutadorId);
+      return true;
+    } catch (e) {
+      _errorMessage = _getErrorMessage(e);
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  void clearError() {
+    _errorMessage = null;
+    notifyListeners();
   }
 }

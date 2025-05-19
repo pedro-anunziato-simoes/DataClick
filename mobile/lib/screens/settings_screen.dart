@@ -184,7 +184,7 @@ class SettingsScreen extends StatelessWidget {
               value: isDarkMode,
               isDarkMode: isDarkMode,
               onChanged: (value) {
-                // Implement theme change logic here
+
               },
             ),
           ],
@@ -451,11 +451,7 @@ class SettingsScreen extends StatelessWidget {
               ),
               onPressed: () async {
                 try {
-                  // Implemente o método changePassword no AdministradorService
-                  // await service.changePassword(
-                  //   oldPasswordController.text,
-                  //   newPasswordController.text,
-                  // );
+
                   if (context.mounted) {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(

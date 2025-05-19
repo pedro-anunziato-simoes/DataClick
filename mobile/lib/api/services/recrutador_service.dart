@@ -55,12 +55,12 @@ class RecrutadorService {
 
   Future<Recrutador> alterarRecrutador({
     required String recrutadorId,
-    required Map<String, dynamic> recrutadorData,
+    required RecrutadorUpdateDTO recrutadorData,
   }) async {
     try {
       final response = await _apiClient.post(
         '/recrutadores/alterar/$recrutadorId',
-        body: json.encode(recrutadorData),
+        body: json.encode(recrutadorData.toJson()),
         includeAuth: true,
       );
 
@@ -79,13 +79,11 @@ class RecrutadorService {
     }
   }
 
-  Future<Recrutador> criarRecrutador(
-    Map<String, dynamic> recrutadorData,
-  ) async {
+  Future<Recrutador> criarRecrutador(RecrutadorCreateDTO recrutadorData) async {
     try {
       final response = await _apiClient.post(
         '/recrutadores',
-        body: json.encode(recrutadorData),
+        body: json.encode(recrutadorData.toJson()),
         includeAuth: true,
       );
 
@@ -104,16 +102,14 @@ class RecrutadorService {
     }
   }
 
-  Future<Recrutador> excluirRecrutador(String recrutadorId) async {
+  Future<void> excluirRecrutador(String recrutadorId) async {
     try {
       final response = await _apiClient.delete(
         '/recrutadores/remover/$recrutadorId',
         includeAuth: true,
       );
 
-      if (response.statusCode == 200) {
-        return Recrutador.fromJson(json.decode(response.body));
-      } else {
+      if (response.statusCode != 200) {
         throw ApiException(
           _getErrorMessage(response, 'excluir recrutador'),
           response.statusCode,
@@ -123,6 +119,52 @@ class RecrutadorService {
       rethrow;
     } catch (e) {
       throw ApiException('Erro ao excluir recrutador: ${e.toString()}', 0);
+    }
+  }
+
+  Future<Recrutador> alterarEmail(String email, String recrutadorId) async {
+    try {
+      final response = await _apiClient.post(
+        '/recrutadores/alterar/email',
+        body: json.encode({'email': email, 'recrutadorId': recrutadorId}),
+        includeAuth: true,
+      );
+
+      if (response.statusCode == 200) {
+        return Recrutador.fromJson(json.decode(response.body));
+      } else {
+        throw ApiException(
+          _getErrorMessage(response, 'alterar email do recrutador'),
+          response.statusCode,
+        );
+      }
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException('Erro ao alterar email: ${e.toString()}', 0);
+    }
+  }
+
+  Future<Recrutador> alterarSenha(String senha, String recrutadorId) async {
+    try {
+      final response = await _apiClient.post(
+        '/recrutadores/alterar/senha',
+        body: json.encode({'senha': senha, 'recrutadorId': recrutadorId}),
+        includeAuth: true,
+      );
+
+      if (response.statusCode == 200) {
+        return Recrutador.fromJson(json.decode(response.body));
+      } else {
+        throw ApiException(
+          _getErrorMessage(response, 'alterar senha do recrutador'),
+          response.statusCode,
+        );
+      }
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException('Erro ao alterar senha: ${e.toString()}', 0);
     }
   }
 

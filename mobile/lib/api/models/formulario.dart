@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-
 import 'campo.dart';
 
 class Formulario {
@@ -9,6 +8,7 @@ class Formulario {
   final List<Campo> campos;
   final String? descricao;
   final DateTime? dataCriacao;
+  final String? eventoId;
 
   Formulario({
     required this.id,
@@ -17,6 +17,7 @@ class Formulario {
     required this.campos,
     this.descricao,
     this.dataCriacao,
+    this.eventoId,
   });
 
   factory Formulario.fromJson(Map<String, dynamic> json) {
@@ -32,13 +33,17 @@ class Formulario {
       return Formulario(
         id: json['id']?.toString() ?? '',
         titulo: json['titulo']?.toString() ?? 'Sem título',
-        adminId: json['adminId']?.toString() ?? '',
+        adminId:
+            json['adminId']?.toString() ??
+            json['formAdminId']?.toString() ??
+            '',
         campos: campos,
         descricao: json['descricao']?.toString(),
         dataCriacao:
             json['dataCriacao'] != null
                 ? DateTime.tryParse(json['dataCriacao'])
                 : null,
+        eventoId: json['eventoId']?.toString(),
       );
     } catch (e) {
       debugPrint('Erro ao parsear Formulario: $e');
@@ -58,5 +63,6 @@ class Formulario {
     'campos': campos.map((e) => e.toJson()).toList(),
     if (descricao != null) 'descricao': descricao,
     if (dataCriacao != null) 'dataCriacao': dataCriacao!.toIso8601String(),
+    if (eventoId != null) 'eventoId': eventoId,
   };
 }

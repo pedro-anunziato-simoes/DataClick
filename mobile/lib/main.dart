@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/screens/criarEventos.dart';
+import 'package:mobile/screens/eventos_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,9 +11,11 @@ import 'api/services/administrador_service.dart';
 import 'api/services/campo_service.dart';
 import 'api/services/recrutador_service.dart';
 import 'api/services/auth_service.dart';
+import 'api/services/event_service.dart';
 
 import 'api/repository/viewmodel/forms_viewmodel.dart';
 import 'api/repository/viewmodel/auth_viewmodel.dart';
+import 'api/repository/viewmodel/event_viewmodel.dart';
 import 'api/repository/forms_repository.dart';
 
 import 'screens/login_screen.dart';
@@ -61,15 +65,39 @@ List<SingleChildWidget> _buildProviders(
     ProxyProvider<ApiClient, RecrutadorService>(
       update: (_, apiClient, __) => RecrutadorService(apiClient),
     ),
+    ProxyProvider<ApiClient, EventService>(
+      update: (_, apiClient, __) => EventService(apiClient),
+    ),
     ProxyProvider<FormularioService, FormularioRepository>(
       update: (_, service, __) => FormularioRepository(service),
     ),
-    ChangeNotifierProvider<AuthViewModel>(
-      create: (context) => AuthViewModel(context.read<AuthService>()),
+    ChangeNotifierProxyProvider2<AuthService, RecrutadorService, AuthViewModel>(
+      create:
+          (context) => AuthViewModel(
+            authService: context.read<AuthService>(),
+            recrutadorService: context.read<RecrutadorService>(),
+          ),
+      update:
+          (context, authService, recrutadorService, authViewModel) =>
+              authViewModel ??
+              AuthViewModel(
+                authService: authService,
+                recrutadorService: recrutadorService,
+              ),
     ),
     ChangeNotifierProxyProvider<FormularioRepository, FormViewModel>(
       create: (context) => FormViewModel(context.read<FormularioRepository>()),
       update: (_, repo, __) => FormViewModel(repo),
+    ),
+    ChangeNotifierProxyProvider2<EventService, AuthViewModel, EventViewModel>(
+      create:
+          (context) => EventViewModel(
+            context.read<EventService>(),
+            context.read<AuthViewModel>(),
+          ),
+      update:
+          (context, eventService, authViewModel, eventViewModel) =>
+              eventViewModel ?? EventViewModel(eventService, authViewModel),
     ),
   ];
 }
@@ -87,13 +115,17 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginScreen(),
         '/home': (context) => const HomeScreen(),
+        '/eventos': (context) => const EventosScreen(),
+        '/criar-evento': (context) => const CriarEventoScreen(),
         '/profile': (context) => const ProfileScreen(),
         '/settings': (context) => const SettingsScreen(),
         '/forms':
             (context) => FormsScreen(
               formularioService: context.read<FormularioService>(),
               campoService: context.read<CampoService>(),
-              isAdmin: context.read<AuthViewModel>().currentUser != null,
+              isAdmin:
+                  context.read<AuthViewModel>().currentUser?.tipo == 'admin',
+              eventoId: '',
             ),
       },
       onGenerateRoute: (settings) {
@@ -105,6 +137,7 @@ class MyApp extends StatelessWidget {
                   formularioExistente: args?['formularioExistente'],
                   formularioService: context.read<FormularioService>(),
                   campoService: context.read<CampoService>(),
+                  eventoId: args?['eventoId'] ?? '',
                 ),
           );
         }
@@ -118,6 +151,7 @@ class MyApp extends StatelessWidget {
                   campoService: context.read<CampoService>(),
                   formularioService: context.read<FormularioService>(),
                   isEditingCampo: false,
+                  eventoId: args['eventoId'] ?? '',
                 ),
           );
         }
@@ -132,6 +166,7 @@ class MyApp extends StatelessWidget {
                   campoService: context.read<CampoService>(),
                   formularioService: context.read<FormularioService>(),
                   isEditingCampo: true,
+                  eventoId: args['eventoId'] ?? '',
                 ),
           );
         }

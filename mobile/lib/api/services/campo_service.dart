@@ -59,11 +59,9 @@ class CampoService {
     required String titulo,
   }) async {
     try {
-      final campoData = {'tipo': tipo, 'titulo': titulo};
-
       final response = await _apiClient.post(
         '/campos/alterar/$campoId',
-        body: json.encode(campoData),
+        body: json.encode({'campoTipoDto': tipo, 'campoTituloDto': titulo}),
         includeAuth: true,
       );
 
@@ -82,16 +80,14 @@ class CampoService {
     }
   }
 
-  Future<Campo> deletarCampo(String campoId) async {
+  Future<void> deletarCampo(String campoId) async {
     try {
       final response = await _apiClient.delete(
         '/campos/remover/$campoId',
         includeAuth: true,
       );
 
-      if (response.statusCode == 200) {
-        return Campo.fromJson(json.decode(response.body));
-      } else {
+      if (response.statusCode != 200) {
         throw ApiException(
           _getErrorMessage(response, 'remover campo'),
           response.statusCode,
@@ -106,16 +102,17 @@ class CampoService {
 
   Future<Campo> adicionarCampo(
     String formId,
-    Map<String, dynamic> campoData,
+    String titulo,
+    String tipo,
   ) async {
     try {
       final response = await _apiClient.post(
         '/campos/add/$formId',
-        body: json.encode(campoData),
+        body: json.encode({'campoTituloDto': titulo, 'campoTipoDto': tipo}),
         includeAuth: true,
       );
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         return Campo.fromJson(json.decode(response.body));
       } else {
         throw ApiException(

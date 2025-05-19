@@ -1,6 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import '../models/administrador.dart';
+import '../models/user.dart';
 import 'package:mobile/api/api_client.dart';
 import 'package:mobile/api/services/api_exception.dart';
 import '../endpoints.dart';
@@ -8,7 +8,7 @@ import '../endpoints.dart';
 class AuthService {
   final ApiClient _apiClient;
   final SharedPreferences _prefs;
-  Administrador? _currentUser;
+  User? _currentUser;
 
   static const String _authTokenKey = 'auth_token';
   static const String _authUserKey = 'auth_user';
@@ -24,51 +24,84 @@ class AuthService {
       );
 
       if (response.statusCode != 200) {
-        throw ApiException(
-          _getErrorMessage(response.body) ?? 'Credenciais inválidas',
-          response.statusCode,
-        );
+        String errorMessage = 'Credenciais inválidas';
+        if (response.body.isNotEmpty) {
+          errorMessage = response.body;
+        }
+        throw ApiException(errorMessage, response.statusCode);
       }
 
       final responseData = json.decode(response.body);
       final token = _extractToken(responseData);
-      final userData = _extractUserData(responseData);
 
       if (token == null) {
-        throw ApiException('Token não encontrado na resposta', 401);
+        throw ApiException('Token não encontrado na resposta do login', 401);
       }
 
-      await _saveAuthData(token, userData);
+      final userDataFromToken = _extractUserDataFromToken(token);
+      if (userDataFromToken.isEmpty) {
+        throw ApiException(
+          'Não foi possível extrair dados do usuário do token',
+          401,
+        );
+      }
+
+      await _saveAuthData(token, userDataFromToken);
       _apiClient.setAuthToken(token);
+      _currentUser = User.fromJson(userDataFromToken);
 
       return true;
     } on ApiException {
       rethrow;
     } catch (e) {
-      throw ApiException('Erro durante o processo de login', 0);
+      throw ApiException(
+        'Erro durante o processo de login: ${e.toString()}',
+        0,
+      );
     }
+  }
+
+  Map<String, dynamic> _extractUserDataFromToken(String token) {
+    final payload = _parseJwtPayload(token);
+    if (payload != null) {
+      return {
+        'id': payload['sub'] ?? '',
+        'email': payload['sub'] ?? '',
+        'tipo': _getRoleFromPayload(payload),
+        'nome': '',
+        'telefone': '',
+        'token': token,
+      };
+    }
+    return {};
+  }
+
+  String _getRoleFromPayload(Map<String, dynamic> payload) {
+    final authorities = payload['authorities'];
+    if (authorities is List && authorities.isNotEmpty) {
+      for (var authority in authorities) {
+        final role = authority.toString();
+        if (role == 'ROLE_ADMIN' || role == 'ADMIN') return 'admin';
+      }
+    }
+    return 'usuario'; //
   }
 
   Future<bool> register({
     required String nome,
     required String email,
     required String telefone,
-    String? cnpj,
+    required String cnpj,
     required String senha,
-    String? empresa,
-    String? cargo,
   }) async {
     try {
       final body = {
+        'cnpj': cnpj,
         'nome': nome,
-        'email': email,
-        'telefone': telefone,
         'senha': senha,
+        'telefone': telefone,
+        'email': email,
       };
-
-      if (cnpj != null) body['cnpj'] = cnpj;
-      if (empresa != null) body['empresa'] = empresa;
-      if (cargo != null) body['cargo'] = cargo;
 
       final response = await _apiClient.post(
         Endpoints.register,
@@ -76,86 +109,64 @@ class AuthService {
         includeAuth: false,
       );
 
-      if (response.statusCode != 201 && response.statusCode != 200) {
-        throw ApiException(
-          _getErrorMessage(response.body) ?? 'Falha no registro',
-          response.statusCode,
-        );
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        String errorMessage = 'Falha no registro';
+        if (response.body.isNotEmpty) {
+          errorMessage = response.body;
+        }
+        throw ApiException(errorMessage, response.statusCode);
       }
-
       return true;
     } on ApiException {
       rethrow;
     } catch (e) {
-      throw ApiException('Erro durante o processo de registro', 0);
+      throw ApiException(
+        'Erro durante o processo de registro: ${e.toString()}',
+        0,
+      );
     }
   }
 
-  Future<bool> registerRecruiter({
+  Future<bool> registerRecrutador({
     required String nome,
     required String email,
     required String telefone,
     required String senha,
-    required String empresa,
-    required String cargo,
   }) async {
     try {
+      final body = {
+        'nome': nome,
+        'senha': senha,
+        'telefone': telefone,
+        'email': email,
+      };
+
       final response = await _apiClient.post(
-        Endpoints.criarRecrutador,
-        body: {
-          'nome': nome,
-          'email': email,
-          'telefone': telefone,
-          'senha': senha,
-          'empresa': empresa,
-          'cargo': cargo,
-        },
+        Endpoints.recrutadores,
+        body: body,
         includeAuth: false,
       );
 
-      if (response.statusCode != 201 && response.statusCode != 200) {
-        throw ApiException(
-          _getErrorMessage(response.body) ?? 'Falha no registro de recrutador',
-          response.statusCode,
-        );
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        String errorMessage = 'Falha no registro';
+        if (response.body.isNotEmpty) {
+          errorMessage = response.body;
+        }
+        throw ApiException(errorMessage, response.statusCode);
       }
-
       return true;
     } on ApiException {
       rethrow;
     } catch (e) {
-      throw ApiException('Erro durante o registro de recrutador', 0);
+      throw ApiException(
+        'Erro durante o processo de registro: ${e.toString()}',
+        0,
+      );
     }
   }
 
   String? _extractToken(Map<String, dynamic> responseData) {
     return responseData['token'];
-  }
-
-  Map<String, dynamic> _extractUserData(Map<String, dynamic> responseData) {
-    try {
-      final userData =
-          responseData['usuario'] ??
-          responseData['user'] ??
-          responseData['data']?['user'] ??
-          {};
-
-      if (userData.isEmpty && responseData['token'] != null) {
-        final token = responseData['token'] as String;
-        final payload = _parseJwtPayload(token);
-        if (payload != null) {
-          return {
-            'id': payload['usuarioId'],
-            'email': payload['sub'],
-            'roles': payload['authorities'],
-          };
-        }
-      }
-
-      return userData;
-    } catch (e) {
-      return {};
-    }
   }
 
   Map<String, dynamic>? _parseJwtPayload(String token) {
@@ -169,18 +180,7 @@ class AuthService {
 
       return json.decode(decoded) as Map<String, dynamic>;
     } catch (e) {
-      return null;
-    }
-  }
-
-  String? _getErrorMessage(String responseBody) {
-    try {
-      final decoded = json.decode(responseBody);
-      return decoded['message'] ??
-          decoded['error'] ??
-          decoded['error_description'] ??
-          'Erro desconhecido';
-    } catch (e) {
+      print('Erro ao decodificar JWT: $e');
       return null;
     }
   }
@@ -192,10 +192,6 @@ class AuthService {
     try {
       await _prefs.setString(_authTokenKey, token);
       await _prefs.setString(_authUserKey, json.encode(userData));
-
-      if (userData.isNotEmpty) {
-        _currentUser = Administrador.fromJson(userData);
-      }
     } catch (e) {
       await _clearAuthData();
       throw ApiException('Falha ao salvar dados de autenticação', 0);
@@ -213,14 +209,17 @@ class AuthService {
     }
   }
 
-  Future<Administrador?> getCurrentUser() async {
+  Future<User?> getCurrentUser() async {
     try {
       if (_currentUser != null) return _currentUser;
 
       final userJson = _prefs.getString(_authUserKey);
       if (userJson != null && userJson.isNotEmpty) {
         final userMap = json.decode(userJson) as Map<String, dynamic>;
-        _currentUser = Administrador.fromJson(userMap);
+        _currentUser = User.fromJson(userMap);
+        if (_currentUser?.token != null && _apiClient.authToken == null) {
+          _apiClient.setAuthToken(_currentUser!.token!);
+        }
         return _currentUser;
       }
       return null;
@@ -234,41 +233,37 @@ class AuthService {
     try {
       await _clearAuthData();
     } catch (e) {
-      throw ApiException('Falha durante o logout', 0);
+      throw ApiException('Falha durante o logout: ${e.toString()}', 0);
     }
   }
 
-  bool isAuthenticated() {
+  Future<bool> isAuthenticated() async {
     final token = _prefs.getString(_authTokenKey);
     if (token == null) return false;
 
     final payload = _parseJwtPayload(token);
     if (payload != null && payload['exp'] != null) {
-      final expiryDate = DateTime.fromMillisecondsSinceEpoch(
-        payload['exp'] * 1000,
-      );
-      return DateTime.now().isBefore(expiryDate);
+      try {
+        final expiryDate = DateTime.fromMillisecondsSinceEpoch(
+          (payload['exp'] as int) * 1000,
+        );
+        if (DateTime.now().isAfter(expiryDate)) {
+          await _clearAuthData();
+          return false;
+        }
+      } catch (e) {
+        await _clearAuthData();
+        return false;
+      }
     }
 
-    return true;
+    if (_currentUser == null) {
+      await getCurrentUser();
+    }
+    return _currentUser != null;
   }
 
   String? getToken() {
     return _prefs.getString(_authTokenKey);
-  }
-
-  bool isTokenAboutToExpire({int minutes = 5}) {
-    final token = getToken();
-    if (token == null) return true;
-
-    final payload = _parseJwtPayload(token);
-    if (payload != null && payload['exp'] != null) {
-      final expiryDate = DateTime.fromMillisecondsSinceEpoch(
-        payload['exp'] * 1000,
-      );
-      return expiryDate.difference(DateTime.now()).inMinutes <= minutes;
-    }
-
-    return false;
   }
 }
