@@ -30,6 +30,8 @@ public class ServiceEvento {
     RepositoryAdministrador repositoryAdministrador;
     @Autowired
     RepositoryFormulario repositoryFormulario;
+    @Autowired
+    ServiceFormulariosPreenchidos serviceFormulariosPreenchidos;
 
     public EntityEvento crirarEvento(EventoDTO dtoEvento, String adminId){
         EntityEvento evento = new EntityEvento(adminId,dtoEvento.getEventoTituloDto(), dtoEvento.getEventoDescricaoDto(), dtoEvento.getEventoDataDto(),new ArrayList<>());
@@ -73,6 +75,7 @@ public class ServiceEvento {
         EntityAdministrador admin = repositoryAdministrador.findById(adminId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.ADM_NAO_ENCONTRADO));
         admin.getAdminEventos().remove(evento);
         repositoryAdministrador.save(admin);
+        serviceFormulariosPreenchidos.removerFormulariosPreenchidos(eventoId);
         repositoryEvento.delete(evento);
     }
 }

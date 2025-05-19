@@ -75,7 +75,7 @@ public class ControllerEvento {
 
     @DeleteMapping("/remove/{eventoId}")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Alterar um formulario", description = "Retorna o evento alterado")
+    @Operation(summary = "Remove um evento pelo ID", description = "Remove um evento pelo ID")
     public ResponseEntity<Void> removerEvento(@PathVariable String eventoId,@AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {

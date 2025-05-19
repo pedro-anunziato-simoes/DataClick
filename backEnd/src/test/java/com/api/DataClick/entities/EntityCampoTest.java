@@ -13,7 +13,7 @@ public class EntityCampoTest {
 
     @BeforeEach
     void setUp() {
-        campo = new EntityCampo(TITULO, TIPO);
+        campo = new EntityCampo(TITULO, TIPO,new Object());
     }
 
     @Test

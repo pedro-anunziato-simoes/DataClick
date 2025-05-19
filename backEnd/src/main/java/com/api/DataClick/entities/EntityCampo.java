@@ -51,15 +51,19 @@ public class EntityCampo {
         this.campoTipo = campoTipo;
     }
 
-    public Object getResposta() {
+    public Object getCampoResposta() {
         return resposta;
     }
 
-    public void setResposta(Object resposta) {
+    public void setCampoResposta(Object resposta) {
         this.resposta = resposta;
     }
 
     public void setCampoId(String campoId) {
         this.campoId = campoId;
+    }
+
+    public String getCampoId() {
+        return campoId;
     }
 }

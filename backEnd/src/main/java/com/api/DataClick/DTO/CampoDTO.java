@@ -17,4 +17,12 @@ public class CampoDTO {
     public String getCampoTituloDto() {
         return campoTituloDto;
     }
+
+    public void setCampoTipoDto(TipoCampo campoTipoDto) {
+        this.campoTipoDto = campoTipoDto;
+    }
+
+    public void setCampoTituloDto(String campoTituloDto) {
+        this.campoTituloDto = campoTituloDto;
+    }
 }

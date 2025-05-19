@@ -37,4 +37,11 @@ public class ServiceFormulariosPreenchidos {
         return repositoryFormualriosPreenchidos.findByformularioPreenchidoEventoId(eventoId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.EVENTO_NAO_ENCONTRADO));
     }
 
+    public void removerFormulariosPreenchidos(String eventoId){
+       List<EntityFormulariosPreenchidos> forms = repositoryFormualriosPreenchidos.findByformularioPreenchidoEventoId(eventoId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.EVENTO_NAO_ENCONTRADO));
+        for(EntityFormulariosPreenchidos form : forms){
+            repositoryFormualriosPreenchidos.delete(form);
+        }
+    }
+
 }
