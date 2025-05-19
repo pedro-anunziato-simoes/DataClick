@@ -8,6 +8,7 @@ import {
   Alert,
   IconButton,
   Stack,
+  Container,
 } from "@mui/material";
 import { AuthService } from "../../api/AuthService";
 
@@ -68,146 +69,130 @@ const Register = () => {
     }
   };
 
+  const inputStyle = {
+    backgroundColor: "#fff",
+    fontSize: "1rem",
+    height: 44,
+    borderRadius: 2,
+    "& fieldset": { border: "none" },
+    "&:focus-within": {
+      outline: "none",
+      boxShadow: "none",
+    },
+  };
+
   return (
-    <>
+    <Box
+      sx={{
+        height: "100vh",
+        overflow: "hidden",
+        background: "linear-gradient(to bottom, #b2dfdb, #4db6ac)",
+        position: "relative",
+      }}
+    >
       <Box
         sx={{
           position: "fixed",
           top: 0,
           left: 0,
           right: 0,
-          height: "40px",
+          height: 40,
           backgroundColor: "#222",
           zIndex: 10,
         }}
       />
-
       <Box
         sx={{
           position: "fixed",
           bottom: 0,
           left: 0,
           right: 0,
-          height: "40px",
+          height: 40,
           backgroundColor: "#222",
           zIndex: 10,
         }}
       />
 
-      {/* Logo fixa no topo */}
       <Box
         sx={{
           position: "absolute",
-          top: 60,
+          top: 40,
+          bottom: 40,
           left: 0,
           right: 0,
-          display: "flex",
-          justifyContent: "center",
-          zIndex: 5,
-        }}
-      >
-        <img
-          src="/logo.png"
-          alt="Logo"
-          style={{
-            width: 240,
-            objectFit: "contain",
-          }}
-        />
-      </Box>
-
-      {/* Botão de voltar abaixo da barra superior */}
-      <Box sx={{ position: "absolute", top: 56, left: 16, zIndex: 15 }}>
-        <IconButton onClick={() => navigate("/")} sx={{ color: "black" }}>
-          <ArrowBackIcon />
-        </IconButton>
-      </Box>
-
-      <Box
-        sx={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
+          overflowY: "auto",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          justifyContent: "center",
-          background: "linear-gradient(to bottom, #b2dfdb, #4db6ac)",
-          overflow: "hidden",
-          paddingTop: "200px", // espaço para a logo
-          paddingBottom: "60px",
           paddingX: 2,
         }}
       >
-        <Box
-          sx={{
-            width: "100%",
-            maxWidth: 380,
-            padding: 2,
-            backgroundColor: "transparent",
-          }}
-        >
-          <Stack spacing={4}>
+        <Box sx={{ position: "absolute", top: 16, left: 16 }}>
+          <IconButton onClick={() => navigate("/")} sx={{ color: "black" }}>
+            <ArrowBackIcon />
+          </IconButton>
+        </Box>
+
+        <Box sx={{ textAlign: "center", mt: 4, mb: 2 }}>
+          <img
+            src="/logo.png"
+            alt="Logo"
+            style={{
+              width: "200px",
+              maxWidth: "80%",
+              objectFit: "contain",
+            }}
+          />
+        </Box>
+
+        <Container maxWidth="xs" sx={{ pb: 4 }}>
+          <Stack spacing={3}>
             {erro && <Alert severity="error">{erro}</Alert>}
 
             <TextField
-              label="Nome completo"
+              placeholder="Nome completo"
               fullWidth
               value={nome}
               onChange={(e) => setNome(e.target.value)}
-              InputProps={{
-                sx: { backgroundColor: "#fff", fontSize: "1rem", height: 44 },
-              }}
+              InputProps={{ sx: inputStyle }}
             />
             <TextField
-              label="E-mail"
+              placeholder="E-mail"
               type="email"
               fullWidth
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              InputProps={{
-                sx: { backgroundColor: "#fff", fontSize: "1rem", height: 44 },
-              }}
+              InputProps={{ sx: inputStyle }}
             />
             <TextField
-              label="Telefone"
+              placeholder="Telefone"
               fullWidth
               value={telefone}
               onChange={(e) => setTelefone(e.target.value)}
-              InputProps={{
-                sx: { backgroundColor: "#fff", fontSize: "1rem", height: 44 },
-              }}
+              InputProps={{ sx: inputStyle }}
             />
             <TextField
-              label="CNPJ"
+              placeholder="CNPJ"
               fullWidth
               value={cnpj}
               onChange={(e) => setCnpj(e.target.value)}
-              InputProps={{
-                sx: { backgroundColor: "#fff", fontSize: "1rem", height: 44 },
-              }}
+              InputProps={{ sx: inputStyle }}
             />
             <TextField
-              label="Senha"
+              placeholder="Senha"
               type="password"
               fullWidth
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
-              InputProps={{
-                sx: { backgroundColor: "#fff", fontSize: "1rem", height: 44 },
-              }}
+              InputProps={{ sx: inputStyle }}
             />
             <TextField
-              label="Confirme a senha"
+              placeholder="Confirme a senha"
               type="password"
               fullWidth
               value={confirmarSenha}
               onChange={(e) => setConfirmarSenha(e.target.value)}
-              InputProps={{
-                sx: { backgroundColor: "#fff", fontSize: "1rem", height: 44 },
-              }}
+              InputProps={{ sx: inputStyle }}
             />
 
             <Button
@@ -231,9 +216,9 @@ const Register = () => {
               Registrar
             </Button>
           </Stack>
-        </Box>
+        </Container>
       </Box>
-    </>
+    </Box>
   );
 };
 

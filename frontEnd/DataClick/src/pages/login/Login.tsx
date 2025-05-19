@@ -79,34 +79,40 @@ const Login = () => {
           <Box sx={{ width: "90%", mx: "auto" }}>
             <TextField
               placeholder="Insira Usuário/CNPJ"
-              variant="outlined"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               fullWidth
-              sx={{ mb: 2 }}
+              variant="standard"
               InputProps={{
+                disableUnderline: true,
                 sx: {
                   backgroundColor: "#ffffff",
-                  height: 48,
                   fontSize: "1rem",
+                  height: 44,
+                  borderRadius: "8px",
+                  px: 2,
                 },
               }}
+              sx={{ mb: 2 }}
             />
             <TextField
               placeholder="Insira sua senha"
               type="password"
-              variant="outlined"
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
               fullWidth
-              sx={{ mb: 2 }}
+              variant="standard"
               InputProps={{
+                disableUnderline: true,
                 sx: {
                   backgroundColor: "#ffffff",
-                  height: 48,
                   fontSize: "1rem",
+                  height: 44,
+                  borderRadius: "8px",
+                  px: 2,
                 },
               }}
+              sx={{ mb: 2 }}
             />
 
             <Button
