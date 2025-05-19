@@ -27,7 +27,7 @@ public class ControllerFormulariosPreenchidos {
     //Adm
     @GetMapping("/{eventoId}")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Buscar formularios por evento", description = "Retorna a lista de formularios que foram preenchidasno evento enviado o Id")
+    @Operation(summary = "Buscar formularios pelo id do evento", description = "Retorna a lista de formularios que foram preenchidasno evento enviado o Id")
     public ResponseEntity<List<EntityFormulariosPreenchidos>> buscarFormByEventoId(@PathVariable String eventoId, @AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {

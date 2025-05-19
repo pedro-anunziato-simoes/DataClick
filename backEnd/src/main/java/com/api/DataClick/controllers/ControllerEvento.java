@@ -51,7 +51,7 @@ public class ControllerEvento {
 
     @PostMapping("/alterar/{eventoId}")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Alterar um formulario", description = "Retorna o evento alterado")
+    @Operation(summary = "Alterar um evento", description = "Retorna o evento alterado")
     public ResponseEntity<EntityEvento> alterarEvento(@RequestBody EventoDTO dto,@PathVariable String eventoId,@AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
@@ -62,7 +62,7 @@ public class ControllerEvento {
 
     @PostMapping("/criar")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Alterar um formulario", description = "Retorna o evento alterado")
+    @Operation(summary = "Criar Evento", description = "Retorna ok")
     public ResponseEntity<EntityEvento> criarEvento(@RequestBody EventoDTO evento, @AuthenticationPrincipal UserDetails userDetails){
         Usuario usuario = (Usuario) userDetails;
         String ususarioId = usuario.getUsuarioId();
@@ -75,7 +75,7 @@ public class ControllerEvento {
 
     @DeleteMapping("/remove/{eventoId}")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Alterar um formulario", description = "Retorna o evento alterado")
+    @Operation(summary = "Remove evento", description = "Retorna ok")
     public ResponseEntity<Void> removerEvento(@PathVariable String eventoId,@AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
