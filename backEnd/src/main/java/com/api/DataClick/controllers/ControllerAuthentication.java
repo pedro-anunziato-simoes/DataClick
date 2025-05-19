@@ -9,6 +9,8 @@ import com.api.DataClick.enums.UserRole;
 import com.api.DataClick.repositories.RepositoryAdministrador;
 import com.api.DataClick.repositories.RepositoryRecrutador;
 import com.api.DataClick.services.ServiceToken;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,6 +26,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("auth")
+@Tag(name = "Autenticação", description = "Endpoints de funcionalidades de autenticação")
 public class ControllerAuthentication {
 
     @Autowired
@@ -41,6 +44,7 @@ public class ControllerAuthentication {
     private ServiceToken serviceToken;
 
     @PostMapping("/login")
+    @Operation(summary = "Login do Admin e Recrutador", description = "Retorna token de autenticação")
     public ResponseEntity login(@RequestBody @Valid AuthenticationDTO data){
         try {
             var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.senha());
@@ -55,6 +59,7 @@ public class ControllerAuthentication {
     }
 
     @PostMapping("/register")
+    @Operation(summary = "Registra um Administrador", description = "Não retorna nada")
     public ResponseEntity<?> registerAdmin(@RequestBody @Valid RegisterAdminDTO data) {
         if (repositoryAdministrador.findByEmail(data.email()) != null ||
                 repositoryRecrutador.findByEmail(data.email()) != null) {

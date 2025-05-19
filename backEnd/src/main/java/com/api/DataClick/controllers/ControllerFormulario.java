@@ -32,7 +32,7 @@ public class ControllerFormulario {
 
     @PostMapping("/alterar/{formId}")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "altera formulario", description = "")
+    @Operation(summary = "altera formulario", description = "Retorna ok")
     public ResponseEntity<EntityFormulario> alterarFormulario(@RequestBody FormularioDTO dto, @PathVariable String formId, @AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
@@ -84,7 +84,7 @@ public class ControllerFormulario {
     //Adm/Recrutador
     @GetMapping("/formulario/evento/{eventoId}")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Busca a lista de formularios pelo id-administrador", description = "Retorna uma lista de formularios vinculada ao adminitrador")
+    @Operation(summary = "Busca a lista de formularios pelo id-evento", description = "Retorna uma lista de formularios vinculada ao evento")
     public ResponseEntity<List<EntityFormulario>> buscarFormByEventoId(@PathVariable String eventoId, @AuthenticationPrincipal UserDetails userDetails){
         Usuario usuario = (Usuario) userDetails;
         String usuarioId = usuario.getUsuarioId();
