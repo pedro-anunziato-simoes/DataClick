@@ -26,7 +26,7 @@ const EditarFormulario = () => {
                 const formularioService = FormularioService();
                 const result = await formularioService.getFormularioById(formId || '');
                 setFormulario(result);
-                setTitulo(result.titulo);
+                setTitulo(result.formularioTitulo);
             } catch (error) {
                 console.error("Erro ao buscar formulário:", error);
             } finally {
