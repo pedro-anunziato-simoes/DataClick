@@ -30,25 +30,20 @@ public class ControllerAdministrador {
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Remove um Administrador", description = "Não retorna nada")
     public ResponseEntity<Void> removerAdm(@PathVariable String id,   @AuthenticationPrincipal UserDetails userDetails){
-
-        System.out.println("Authorities do usuário: " + userDetails.getAuthorities());
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            System.out.println("Acesso negado: usuário não é ADMIN");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-
         serviceAdministrador.removerAdm(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/info")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Busca as informações do adminitrador", description = "Retorna a informações do adminitrador")
+    @Operation(summary = "Busca as informações do administrador", description = "Retorna a informações do adminitrador")
     public ResponseEntity<EntityAdministrador> infoAdm(@AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            System.out.println("Acesso negado: usuário não é ADMIN");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         Usuario usuarioLogado  = (Usuario) userDetails;
@@ -59,11 +54,10 @@ public class ControllerAdministrador {
 
     @PostMapping("/alterar/email")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Altera o e-amil do administrador", description = "altera o e-mail do adm")
+    @Operation(summary = "Altera o e-mail do administrador", description = "altera o e-mail do adm")
     public ResponseEntity<Void> alterarEmail(@AuthenticationPrincipal UserDetails userDetails,@RequestBody String email){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            System.out.println("Acesso negado: usuário não é ADMIN");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         Usuario usuarioLogado  = (Usuario) userDetails;
@@ -78,7 +72,6 @@ public class ControllerAdministrador {
     public ResponseEntity<Void> alterarSenha(@AuthenticationPrincipal UserDetails userDetails,@RequestBody String senha){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            System.out.println("Acesso negado: usuário não é ADMIN");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         Usuario usuarioLogado  = (Usuario) userDetails;

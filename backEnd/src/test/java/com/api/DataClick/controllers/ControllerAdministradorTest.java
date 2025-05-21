@@ -2,115 +2,137 @@ package com.api.DataClick.controllers;
 
 
 import com.api.DataClick.entities.EntityAdministrador;
-import com.api.DataClick.entities.Usuario;
+import com.api.DataClick.entities.EntityRecrutador;
 import com.api.DataClick.enums.UserRole;
 import com.api.DataClick.services.ServiceAdministrador;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Collections;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
-
+@ExtendWith(MockitoExtension.class)
 public class ControllerAdministradorTest {
+
     @Mock
     private ServiceAdministrador serviceAdministrador;
 
     @InjectMocks
-    private ControllerAdministrador controllerAdministrador;
+    private ControllerAdministrador controller;
 
-    private Usuario adminUser;
-    private Usuario regularUser;
+    private EntityAdministrador admin;
+    private EntityRecrutador usuarioComum;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-
-        adminUser = new EntityAdministrador(
-                "12345678000100",
-                "Admin Test",
-                "senha",
-                "44999999999",
-                "admin@test.com",
+        admin = new EntityAdministrador(
+                "123456789",
+                "Admin Full",
+                "senha123",
+                "11999998888",
+                "admin@dataclick.com",
                 UserRole.ADMIN
         );
-        adminUser.setUsuarioId("admin123");
+        admin.setUsuarioId("adm-001");
 
-        regularUser = new EntityAdministrador(
-                "12345678000101",
-                "Usuário Regular",
-                "senha",
-                "44888888888",
-                "regular@test.com",
-                UserRole.USER
+        usuarioComum = new EntityRecrutador(
+                "User Normal",
+                "senha456",
+                "11999997777",
+                "user@dataclick.com",
+                "adm-001",
+                UserRole.USER,
+                Collections.emptyList()
         );
-        regularUser.setUsuarioId("user456");
+        usuarioComum.setUsuarioId("user-001");
     }
 
     @Test
-    void removerAdm_deveRetornarForbiddenParaNaoAdmin() {
-        ResponseEntity<Void> response = controllerAdministrador.removerAdm("anyId", regularUser);
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(serviceAdministrador, never()).removerAdm(anyString());
-    }
+    void removerAdm_ComPermissaoAdmin_DeveChamarServico() {
+        ResponseEntity<Void> response = controller.removerAdm("adm-002", admin);
 
-    @Test
-    void removerAdm_deveRemoverQuandoAdmin() {
-        ResponseEntity<Void> response = controllerAdministrador.removerAdm("admin123", adminUser);
+        verify(serviceAdministrador).removerAdm("adm-002");
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        verify(serviceAdministrador).removerAdm("admin123");
     }
 
     @Test
-    void infoAdm_deveRetornarForbiddenParaNaoAdmin() {
-        ResponseEntity<EntityAdministrador> response = controllerAdministrador.infoAdm(regularUser);
+    void removerAdm_SemPermissaoAdmin_DeveRetornarForbidden() {
+        ResponseEntity<Void> response = controller.removerAdm("adm-001", usuarioComum);
+
+        verifyNoInteractions(serviceAdministrador);
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(serviceAdministrador, never()).infoAdm(anyString());
     }
 
     @Test
-    void infoAdm_deveRetornarNoContentQuandoAdmin() {
-        EntityAdministrador adminMock = new EntityAdministrador(
-                "12345678000100",
-                "Admin Mock",
+    void infoAdm_ComUsuarioAdmin_DeveRetornarInformacoes() {
+        EntityAdministrador admMock = new EntityAdministrador(
+                "987654321",
+                "Mock Admin",
                 "senha",
-                "44999999999",
-                "mock@test.com",
+                "11888889999",
+                "mock@adm.com",
                 UserRole.ADMIN
         );
-        when(serviceAdministrador.infoAdm("admin123")).thenReturn(adminMock);
+        when(serviceAdministrador.infoAdm("adm-001")).thenReturn(admMock);
 
-        ResponseEntity<EntityAdministrador> response = controllerAdministrador.infoAdm(adminUser);
+        ResponseEntity<EntityAdministrador> response = controller.infoAdm(admin);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(admMock, response.getBody());
+        verify(serviceAdministrador).infoAdm("adm-001");
+    }
+
+    @Test
+    void alterarEmail_ComPermissao_DeveAtualizarEmail() {
+        String novoEmail = "novo@email.com";
+
+        ResponseEntity<Void> response = controller.alterarEmail(admin, novoEmail);
+
+        verify(serviceAdministrador).alterarEmail(novoEmail, "adm-001");
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        verify(serviceAdministrador).infoAdm("admin123");
     }
 
     @Test
-    void alterarEmail_deveRetornarForbiddenParaNaoAdmin() {
-        controllerAdministrador.alterarEmail(regularUser, "novo@email.com");
-        verify(serviceAdministrador, never()).alterarEmail(anyString(), anyString());
+    void alterarSenha_ComPermissao_DeveAtualizarSenha() {
+        String novaSenha = "NovaSenha123@";
+
+        ResponseEntity<Void> response = controller.alterarSenha(admin, novaSenha);
+
+        verify(serviceAdministrador).alterarSenha(novaSenha, "adm-001");
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     }
 
     @Test
-    void alterarEmail_deveAlterarQuandoAdmin() {
-        controllerAdministrador.alterarEmail(adminUser, "novo@email.com");
-        verify(serviceAdministrador).alterarEmail("novo@email.com", "admin123");
+    void infoAdm_SemPermissaoAdmin_DeveRetornarForbidden() {
+        ResponseEntity<EntityAdministrador> response = controller.infoAdm(usuarioComum);
+
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        verifyNoInteractions(serviceAdministrador);
     }
 
     @Test
-    void alterarSenha_deveRetornarForbiddenParaNaoAdmin() {
-        controllerAdministrador.alterarSenha(regularUser, "novaSenha");
-        verify(serviceAdministrador, never()).alterarSenha(anyString(), anyString());
+    void alterarEmail_SemPermissao_DeveRetornarForbidden() {
+        ResponseEntity<Void> response = controller.alterarEmail(usuarioComum, "email@teste.com");
+
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        verifyNoInteractions(serviceAdministrador);
     }
 
     @Test
-    void alterarSenha_deveAlterarQuandoAdmin() {
-        controllerAdministrador.alterarSenha(adminUser, "novaSenha");
-        verify(serviceAdministrador).alterarSenha("novaSenha", "admin123");
+    void alterarSenha_SemPermissao_DeveRetornarForbidden() {
+        ResponseEntity<Void> response = controller.alterarSenha(usuarioComum, "senha");
+
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        verifyNoInteractions(serviceAdministrador);
     }
+
+
 }

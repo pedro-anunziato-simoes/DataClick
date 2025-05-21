@@ -1,10 +1,11 @@
 package com.api.DataClick.controllers;
 
-import com.api.DataClick.DTO.FormularioUpdateDTO;
+import com.api.DataClick.DTO.FormularioDTO;
 import com.api.DataClick.entities.EntityFormulario;
 import com.api.DataClick.entities.Usuario;
+import com.api.DataClick.repositories.RepositoryRecrutador;
+import com.api.DataClick.services.ServiceEvento;
 import com.api.DataClick.services.ServiceFormulario;
-import com.api.DataClick.services.ServiceRecrutador;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,14 +25,15 @@ public class ControllerFormulario {
 
     @Autowired
     ServiceFormulario serviceFormulario;
-
     @Autowired
-    ServiceRecrutador serviceRecrutador;
+    ServiceEvento serviceEvento;
+    @Autowired
+    RepositoryRecrutador repositoryRecrutador;
 
     @PostMapping("/alterar/{formId}")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "altera formulario", description = "")
-    public ResponseEntity<EntityFormulario> alterarFormulario(@RequestBody FormularioUpdateDTO dto, @PathVariable String formId,@AuthenticationPrincipal UserDetails userDetails){
+    @Operation(summary = "altera formulario", description = "Retorna ok")
+    public ResponseEntity<EntityFormulario> alterarFormulario(@RequestBody FormularioDTO dto, @PathVariable String formId, @AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -40,22 +42,15 @@ public class ControllerFormulario {
         return ResponseEntity.ok(serviceFormulario.bucarFormPorId(formId));
     }
     //Adm
-    @PostMapping("/add")
+    @PostMapping("/add/{eventoId}")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Criar formulario", description = "Retorna o formulario salvo/criado no banco de dados")
-    public ResponseEntity<EntityFormulario> criarFormulario(@RequestBody EntityFormulario form, @AuthenticationPrincipal UserDetails userDetails){
+    public ResponseEntity<EntityFormulario> criarFormulario(@RequestBody FormularioDTO form, @PathVariable String eventoId, @AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            System.out.println("Acesso negado: usuário não é ADMIN");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-
-        Usuario admin = (Usuario) userDetails;
-        String adminId = admin.getUsuarioId();
-
-        form.setAdminId(adminId);
-
-        EntityFormulario formularioSalvo = serviceFormulario.criarFormulario(form, adminId);
+        EntityFormulario formularioSalvo = serviceFormulario.criarFormulario(form, eventoId);
         return ResponseEntity.status(HttpStatus.CREATED).body(formularioSalvo);
     }
     //Adm
@@ -65,7 +60,6 @@ public class ControllerFormulario {
     public  ResponseEntity<EntityFormulario> removerFormulario(@PathVariable String id,   @AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            System.out.println("Acesso negado: usuário não é ADMIN");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         serviceFormulario.removerFormulario(id);
@@ -74,11 +68,10 @@ public class ControllerFormulario {
     //Adm/Recrutador
     @GetMapping("/{id}")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Busca um formulario pelo id-formulario", description = "Retorna um formaulario cujo id foi inserido")
+    @Operation(summary = "Busca um formulario pelo id-formulario", description = "Retorna um formulario cujo id foi inserido")
     public ResponseEntity<EntityFormulario> buscarForm(@PathVariable String id, @AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_USER") || a.getAuthority().equals("ROLE_ADMIN"))) {
-            System.out.println("Acesso negado: usuário não tem permissão");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         EntityFormulario formulario = serviceFormulario.bucarFormPorId(id);
@@ -89,33 +82,17 @@ public class ControllerFormulario {
         return ResponseEntity.ok(formulario);
     }
     //Adm/Recrutador
-    @GetMapping("/todos-formularios")
+    @GetMapping("/formulario/evento/{eventoId}")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Busca a lista de formularios pelo id-administrador", description = "Retorna uma lista de formularios vinculada ao adminitrador")
-    public ResponseEntity<List<EntityFormulario>> buscarFormByAdminId( @AuthenticationPrincipal UserDetails userDetails){
+    @Operation(summary = "Busca a lista de formularios pelo id-evento", description = "Retorna uma lista de formularios vinculada ao evento")
+    public ResponseEntity<List<EntityFormulario>> buscarFormByEventoId(@PathVariable String eventoId, @AuthenticationPrincipal UserDetails userDetails){
+        Usuario usuario = (Usuario) userDetails;
+        String usuarioId = usuario.getUsuarioId();
         if (userDetails.getAuthorities().stream()
-                .noneMatch(a -> a.getAuthority().equals("ROLE_USER") || a.getAuthority().equals("ROLE_ADMIN"))) {
-            System.out.println("Acesso negado: usuário não tem permissão");
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+                return ResponseEntity.ok(serviceFormulario.ListarFormPorEventoId(eventoId));
         }
-
-        boolean isAdmin = userDetails.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-
-        Usuario usuarioLogado  = (Usuario) userDetails;
-        String adminId;
-        if (isAdmin) {
-            adminId = usuarioLogado.getUsuarioId();
-        } else {
-            adminId = serviceRecrutador.buscarAdminIdPorRecrutadorId(usuarioLogado.getUsuarioId())
-                    .orElseThrow(() -> new RuntimeException("Recrutador não vinculado a um admin"));
-        }
-        List<EntityFormulario> formularios = serviceFormulario.buscarFormPorAdminId(adminId);
-
-
-        return formularios.isEmpty() ?
-                ResponseEntity.status(HttpStatus.NOT_FOUND).build() :
-                ResponseEntity.ok(formularios);
+            return ResponseEntity.ok(serviceFormulario.ListarFormPorEventoId(eventoId));
     }
 
 }

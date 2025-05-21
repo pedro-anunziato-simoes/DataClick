@@ -3,18 +3,21 @@ import '../api/models/formulario.dart';
 import '../api/services/formulario_service.dart';
 import '../api/services/campo_service.dart';
 import 'form_create_screen.dart';
-import 'add_campo_screen.dart';
 
 class FormsScreen extends StatefulWidget {
+  static const String routeName = '/forms';
+
   final bool isAdmin;
   final FormularioService formularioService;
   final CampoService campoService;
+  final String eventoId;
 
   const FormsScreen({
     super.key,
     required this.isAdmin,
     required this.formularioService,
     required this.campoService,
+    required this.eventoId,
   });
 
   @override
@@ -40,7 +43,9 @@ class _FormsScreenState extends State<FormsScreen> {
 
   Future<List<Formulario>> _carregarFormularios() async {
     try {
-      return await widget.formularioService.getMeusFormularios();
+      return await widget.formularioService.getFormulariosByEvento(
+        widget.eventoId,
+      );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -155,9 +160,31 @@ class _FormsScreenState extends State<FormsScreen> {
                 ],
               ),
               const SizedBox(height: 8),
-              Text(
-                '${formulario.campos.length} ${formulario.campos.length == 1 ? 'campo' : 'campos'}',
-                style: TextStyle(color: Colors.grey[600]),
+              if (formulario.descricao != null &&
+                  formulario.descricao!.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text(
+                    formulario.descricao!,
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '${formulario.campos.length} ${formulario.campos.length == 1 ? 'campo' : 'campos'}',
+                    style: TextStyle(color: Colors.grey[600]),
+                  ),
+                  if (formulario.dataCriacao != null)
+                    Text(
+                      _formatarData(formulario.dataCriacao!),
+                      style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                    ),
+                ],
               ),
             ],
           ),
@@ -186,14 +213,19 @@ class _FormsScreenState extends State<FormsScreen> {
     );
   }
 
+  String _formatarData(DateTime data) {
+    return '${data.day.toString().padLeft(2, '0')}/${data.month.toString().padLeft(2, '0')}/${data.year}';
+  }
+
   Future<void> _navegarParaCriarFormulario() async {
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder:
-            (context) => CreateFormScreen(
+            (context) => FormularioScreen(
               formularioService: widget.formularioService,
               campoService: widget.campoService,
+              eventoId: widget.eventoId,
             ),
       ),
     );
@@ -208,10 +240,11 @@ class _FormsScreenState extends State<FormsScreen> {
       context,
       MaterialPageRoute(
         builder:
-            (context) => CreateFormScreen(
+            (context) => FormularioScreen(
               formularioExistente: formulario,
               formularioService: widget.formularioService,
               campoService: widget.campoService,
+              eventoId: widget.eventoId,
             ),
       ),
     );
@@ -302,7 +335,26 @@ class _FormsScreenState extends State<FormsScreen> {
                     formulario.titulo,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
-                  const SizedBox(height: 16),
+                  if (formulario.descricao != null &&
+                      formulario.descricao!.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8, bottom: 16),
+                      child: Text(
+                        formulario.descricao!,
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ),
+                  if (formulario.dataCriacao != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Text(
+                        'Criado em: ${_formatarData(formulario.dataCriacao!)}',
+                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                      ),
+                    ),
                   const Text(
                     'Campos:',
                     style: TextStyle(fontWeight: FontWeight.bold),
@@ -352,9 +404,12 @@ class _FormsScreenState extends State<FormsScreen> {
       context,
       MaterialPageRoute(
         builder:
-            (context) => AddCampoScreen(
-              formId: formulario.id,
+            (context) => FormularioScreen(
+              formIdForAddCampo: formulario.id,
               campoService: widget.campoService,
+              formularioService: widget.formularioService,
+              isEditingCampo: false,
+              eventoId: widget.eventoId,
             ),
       ),
     );

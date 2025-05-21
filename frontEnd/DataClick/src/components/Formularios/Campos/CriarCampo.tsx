@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { CampoService } from "../../../api/CampoService";
-import { EntityCampo } from "../../../types/entityes/EntityCampo";
 import {
   Box,
   TextField,
@@ -26,8 +25,8 @@ const CriarCampo = () => {
   const { formId } = useParams<{ formId: string }>();
   const navigate = useNavigate();
   const [formData, setFormData] = useState<CampoCreateDTO>({
-    titulo: "",
-    tipo: "",
+    campoTituloDto: "",
+    campoTipoDto: "",
     resposta: { tipo: "" },
   });
 
@@ -35,7 +34,7 @@ const CriarCampo = () => {
     const tipoSelecionado = e.target.value;
     setFormData({
       ...formData,
-      tipo: tipoSelecionado,
+      campoTipoDto: tipoSelecionado,
       resposta: {
         tipo: "",
       },
@@ -45,7 +44,7 @@ const CriarCampo = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.titulo || !formData.tipo) {
+    if (!formData.campoTituloDto || !formData.campoTituloDto) {
       alert("Por favor, preencha todos os campos.");
       return;
     }
@@ -53,7 +52,7 @@ const CriarCampo = () => {
       const campoService = CampoService();
       await campoService.adicionarCampo(formId || '', formData);
       alert("Campo adicionado com sucesso!");
-      navigate("/formularios")
+      navigate("/eventos")
     } catch (error) {
       console.error("Erro ao adicionar campo:", error);
       alert("Erro ao adicionar campo." + error);
@@ -64,9 +63,9 @@ const CriarCampo = () => {
     <Box component="form" onSubmit={handleSubmit} p={3}>
       <TextField
         label="Título"
-        value={formData.titulo}
+        value={formData.campoTituloDto}
         onChange={(e) =>
-          setFormData({ ...formData, titulo: e.target.value })
+          setFormData({ ...formData, campoTituloDto: e.target.value })
         }
         fullWidth
         variant="outlined"
@@ -76,7 +75,7 @@ const CriarCampo = () => {
       <FormControl fullWidth margin="normal">
         <InputLabel>Tipo</InputLabel>
         <Select
-          value={formData.tipo}
+          value={formData.campoTipoDto}
           onChange={handleTipoChange}
           label="Tipo"
         >

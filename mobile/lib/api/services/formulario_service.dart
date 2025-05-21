@@ -1,24 +1,17 @@
 import 'dart:convert';
 import '../api_client.dart';
 import '../models/formulario.dart';
-import '../models/campo.dart';
 import 'package:mobile/api/services/api_exception.dart';
-import 'package:mobile/api/services/auth_service.dart';
 
 class FormularioService {
   final ApiClient _apiClient;
-  final AuthService _authService;
 
-  FormularioService(this._apiClient, this._authService);
+  FormularioService(this._apiClient);
 
-  Future<List<Formulario>> getMeusFormularios() async {
+  Future<List<Formulario>> getFormulariosByEvento(String eventoId) async {
     try {
-      if (!_authService.isAuthenticated()) {
-        throw ApiException('Sessão expirada. Faça login novamente.', 401);
-      }
-
       final response = await _apiClient.get(
-        '/formularios/{id}',
+        '/formularios/formulario/evento/$eventoId',
         includeAuth: true,
       );
 
@@ -27,23 +20,22 @@ class FormularioService {
         return data.map((json) => Formulario.fromJson(json)).toList();
       } else {
         throw ApiException(
-          _getErrorMessage(response, 'buscar formulários'),
+          _getErrorMessage(response, 'buscar formulários do evento'),
           response.statusCode,
         );
       }
     } on ApiException {
       rethrow;
     } catch (e) {
-      throw ApiException('Erro ao buscar formulários: ${e.toString()}', 0);
+      throw ApiException(
+        'Erro ao buscar formulários do evento: ${e.toString()}',
+        0,
+      );
     }
   }
 
-  Future<Formulario> obterFormularioPorId(String id) async {
+  Future<Formulario> getFormularioById(String id) async {
     try {
-      if (!_authService.isAuthenticated()) {
-        throw ApiException('Sessão expirada. Faça login novamente.', 401);
-      }
-
       final response = await _apiClient.get(
         '/formularios/$id',
         includeAuth: true,
@@ -66,23 +58,12 @@ class FormularioService {
 
   Future<Formulario> criarFormulario({
     required String titulo,
-    required List<Campo> campos,
+    required String eventoId,
   }) async {
     try {
-      if (!_authService.isAuthenticated()) {
-        throw ApiException('Sessão expirada. Faça login novamente.', 401);
-      }
-
-      if (_authService.isTokenAboutToExpire()) {
-        print('[FormularioService] Token prestes a expirar, considere renovar');
-      }
-
       final response = await _apiClient.post(
-        '/formularios/add',
-        body: {
-          'titulo': titulo,
-          'campos': campos.map((c) => c.toJson()).toList(),
-        },
+        '/formularios/add/$eventoId',
+        body: json.encode({'formularioTituloDto': titulo}),
         includeAuth: true,
       );
 
@@ -104,19 +85,11 @@ class FormularioService {
   Future<Formulario> atualizarFormulario({
     required String formId,
     required String titulo,
-    required List<Campo> campos,
   }) async {
     try {
-      if (!_authService.isAuthenticated()) {
-        throw ApiException('Sessão expirada. Faça login novamente.', 401);
-      }
-
       final response = await _apiClient.post(
         '/formularios/alterar/$formId',
-        body: {
-          'titulo': titulo,
-          'campos': campos.map((c) => c.toJson()).toList(),
-        },
+        body: json.encode({'formularioTituloDto': titulo}),
         includeAuth: true,
       );
 
@@ -135,18 +108,14 @@ class FormularioService {
     }
   }
 
-  Future<void> removerFormulario(String id) async {
+  Future<void> removerFormulario(String formId) async {
     try {
-      if (!_authService.isAuthenticated()) {
-        throw ApiException('Sessão expirada. Faça login novamente.', 401);
-      }
-
       final response = await _apiClient.delete(
-        '/formularios/remove/$id',
+        '/formularios/remove/$formId',
         includeAuth: true,
       );
 
-      if (response.statusCode != 200 && response.statusCode != 204) {
+      if (response.statusCode != 200) {
         throw ApiException(
           _getErrorMessage(response, 'remover formulário'),
           response.statusCode,
@@ -159,9 +128,40 @@ class FormularioService {
     }
   }
 
+  Future<List<Formulario>> getFormulariosPreenchidos(String eventoId) async {
+    try {
+      final response = await _apiClient.get(
+        '/formulariosPreenchidos/$eventoId',
+        includeAuth: true,
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Formulario.fromJson(json)).toList();
+      } else {
+        throw ApiException(
+          _getErrorMessage(response, 'buscar formulários preenchidos'),
+          response.statusCode,
+        );
+      }
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(
+        'Erro ao buscar formulários preenchidos: ${e.toString()}',
+        0,
+      );
+    }
+  }
+
   String _getErrorMessage(dynamic response, String operation) {
     try {
       final responseBody = response is String ? response : response.body;
+
+      if (responseBody == null || responseBody.isEmpty) {
+        return 'Resposta vazia do servidor ao tentar $operation';
+      }
+
       final decoded = json.decode(responseBody);
 
       return decoded['message'] ??
@@ -169,20 +169,24 @@ class FormularioService {
           decoded['error_description'] ??
           'Falha ao $operation: Status ${response.statusCode}';
     } catch (e) {
-      switch (response.statusCode) {
-        case 400:
-          return 'Requisição inválida ao $operation';
-        case 401:
-          return 'Não autorizado. Faça login novamente.';
-        case 403:
-          return 'Acesso negado. Permissões insuficientes para $operation';
-        case 404:
-          return 'Formulário não encontrado';
-        case 500:
-          return 'Erro interno do servidor ao $operation';
-        default:
-          return 'Falha ao $operation: Status ${response.statusCode}';
-      }
+      return _getDefaultErrorMessage(response?.statusCode, operation);
+    }
+  }
+
+  String _getDefaultErrorMessage(int? statusCode, String operation) {
+    switch (statusCode) {
+      case 400:
+        return 'Requisição inválida ao $operation';
+      case 401:
+        return 'Não autorizado. Faça login novamente.';
+      case 403:
+        return 'Acesso negado. Permissões insuficientes para $operation';
+      case 404:
+        return 'Formulário não encontrado';
+      case 500:
+        return 'Erro interno do servidor ao $operation';
+      default:
+        return 'Falha ao $operation: Status $statusCode';
     }
   }
 }

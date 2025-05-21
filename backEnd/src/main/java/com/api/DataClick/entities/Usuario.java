@@ -42,9 +42,53 @@ public abstract class Usuario implements UserDetails {
 
     private UserRole role;
 
+    public Usuario(String nome, String senha, String telefone, String email, UserRole role) {
+        this.nome = nome;
+        this.senha = senha;
+        this.telefone = telefone;
+        this.email = email;
+        this.role = role;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(this.role.getRole()));
+    }
+
+    public void setUsuarioId(String usuarioId) {
+        this.usuarioId = usuarioId;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
+    }
+
+    public String getUsuarioId() {
+        return usuarioId;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public String getTelefone() {
+        return telefone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setTelefone(String telefone) {
+        this.telefone = telefone;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
     }
 
     @Override
@@ -77,5 +121,9 @@ public abstract class Usuario implements UserDetails {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public UserRole getRole() {
+        return role;
     }
 }

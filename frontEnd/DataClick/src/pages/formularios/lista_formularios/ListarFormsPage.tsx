@@ -6,7 +6,7 @@ const ListarFormsPage = () => {
       <div>
         <h1>Listando Formularios</h1>
         <Formularios />
-        <Sidebar />
+        
       </div>
     );
   };

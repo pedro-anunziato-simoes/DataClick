@@ -1,14 +1,15 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Box,
-  Button,
-  styled,
+  IconButton,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
   Divider,
+  Tooltip,
 } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 import GroupIcon from "@mui/icons-material/Group";
@@ -16,85 +17,118 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import PersonIcon from "@mui/icons-material/Person";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import LogoutIcon from "@mui/icons-material/Logout";
-
-const SidebarContainer = styled(Box)(({ theme }) => ({
-  width: 250,
-  height: '100vh',
-  position: 'fixed',
-  left: 0,
-  top: 0,
-  backgroundColor: theme.palette.background.paper,
-  boxShadow: theme.shadows[3],
-  display: 'flex',
-  flexDirection: 'column',
-  paddingTop: theme.spacing(4),
-  zIndex: 1000,
-}));
-
-const Logo = styled('img')({
-  width: '80%',
-  margin: '0 auto 2rem auto',
-  display: 'block',
-});
+import MenuIcon from "@mui/icons-material/Menu";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 
 const Sidebar = () => {
   const navigate = useNavigate();
+  const [collapsed, setCollapsed] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/");
   };
 
+  const toggleSidebar = () => {
+    setCollapsed((prev) => !prev);
+  };
+
+  const navItems = [
+    { icon: <HomeIcon />, text: "Home", path: "/home" },
+    { icon: <GroupIcon />, text: "Recrutadores", path: "/recrutadores" },
+    { icon: <DescriptionIcon />, text: "Eventos", path: "/eventos" },
+    { icon: <PersonIcon />, text: "Perfil", path: "/perfilAdministrador" },
+    { icon: <HelpOutlineIcon />, text: "Suporte", path: "/suporte" },
+  ];
+
   return (
-    <SidebarContainer>
-      <Logo src="/logo.png" alt="Logo" />
+    <Box
+      sx={{
+        width: collapsed ? 70 : 250,
+        transition: "width 0.3s",
+        height: "100vh",
+        position: "fixed",
+        left: 0,
+        top: 0,
+        backgroundColor: "background.paper",
+        boxShadow: 3,
+        display: "flex",
+        flexDirection: "column",
+        paddingTop: 2,
+        zIndex: 1000,
+      }}
+    >
+      <Box sx={{ display: "flex", justifyContent: "center", mb: 1 }}>
+        <IconButton onClick={toggleSidebar}>
+          {collapsed ? <MenuIcon /> : <ChevronLeftIcon />}
+        </IconButton>
+      </Box>
+
+      <Box
+        component="img"
+        src="/logo.png"
+        alt="Logo"
+        sx={{
+          width: collapsed ? 40 : "80%",
+          margin: "0 auto 1rem auto",
+          display: "block",
+          transition: "width 0.3s",
+        }}
+      />
 
       <List>
-        <ListItem disablePadding>
-          <ListItemButton component={Link} to="/home">
-            <ListItemIcon><HomeIcon /></ListItemIcon>
-            <ListItemText primary="Home" />
-          </ListItemButton>
-        </ListItem>
-
-        <ListItem disablePadding>
-          <ListItemButton component={Link} to="/recrutadores">
-            <ListItemIcon><GroupIcon /></ListItemIcon>
-            <ListItemText primary="Recrutadores" />
-          </ListItemButton>
-        </ListItem>
-
-        <ListItem disablePadding>
-          <ListItemButton component={Link} to="/formularios">
-            <ListItemIcon><DescriptionIcon /></ListItemIcon>
-            <ListItemText primary="Formulários" />
-          </ListItemButton>
-        </ListItem>
-
-        <ListItem disablePadding>
-          <ListItemButton component={Link} to="/perfilAdministrador">
-            <ListItemIcon><PersonIcon /></ListItemIcon>
-            <ListItemText primary="Perfil" />
-          </ListItemButton>
-        </ListItem>
-
-        <ListItem disablePadding>
-          <ListItemButton component={Link} to="/suporte">
-            <ListItemIcon><HelpOutlineIcon /></ListItemIcon>
-            <ListItemText primary="Suporte" />
-          </ListItemButton>
-        </ListItem>
+        {navItems.map(({ icon, text, path }) => (
+          <ListItem key={text} disablePadding sx={{ justifyContent: "center" }}>
+            <Tooltip title={collapsed ? text : ""} placement="right">
+              <ListItemButton
+                component={Link}
+                to={path}
+                sx={{
+                  justifyContent: collapsed ? "center" : "flex-start",
+                  px: collapsed ? 1 : 2,
+                }}
+              >
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: collapsed ? 0 : 2,
+                    justifyContent: "center",
+                  }}
+                >
+                  {icon}
+                </ListItemIcon>
+                {!collapsed && <ListItemText primary={text} />}
+              </ListItemButton>
+            </Tooltip>
+          </ListItem>
+        ))}
 
         <Divider sx={{ my: 2 }} />
 
-        <ListItem disablePadding>
-          <ListItemButton onClick={handleLogout}>
-            <ListItemIcon><LogoutIcon /></ListItemIcon>
-            <ListItemText primary="Logout" />
-          </ListItemButton>
+        <ListItem disablePadding sx={{ justifyContent: "center" }}>
+          <Tooltip title={collapsed ? "Logout" : ""} placement="right">
+            <ListItemButton
+              onClick={handleLogout}
+              sx={{
+                justifyContent: collapsed ? "center" : "flex-start",
+                px: collapsed ? 1 : 2,
+              }}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: 0,
+                  mr: collapsed ? 0 : 2,
+                  justifyContent: "center",
+                }}
+              >
+                <LogoutIcon />
+              </ListItemIcon>
+              {!collapsed && <ListItemText primary="Logout" />}
+            </ListItemButton>
+          </Tooltip>
         </ListItem>
       </List>
-    </SidebarContainer>
+    </Box>
   );
 };
 

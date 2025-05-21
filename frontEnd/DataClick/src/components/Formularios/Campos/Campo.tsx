@@ -77,7 +77,7 @@ const Campo = () => {
         <Box display="flex" flexDirection="column" gap={3}>
           <Paper elevation={2} sx={{ p: 2 }}>
             <Typography variant="h6" gutterBottom>
-              {campo.titulo}
+              {campo.campoTitulo}
             </Typography>
           </Paper>
         </Box>

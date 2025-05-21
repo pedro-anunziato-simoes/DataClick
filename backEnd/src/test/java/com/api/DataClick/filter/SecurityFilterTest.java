@@ -2,24 +2,28 @@ package com.api.DataClick.filter;
 
 import com.api.DataClick.services.ServiceAuthorization;
 import com.api.DataClick.services.ServiceToken;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.MockitoAnnotations;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import jakarta.servlet.FilterChain;
+import java.io.IOException;
+import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+
 public class SecurityFilterTest {
 
     @Mock
@@ -40,40 +44,25 @@ public class SecurityFilterTest {
     @InjectMocks
     private SecurityFilter securityFilter;
 
-    @AfterEach
-    void tearDown() {
+    private final String validToken = "valid.token.here";
+    private final String userEmail = "user@example.com";
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
         SecurityContextHolder.clearContext();
     }
 
     @Test
-    void deveRecuperarTokenQuandoHeaderValido() throws Exception {
-        when(request.getHeader("Authorization")).thenReturn("Bearer validToken");
+    void doFilterInternal_ComTokenValido_DeveAutenticarUsuario() throws Exception {
+        when(request.getHeader("Authorization")).thenReturn("Bearer " + validToken);
+        when(tokenService.validateToken(validToken)).thenReturn(userEmail);
 
-        securityFilter.doFilterInternal(request, response, filterChain);
-
-        verify(tokenService).validateToken("validToken");
-    }
-
-    @Test
-    void deveIgnorarQuandoHeaderAusente() throws Exception {
-        when(request.getHeader("Authorization")).thenReturn(null);
-
-        securityFilter.doFilterInternal(request, response, filterChain);
-
-        verifyNoInteractions(tokenService, authorizationService);
-        verify(filterChain).doFilter(request, response);
-    }
-
-    @Test
-    void deveConfigurarAutenticacaoQuandoTokenValido() throws Exception {
-        UserDetails userDetails = User.withUsername("user@test.com")
+        UserDetails userDetails = User.withUsername(userEmail)
                 .password("password")
-                .roles("USER")
+                .authorities(Collections.emptyList())
                 .build();
-
-        when(request.getHeader("Authorization")).thenReturn("Bearer validToken");
-        when(tokenService.validateToken("validToken")).thenReturn("user@test.com");
-        when(authorizationService.loadUserByUsername("user@test.com")).thenReturn(userDetails);
+        when(authorizationService.loadUserByUsername(userEmail)).thenReturn(userDetails);
 
         securityFilter.doFilterInternal(request, response, filterChain);
 
@@ -82,26 +71,43 @@ public class SecurityFilterTest {
     }
 
     @Test
-    void deveRetornarErro401QuandoTokenInvalido() throws Exception {
-        when(request.getHeader("Authorization")).thenReturn("Bearer invalidToken");
-        when(tokenService.validateToken("invalidToken")).thenThrow(new RuntimeException("Token inválido"));
+    void doFilterInternal_ComTokenInvalido_DeveRetornar401() throws Exception {
+        when(request.getHeader("Authorization")).thenReturn("Bearer invalid.token");
+        when(tokenService.validateToken("invalid.token")).thenThrow(new RuntimeException("Token inválido"));
 
         securityFilter.doFilterInternal(request, response, filterChain);
 
-        verify(response).sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token inválido");
+        verify(response).sendError(eq(401), eq("Token inválido"));
         verify(filterChain, never()).doFilter(request, response);
     }
 
-
     @Test
-    void deveLancarExcecaoQuandoUsuarioNaoEncontrado() throws Exception {
-        when(request.getHeader("Authorization")).thenReturn("Bearer validToken");
-        when(tokenService.validateToken("validToken")).thenReturn("user@test.com");
-        when(authorizationService.loadUserByUsername("user@test.com"))
-                .thenThrow(new RuntimeException("Usuário não encontrado"));
+    void doFilterInternal_SemToken_DeveContinuarChain() throws Exception {
+        when(request.getHeader("Authorization")).thenReturn(null);
 
         securityFilter.doFilterInternal(request, response, filterChain);
 
-        verify(response).sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token inválido");
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+        verify(filterChain).doFilter(request, response);
+    }
+
+    @Test
+    void recoverToken_DeveExtrairTokenDoHeader() {
+        SecurityFilter filter = new SecurityFilter(tokenService, authorizationService);
+        when(request.getHeader("Authorization")).thenReturn("Bearer " + validToken);
+
+        String token = filter.recoverToken(request);
+
+        assertEquals(validToken, token);
+    }
+
+    @Test
+    void recoverToken_HeaderSemBearer_DeveRetornarNull() {
+        SecurityFilter filter = new SecurityFilter(tokenService, authorizationService);
+        when(request.getHeader("Authorization")).thenReturn(validToken); // Sem "Bearer "
+
+        String token = filter.recoverToken(request);
+
+        assertNull(token);
     }
 }

@@ -14,11 +14,32 @@ public class EntityFormulariosPreenchidos {
 
     @Id
     private String FormulariosPreId;
-    private String recrutadorId;
-    private String adminId;
-    private List<EntityFormulario> listaFormularios;
+    private String formularioPreenchidoEventoId;
+    private List<EntityFormulario> formularioPreenchidoListaFormularios;
 
-    public EntityFormulariosPreenchidos(List<EntityFormulario> listaFormularios) {
-        this.listaFormularios = listaFormularios;
+    public EntityFormulariosPreenchidos(String formularioPreenchidoEventoId, List<EntityFormulario> formularioPreenchidoListaFormularios) {
+        this.formularioPreenchidoEventoId = formularioPreenchidoEventoId;
+        this.formularioPreenchidoListaFormularios = formularioPreenchidoListaFormularios;
+    }
+
+    public List<EntityFormulario> getFormularioPreenchidoListaFormularios() {
+        return formularioPreenchidoListaFormularios;
+    }
+
+    public String getFormularioPreenchidoEventoId() {
+        return formularioPreenchidoEventoId;
+    }
+
+    public void setFormularioPreenchidoEventoId(String formularioPreenchidoEventoId) {
+        this.formularioPreenchidoEventoId = formularioPreenchidoEventoId;
+    }
+
+    public void setFormularioPreenchidoListaFormularios(List<EntityFormulario> formularioPreenchidoListaFormularios) {
+        this.formularioPreenchidoListaFormularios = formularioPreenchidoListaFormularios;
+    }
+
+    public void setFormulariosPreId(String formulariosPreId) {
+        FormulariosPreId = formulariosPreId;
     }
 }
+

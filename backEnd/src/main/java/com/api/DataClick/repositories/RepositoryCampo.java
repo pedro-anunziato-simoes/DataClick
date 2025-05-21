@@ -8,5 +8,5 @@ import java.util.Optional;
 
 
 public interface RepositoryCampo extends MongoRepository<EntityCampo,String> {
-    Optional<List<EntityCampo>> findAllByformId(String id);
+    Optional<List<EntityCampo>> findAllBycampoFormId(String id);
 }

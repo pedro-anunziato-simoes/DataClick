@@ -1,16 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import {
   Box,
   Button,
   Container,
   TextField,
-  Typography,
-  Alert
+  Alert,
 } from "@mui/material";
 import { AuthService } from "../../api/AuthService";
-
 
 const Login = () => {
   const navigate = useNavigate();
@@ -28,69 +25,139 @@ const Login = () => {
   };
 
   return (
-    <Container maxWidth="sm">
+    <Box
+      sx={{
+        height: "100vh",
+        width: "100vw",
+        overflow: "hidden",
+        position: "relative",
+        background: "linear-gradient(to bottom, #b2dfdb, #4db6ac)",
+      }}
+    >
       <Box
         sx={{
-          mt: 8,
-          p: 4,
-          boxShadow: 3,
-          borderRadius: 2,
-          backgroundColor: "#fff",
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: "40px",
+          backgroundColor: "#222",
+        }}
+      />
+      <Box
+        sx={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: "40px",
+          backgroundColor: "#222",
+        }}
+      />
+
+      <Box
+        sx={{
+          height: "100%",
           display: "flex",
-          flexDirection: "column",
-          alignItems: "center"
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
-        <img src="/logo.png" alt="Logo" style={{ width: 120, marginBottom: 24 }} />
+        <Container maxWidth="xs" sx={{ textAlign: "center" }}>
+          <img
+            src="/logo.png"
+            alt="Logo"
+            style={{ width: 180, marginBottom: 16 }}
+          />
 
-        <Typography variant="h5" component="h1" gutterBottom>
-          Login
-        </Typography>
+          {erro && (
+            <Alert severity="error" sx={{ width: "100%", mb: 2 }}>
+              {erro}
+            </Alert>
+          )}
 
-        {erro && (
-          <Alert severity="error" sx={{ width: "100%", mb: 2 }}>
-            {erro}
-          </Alert>
-        )}
+          <Box sx={{ width: "90%", mx: "auto" }}>
+            <TextField
+              placeholder="Insira Usuário/CNPJ"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              fullWidth
+              variant="standard"
+              InputProps={{
+                disableUnderline: true,
+                sx: {
+                  backgroundColor: "#ffffff",
+                  fontSize: "1rem",
+                  height: 44,
+                  borderRadius: "8px",
+                  px: 2,
+                },
+              }}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              placeholder="Insira sua senha"
+              type="password"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              fullWidth
+              variant="standard"
+              InputProps={{
+                disableUnderline: true,
+                sx: {
+                  backgroundColor: "#ffffff",
+                  fontSize: "1rem",
+                  height: 44,
+                  borderRadius: "8px",
+                  px: 2,
+                },
+              }}
+              sx={{ mb: 2 }}
+            />
 
-        <TextField
-          label="Usuário"
-          variant="outlined"
-          fullWidth
-          margin="normal"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+            <Button
+              fullWidth
+              onClick={handleLogin}
+              sx={{
+                mt: 1,
+                background: "linear-gradient(to right, #e0f7fa, #80cbc4)",
+                borderRadius: "999px",
+                color: "black",
+                fontWeight: 600,
+                textTransform: "none",
+                fontSize: "1rem",
+                minHeight: "48px",
+                "&:hover": {
+                  background: "linear-gradient(to right, #b2dfdb, #4db6ac)",
+                },
+              }}
+            >
+              Entrar
+            </Button>
 
-        <TextField
-          label="Senha"
-          type="password"
-          variant="outlined"
-          fullWidth
-          margin="normal"
-          value={senha}
-          onChange={(e) => setSenha(e.target.value)}
-        />
-
-        <Box sx={{ display: "flex", justifyContent: "space-between", width: "100%", mt: 3 }}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleLogin}
-          >
-            Entrar
-          </Button>
-
-          <Button
-            variant="outlined"
-            color="secondary"
-            onClick={() => navigate("/register")}
-          >
-            Registrar
-          </Button>
-        </Box>
+            <Button
+              fullWidth
+              onClick={() => navigate("/register")}
+              sx={{
+                mt: 2,
+                background: "linear-gradient(to right, #e0f7fa, #80cbc4)",
+                borderRadius: "999px",
+                color: "black",
+                fontWeight: 600,
+                textTransform: "none",
+                fontSize: "1rem",
+                minHeight: "48px",
+                "&:hover": {
+                  background: "linear-gradient(to right, #b2dfdb, #4db6ac)",
+                },
+              }}
+            >
+              Registrar
+            </Button>
+          </Box>
+        </Container>
       </Box>
-    </Container>
+    </Box>
   );
 };
 

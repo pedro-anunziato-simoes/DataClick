@@ -1,32 +1,37 @@
 package com.api.DataClick.controllers;
+
+
 import com.api.DataClick.DTO.AuthenticationDTO;
 import com.api.DataClick.DTO.RegisterAdminDTO;
 import com.api.DataClick.entities.EntityAdministrador;
+import com.api.DataClick.entities.EntityRecrutador;
 import com.api.DataClick.enums.UserRole;
 import com.api.DataClick.repositories.RepositoryAdministrador;
 import com.api.DataClick.repositories.RepositoryRecrutador;
 import com.api.DataClick.services.ServiceToken;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.Authentication;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Collections;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-
+@ExtendWith(MockitoExtension.class)
 public class ControllerAuthenticationTest {
-
     @Mock
     private AuthenticationManager authenticationManager;
 
@@ -43,110 +48,102 @@ public class ControllerAuthenticationTest {
     private ServiceToken serviceToken;
 
     @InjectMocks
-    private ControllerAuthentication controllerAuthentication;
+    private ControllerAuthentication controller;
+
+    private AuthenticationDTO authDto;
+    private RegisterAdminDTO registerDto;
+    private EntityAdministrador admin;
+    private EntityRecrutador recrutador;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        authDto = new AuthenticationDTO("admin@test.com", "senha123");
+        registerDto = new RegisterAdminDTO(
+                "123456789",
+                "Admin Teste",
+                "senha123",
+                "11999998888",
+                "admin@test.com"
+        );
+
+        admin = new EntityAdministrador(
+                "123456789",
+                "Admin Teste",
+                "senha123",
+                "11999998888",
+                "admin@test.com",
+                UserRole.ADMIN
+        );
+
+        recrutador = new EntityRecrutador(
+                "Recrutador Teste",
+                "senha123",
+                "11999997777",
+                "recrutador@test.com",
+                "admin-001",
+                UserRole.USER,
+                Collections.emptyList()
+        );
     }
 
     @Test
-    void login_Sucesso_DeveRetornarToken() {
-        AuthenticationDTO data = new AuthenticationDTO("test@example.com", "senha123");
-        UserDetails userDetails = User.withUsername("test@example.com")
-                .password("senha123")
-                .authorities("ROLE_ADMIN")
-                .build();
-
+    void login_ComCredenciaisValidas_DeveRetornarToken() {
         Authentication auth = mock(Authentication.class);
-        when(auth.getPrincipal()).thenReturn(userDetails);
         when(authenticationManager.authenticate(any())).thenReturn(auth);
-        when(serviceToken.generateToken(userDetails)).thenReturn("token_jwt_mockado");
+        when(serviceToken.generateToken(any())).thenReturn("token-jwt");
 
-        ResponseEntity<?> response = controllerAuthentication.login(data);
+        ResponseEntity<?> response = controller.login(authDto);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertTrue(response.getBody().toString().contains("token=token_jwt_mockado"));
+        assertTrue(response.getBody() instanceof Map);
+        assertEquals("token-jwt", ((Map<?, ?>) response.getBody()).get("token"));
     }
 
     @Test
-    void login_CredenciaisInvalidas_DeveRetornarNaoAutorizado() {
-        AuthenticationDTO data = new AuthenticationDTO("invalido@email.com", "senhaerrada");
-        when(authenticationManager.authenticate(any()))
-                .thenThrow(new BadCredentialsException("Credenciais inválidas"));
+    void login_ComCredenciaisInvalidas_DeveRetornarNaoAutorizado() {
 
-        ResponseEntity<?> response = controllerAuthentication.login(data);
+        when(authenticationManager.authenticate(any()))
+                .thenThrow(new BadCredentialsException("Erro"));
+
+        ResponseEntity<?> response = controller.login(authDto);
 
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
         assertEquals("Credenciais inválidas", response.getBody());
     }
 
     @Test
-    void registerAdmin_NovoRegistro_DeveCriarAdministrador() {
-        RegisterAdminDTO data = new RegisterAdminDTO(
-                "12345678901234",
-                "Novo Admin",
-                "senha123",
-                "11999998888",
-                "novo@email.com"
-        );
+    void registerAdmin_ComEmailNovo_DeveCriarAdministrador() {
 
-        when(repositoryAdministrador.findByEmail(any())).thenReturn(null);
-        when(repositoryRecrutador.findByEmail(any())).thenReturn(null);
-        when(passwordEncoder.encode("senha123")).thenReturn("senha_criptografada");
+        when(repositoryAdministrador.findByEmail(anyString())).thenReturn(null);
+        when(repositoryRecrutador.findByEmail(anyString())).thenReturn(null);
+        when(passwordEncoder.encode(anyString())).thenReturn("senha-criptografada");
 
-        ResponseEntity<?> response = controllerAuthentication.registerAdmin(data);
+        ResponseEntity<?> response = controller.registerAdmin(registerDto);
 
-        verify(repositoryAdministrador).save(any(EntityAdministrador.class));
         assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(repositoryAdministrador).save(any(EntityAdministrador.class));
     }
 
     @Test
-    void registerAdmin_EmailExistenteNoAdministrador_DeveRetornarErro() {
-        RegisterAdminDTO data = new RegisterAdminDTO(
-                "Admin Teste",
-                "existente@email.com",
-                "senha123",
-                "11999999999",
-                "12345678901234"
-        );
+    void registerAdmin_ComEmailExistenteEmAdministradores_DeveRetornarErro() {
+        when(repositoryAdministrador.findByEmail(anyString())).thenReturn(admin);
 
-        EntityAdministrador adminExistente = new EntityAdministrador(
-                "12345678901234",
-                "Admin Teste",
-                "senha123",
-                "11999999999",
-                "existente@email.com",
-                UserRole.ADMIN
-        );
-
-        when(repositoryAdministrador.findByEmail("existente@email.com")).thenReturn(adminExistente);
-
-        ResponseEntity<?> response = controllerAuthentication.registerAdmin(data);
+        ResponseEntity<?> response = controller.registerAdmin(registerDto);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("Email já registrado!", response.getBody());
-
-        verify(repositoryAdministrador).findByEmail("existente@email.com");
+        verify(repositoryAdministrador, never()).save(any());
     }
 
     @Test
-    void registerAdmin_EmailNaoExisteNoAdministrador_DeveVerificarRecrutador() {
-        RegisterAdminDTO data = new RegisterAdminDTO(
-                "Admin Teste",
-                "novo@email.com",
-                "senha123",
-                "11999999999",
-                "12345678901234"
-        );
+    void registerAdmin_ComEmailExistenteEmRecrutadores_DeveRetornarErro() {
+        when(repositoryAdministrador.findByEmail(anyString())).thenReturn(null);
+        when(repositoryRecrutador.findByEmail(anyString())).thenReturn(recrutador);
 
-        when(repositoryAdministrador.findByEmail("novo@email.com")).thenReturn(null);
-        when(repositoryRecrutador.findByEmail("novo@email.com")).thenReturn(null);
+        ResponseEntity<?> response = controller.registerAdmin(registerDto);
 
-        ResponseEntity<?> response = controllerAuthentication.registerAdmin(data);
-
-
-        verify(repositoryAdministrador).findByEmail("novo@email.com");
-        verify(repositoryRecrutador).findByEmail("novo@email.com");
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Email já registrado!", response.getBody());
+        verify(repositoryAdministrador, never()).save(any());
     }
 }

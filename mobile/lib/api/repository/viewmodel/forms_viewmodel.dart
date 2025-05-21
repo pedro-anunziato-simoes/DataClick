@@ -28,16 +28,20 @@ class ErrorState<T> extends RequestState<T> {
 class FormViewModel extends ChangeNotifier {
   final IFormularioRepository _repository;
   RequestState<List<Formulario>> _formularios = const InitialState();
+  RequestState<List<Formulario>> _formulariosPreenchidos = const InitialState();
   RequestState<Formulario?> _formularioAtual = const InitialState();
   bool _isAdmin = false;
 
   FormViewModel(this._repository);
 
-  // Getters
   RequestState<List<Formulario>> get formularios => _formularios;
+  RequestState<List<Formulario>> get formulariosPreenchidos =>
+      _formulariosPreenchidos;
   RequestState<Formulario?> get formularioAtual => _formularioAtual;
   bool get isLoading =>
-      _formularios is LoadingState || _formularioAtual is LoadingState;
+      _formularios is LoadingState ||
+      _formularioAtual is LoadingState ||
+      _formulariosPreenchidos is LoadingState;
   bool get isAdmin => _isAdmin;
 
   void setIsAdmin(bool isAdmin) {
@@ -45,20 +49,33 @@ class FormViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> carregarFormularios() async {
+  Future<void> carregarFormulariosPorEvento(String eventoId) async {
     try {
       _formularios = const LoadingState();
       notifyListeners();
 
-      // Since we removed listarTodosFormularios(), we just use listarMeusFormularios()
-      // regardless of admin status, as the backend handles the filtering
-      final result = await _repository.listarMeusFormularios();
-
+      final result = await _repository.listarFormulariosPorEvento(eventoId);
       _formularios = SuccessState(result);
       notifyListeners();
     } catch (e) {
       _formularios = ErrorState(e.toString());
       notifyListeners();
+      rethrow;
+    }
+  }
+
+  Future<void> carregarFormulariosPreenchidos(String eventoId) async {
+    try {
+      _formulariosPreenchidos = const LoadingState();
+      notifyListeners();
+
+      final result = await _repository.listarFormulariosPreenchidos(eventoId);
+      _formulariosPreenchidos = SuccessState(result);
+      notifyListeners();
+    } catch (e) {
+      _formulariosPreenchidos = ErrorState(e.toString());
+      notifyListeners();
+      rethrow;
     }
   }
 
@@ -73,10 +90,15 @@ class FormViewModel extends ChangeNotifier {
     } catch (e) {
       _formularioAtual = ErrorState(e.toString());
       notifyListeners();
+      rethrow;
     }
   }
 
-  Future<void> criarFormulario(String titulo, List<Campo> campos) async {
+  Future<void> criarFormulario({
+    required String titulo,
+    required String eventoId,
+    String? descricao,
+  }) async {
     try {
       if (!_isAdmin) {
         throw Exception('Apenas administradores podem criar formulários');
@@ -85,21 +107,27 @@ class FormViewModel extends ChangeNotifier {
       _formularioAtual = const LoadingState();
       notifyListeners();
 
-      final result = await _repository.criarFormulario(titulo, campos);
+      final result = await _repository.criarFormulario(
+        titulo: titulo,
+        eventoId: eventoId,
+        descricao: descricao,
+      );
+
       _formularioAtual = SuccessState(result);
-      await carregarFormularios();
+      await carregarFormulariosPorEvento(eventoId);
       notifyListeners();
     } catch (e) {
       _formularioAtual = ErrorState(e.toString());
       notifyListeners();
+      rethrow;
     }
   }
 
-  Future<void> atualizarFormulario(
-    String formId,
-    String titulo,
-    List<Campo> campos,
-  ) async {
+  Future<void> atualizarFormulario({
+    required String formId,
+    required String titulo,
+    String? descricao,
+  }) async {
     try {
       if (!_isAdmin) {
         throw Exception('Apenas administradores podem atualizar formulários');
@@ -109,16 +137,26 @@ class FormViewModel extends ChangeNotifier {
       notifyListeners();
 
       final result = await _repository.atualizarFormulario(
-        formId,
-        titulo,
-        campos,
+        formId: formId,
+        titulo: titulo,
+        descricao: descricao,
       );
+
       _formularioAtual = SuccessState(result);
-      await carregarFormularios();
+
+      if (_formularios is SuccessState<List<Formulario>>) {
+        final currentList =
+            (_formularios as SuccessState<List<Formulario>>).data;
+        if (currentList.isNotEmpty) {
+          await carregarFormulariosPorEvento(currentList.first.eventoId ?? '');
+        }
+      }
+
       notifyListeners();
     } catch (e) {
       _formularioAtual = ErrorState(e.toString());
       notifyListeners();
+      rethrow;
     }
   }
 
@@ -128,8 +166,22 @@ class FormViewModel extends ChangeNotifier {
         throw Exception('Apenas administradores podem remover formulários');
       }
 
+      String? eventoId;
+      if (_formularios is SuccessState<List<Formulario>>) {
+        final formulario = (_formularios as SuccessState<List<Formulario>>).data
+            .firstWhere(
+              (f) => f.id == id,
+              orElse:
+                  () => Formulario(id: '', titulo: '', adminId: '', campos: []),
+            );
+        eventoId = formulario.eventoId;
+      }
+
       await _repository.removerFormulario(id);
-      await carregarFormularios();
+
+      if (eventoId != null) {
+        await carregarFormulariosPorEvento(eventoId);
+      }
     } catch (e) {
       rethrow;
     }
@@ -137,6 +189,11 @@ class FormViewModel extends ChangeNotifier {
 
   void limparFormularioAtual() {
     _formularioAtual = const InitialState();
+    notifyListeners();
+  }
+
+  void limparFormulariosPreenchidos() {
+    _formulariosPreenchidos = const InitialState();
     notifyListeners();
   }
 }

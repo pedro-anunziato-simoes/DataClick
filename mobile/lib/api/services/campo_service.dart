@@ -31,32 +31,6 @@ class CampoService {
     }
   }
 
-  Future<List<Campo>> getCamposObrigatorios(String formId) async {
-    try {
-      final response = await _apiClient.get(
-        '/campos/findObrigatorios/$formId',
-        includeAuth: true,
-      );
-
-      if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        return data.map((json) => Campo.fromJson(json)).toList();
-      } else {
-        throw ApiException(
-          _getErrorMessage(response, 'buscar campos obrigatórios'),
-          response.statusCode,
-        );
-      }
-    } on ApiException {
-      rethrow;
-    } catch (e) {
-      throw ApiException(
-        'Erro ao buscar campos obrigatórios: ${e.toString()}',
-        0,
-      );
-    }
-  }
-
   Future<Campo> getCampoById(String campoId) async {
     try {
       final response = await _apiClient.get(
@@ -79,64 +53,15 @@ class CampoService {
     }
   }
 
-  Future<Campo> criarCampo({
-    required String formId,
-    required String titulo,
-    required String tipo,
-    bool isObrigatorio = false,
-    String? descricao,
-    List<String>? opcoes,
-  }) async {
-    try {
-      final campoData = {
-        'titulo': titulo,
-        'tipo': tipo,
-        'isObrigatorio': isObrigatorio,
-        if (descricao != null) 'descricao': descricao,
-        if (opcoes != null && opcoes.isNotEmpty) 'opcoes': opcoes,
-      };
-
-      final response = await _apiClient.post(
-        '/campos/add/$formId',
-        body: json.encode(campoData),
-        includeAuth: true,
-      );
-
-      if (response.statusCode == 201) {
-        return Campo.fromJson(json.decode(response.body));
-      } else {
-        throw ApiException(
-          _getErrorMessage(response, 'criar campo'),
-          response.statusCode,
-        );
-      }
-    } on ApiException {
-      rethrow;
-    } catch (e) {
-      throw ApiException('Erro ao criar campo: ${e.toString()}', 0);
-    }
-  }
-
-  Future<Campo> atualizarCampo({
+  Future<Campo> alterarCampo({
     required String campoId,
-    required String titulo,
     required String tipo,
-    bool? isObrigatorio,
-    String? descricao,
-    List<String>? opcoes,
+    required String titulo,
   }) async {
     try {
-      final campoData = {
-        'titulo': titulo,
-        'tipo': tipo,
-        if (isObrigatorio != null) 'isObrigatorio': isObrigatorio,
-        if (descricao != null) 'descricao': descricao,
-        if (opcoes != null) 'opcoes': opcoes,
-      };
-
-      final response = await _apiClient.put(
-        '/campos/update/$campoId',
-        body: json.encode(campoData),
+      final response = await _apiClient.post(
+        '/campos/alterar/$campoId',
+        body: json.encode({'campoTipoDto': tipo, 'campoTituloDto': titulo}),
         includeAuth: true,
       );
 
@@ -144,25 +69,25 @@ class CampoService {
         return Campo.fromJson(json.decode(response.body));
       } else {
         throw ApiException(
-          _getErrorMessage(response, 'atualizar campo'),
+          _getErrorMessage(response, 'alterar campo'),
           response.statusCode,
         );
       }
     } on ApiException {
       rethrow;
     } catch (e) {
-      throw ApiException('Erro ao atualizar campo: ${e.toString()}', 0);
+      throw ApiException('Erro ao alterar campo: ${e.toString()}', 0);
     }
   }
 
-  Future<void> removerCampo(String campoId) async {
+  Future<void> deletarCampo(String campoId) async {
     try {
       final response = await _apiClient.delete(
-        '/campos/remove/$campoId',
+        '/campos/remover/$campoId',
         includeAuth: true,
       );
 
-      if (response.statusCode != 200 && response.statusCode != 204) {
+      if (response.statusCode != 200) {
         throw ApiException(
           _getErrorMessage(response, 'remover campo'),
           response.statusCode,
@@ -172,6 +97,33 @@ class CampoService {
       rethrow;
     } catch (e) {
       throw ApiException('Erro ao remover campo: ${e.toString()}', 0);
+    }
+  }
+
+  Future<Campo> adicionarCampo(
+    String formId,
+    String titulo,
+    String tipo,
+  ) async {
+    try {
+      final response = await _apiClient.post(
+        '/campos/add/$formId',
+        body: json.encode({'campoTituloDto': titulo, 'campoTipoDto': tipo}),
+        includeAuth: true,
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return Campo.fromJson(json.decode(response.body));
+      } else {
+        throw ApiException(
+          _getErrorMessage(response, 'adicionar campo'),
+          response.statusCode,
+        );
+      }
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException('Erro ao adicionar campo: ${e.toString()}', 0);
     }
   }
 

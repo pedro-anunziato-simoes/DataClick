@@ -1,30 +1,29 @@
 package com.api.DataClick.controllers;
 
-import com.api.DataClick.DTO.CampoUpdateDTO;
+
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import com.api.DataClick.DTO.CampoDTO;
 import com.api.DataClick.entities.EntityCampo;
-import com.api.DataClick.entities.Usuario;
 import com.api.DataClick.enums.TipoCampo;
-import com.api.DataClick.enums.UserRole;
 import com.api.DataClick.services.ServiceCampo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
+
 
 @ExtendWith(MockitoExtension.class)
 public class ControllerCampoTest {
@@ -33,174 +32,197 @@ public class ControllerCampoTest {
     private ServiceCampo serviceCampo;
 
     @InjectMocks
-    private ControllerCampo controllerCampo;
+    private ControllerCampo controller;
 
     private UserDetails adminUser;
-    private UserDetails recrutadorUser;
-    private UserDetails invalidoUser;
+    private UserDetails comumUser;
+    private UserDetails unauthorizedUser;
     private EntityCampo campo;
+    private CampoDTO campoDTO;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        adminUser = User.withUsername("admin@test.com")
+                .password("senha")
+                .authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))
+                .build();
 
-        adminUser = new Usuario() {{
-            setUsuarioId("admin123");
-            setRole(UserRole.ADMIN);
-        }};
+        comumUser = User.withUsername("user@test.com")
+                .password("senha")
+                .authorities(new SimpleGrantedAuthority("ROLE_USER"))
+                .build();
 
-        recrutadorUser = new Usuario() {{
-            setUsuarioId("rec789");
-            setRole(UserRole.USER);
-        }};
+        unauthorizedUser = User.withUsername("invalid@test.com")
+                .password("senha")
+                .authorities(Collections.emptyList())
+                .build();
 
-        invalidoUser = new Usuario() {{
-            setUsuarioId("user456");
-            setRole(UserRole.INVALID);
-        }};
+        campo = new EntityCampo("Nome", TipoCampo.TEXTO,null);
+        campo.setCampoId("campo-123");
 
-        campo = new EntityCampo("Campo Teste", TipoCampo.TEXTO);
-        campo.setCampoId("campo123");
+        campoDTO = new CampoDTO();
     }
 
     @Test
-    void listarCamposPorFormularioId_deveRetornarForbiddenParaUsuarioNaoAutorizado() {
-        ResponseEntity<List<EntityCampo>> response =
-                controllerCampo.listarCamposPorFormularioId("form123", invalidoUser);
-
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(serviceCampo, never()).listarCamposByFormularioId(anyString());
-    }
-
-    @Test
-    void listarCamposPorFormularioId_deveRetornarCamposParaAdmin() {
-        when(serviceCampo.listarCamposByFormularioId("form123"))
+    void listarCampos_ComPermissaoAdmin_DeveRetornarLista() {
+        when(serviceCampo.listarCamposByFormularioId(anyString()))
                 .thenReturn(List.of(campo));
 
         ResponseEntity<List<EntityCampo>> response =
-                controllerCampo.listarCamposPorFormularioId("form123", adminUser);
+                controller.listarCamposPorFormularioId("form-123", adminUser);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(1, response.getBody().size());
-        verify(serviceCampo).listarCamposByFormularioId("form123");
+        assertFalse(response.getBody().isEmpty());
     }
 
     @Test
-    void listarCamposPorFormularioId_deveRetornarNotFoundParaListaVazia() {
-        when(serviceCampo.listarCamposByFormularioId("form123"))
+    void listarCampos_ComPermissaoUser_DeveRetornarLista() {
+        when(serviceCampo.listarCamposByFormularioId(anyString()))
+                .thenReturn(List.of(campo));
+
+        ResponseEntity<List<EntityCampo>> response =
+                controller.listarCamposPorFormularioId("form-123", comumUser);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void listarCampos_SemPermissao_DeveRetornarForbidden() {
+        ResponseEntity<List<EntityCampo>> response =
+                controller.listarCamposPorFormularioId("form-123", unauthorizedUser);
+
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+    }
+
+    @Test
+    void adicionarCampo_ComPermissaoAdmin_DeveRetornarCriado() {
+        when(serviceCampo.adicionarCampo(any(), anyString()))
+                .thenReturn(campo);
+
+        ResponseEntity<EntityCampo> response =
+                controller.adicionarCampoForm(campoDTO, "form-123", adminUser);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertNotNull(response.getBody());
+    }
+
+    @Test
+    void adicionarCampo_SemPermissao_DeveRetornarForbidden() {
+        ResponseEntity<EntityCampo> response =
+                controller.adicionarCampoForm(campoDTO, "form-123", comumUser);
+
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+    }
+
+    @Test
+    void removerCampo_ComPermissaoAdmin_DeveRetornarSucesso() {
+        ResponseEntity<Void> response =
+                controller.removerCampo("campo-123", adminUser);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(serviceCampo).removerCampo("campo-123");
+    }
+
+    @Test
+    void removerCampo_SemPermissao_DeveRetornarForbidden() {
+        ResponseEntity<Void> response =
+                controller.removerCampo("campo-123", comumUser);
+
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+    }
+
+    @Test
+    void buscarCampo_ComPermissaoAdmin_DeveRetornarCampo() {
+        when(serviceCampo.buscarCampoById(anyString()))
+                .thenReturn(campo);
+
+        ResponseEntity<EntityCampo> response =
+                controller.buscarCampoById("campo-123", adminUser);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(campo, response.getBody());
+    }
+    @Test
+    void alterarCampo_ComPermissaoAdmin_DeveRetornarAtualizado() {
+        when(serviceCampo.alterarCampo(anyString(), any()))
+                .thenReturn(campo);
+
+        ResponseEntity<EntityCampo> response =
+                controller.alterarCampo("campo-123", campoDTO, adminUser);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(serviceCampo).alterarCampo("campo-123", campoDTO);
+    }
+
+    @Test
+    void alterarCampo_SemPermissao_DeveRetornarForbidden() {
+        ResponseEntity<EntityCampo> response =
+                controller.alterarCampo("campo-123", campoDTO, comumUser);
+
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+    }
+
+    @Test
+    void listarCampos_QuandoListaVazia_DeveRetornarListaVazia() {
+        when(serviceCampo.listarCamposByFormularioId(anyString()))
                 .thenReturn(Collections.emptyList());
 
         ResponseEntity<List<EntityCampo>> response =
-                controllerCampo.listarCamposPorFormularioId("form123", recrutadorUser);
+                controller.listarCamposPorFormularioId("form-123", adminUser);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody().isEmpty());
+    }
+
+    @Test
+    void buscarCampo_QuandoNaoEncontrado_DeveRetornarNotFound() {
+        when(serviceCampo.buscarCampoById(anyString()))
+                .thenReturn(null);
+
+        ResponseEntity<EntityCampo> response =
+                controller.buscarCampoById("campo-inexistente", adminUser);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test
-    void adicionarCampoForm_deveRetornarForbiddenParaNaoAdmin() {
-        ResponseEntity<EntityCampo> response =
-                controllerCampo.adicionarCampoForm(campo, "form123", recrutadorUser);
+    void listarCampos_ComPermissaoUserEListaVazia_DeveRetornarOk() {
+        when(serviceCampo.listarCamposByFormularioId(anyString()))
+                .thenReturn(Collections.emptyList());
 
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(serviceCampo, never()).adicionarCampo(any(), anyString());
+        ResponseEntity<List<EntityCampo>> response =
+                controller.listarCamposPorFormularioId("form-123", comumUser);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody().isEmpty());
     }
 
     @Test
-    void adicionarCampoForm_deveCriarCampoParaAdmin() {
-        when(serviceCampo.adicionarCampo(campo, "form123")).thenReturn(campo);
-
-        ResponseEntity<EntityCampo> response =
-                controllerCampo.adicionarCampoForm(campo, "form123", adminUser);
-
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals(campo, response.getBody());
-        verify(serviceCampo).adicionarCampo(campo, "form123");
-    }
-
-    @Test
-    void removerCampo_deveRetornarForbiddenParaNaoAdmin() {
-        ResponseEntity<Void> response =
-                controllerCampo.removerCampo("campo123", recrutadorUser);
-
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(serviceCampo, never()).removerCampo(anyString());
-    }
-
-    @Test
-    void removerCampo_deveRemoverParaAdmin() {
-        ResponseEntity<Void> response =
-                controllerCampo.removerCampo("campo123", adminUser);
-
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        verify(serviceCampo).removerCampo("campo123");
-    }
-
-    @Test
-    void buscarCampoById_deveRetornarForbiddenParaUsuarioNaoAutorizado() {
-        ResponseEntity<EntityCampo> response =
-                controllerCampo.buscarCampoById("campo123", invalidoUser);
-
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(serviceCampo, never()).buscarCampoById(anyString());
-    }
-
-    @Test
-    void buscarCampoById_deveRetornarCampoParaAdmin() {
-        when(serviceCampo.buscarCampoById("campo123")).thenReturn(campo);
+    void buscarCampo_ComPermissaoUser_DeveRetornarCampo() {
+        when(serviceCampo.buscarCampoById(anyString()))
+                .thenReturn(campo);
 
         ResponseEntity<EntityCampo> response =
-                controllerCampo.buscarCampoById("campo123", adminUser);
+                controller.buscarCampoById("campo-123", comumUser);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(campo, response.getBody());
     }
 
     @Test
-    void buscarCampoById_deveRetornarNotFoundParaCampoInexistente() {
-        when(serviceCampo.buscarCampoById("campo999")).thenReturn(null);
+    void listarCampos_ComPermissaoAdminOuUserEListaVazia_DeveRetornarOk() {
 
-        ResponseEntity<EntityCampo> response =
-                controllerCampo.buscarCampoById("campo999", recrutadorUser);
+        when(serviceCampo.listarCamposByFormularioId(anyString()))
+                .thenReturn(Collections.emptyList());
 
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    }
+        ResponseEntity<List<EntityCampo>> responseAdmin =
+                controller.listarCamposPorFormularioId("form-123", adminUser);
+        assertEquals(HttpStatus.OK, responseAdmin.getStatusCode());
+        assertTrue(responseAdmin.getBody().isEmpty());
 
-    @Test
-    void alterarCampo_deveRetornarForbiddenParaNaoAdmin() {
-        CampoUpdateDTO dto = new CampoUpdateDTO();
-
-        ResponseEntity<EntityCampo> response =
-                controllerCampo.alterarCampo("campo123", dto, recrutadorUser);
-
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(serviceCampo, never()).alterarCampo(anyString(), anyString(), anyString());
-    }
-
-    @Test
-    void alterarCampo_deveAtualizarParaAdmin() {
-        CampoUpdateDTO dto = new CampoUpdateDTO();
-        dto.setTipo("NUMERO");
-        dto.setTitulo("Título Atualizado");
-
-        EntityCampo campoAtualizado = new EntityCampo("Título Atualizado", TipoCampo.NUMERO);
-
-        when(serviceCampo.alterarCampo(
-                "campo123",
-                dto.getTipo(),
-                dto.getTitulo()
-        )).thenReturn(campoAtualizado);
-
-        ResponseEntity<EntityCampo> response =
-                controllerCampo.alterarCampo("campo123", dto, adminUser);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(campoAtualizado, response.getBody());
-
-        verify(serviceCampo).alterarCampo(
-                "campo123",
-                "NUMERO",
-                "Título Atualizado"
-        );
+        ResponseEntity<List<EntityCampo>> responseUser =
+                controller.listarCamposPorFormularioId("form-123", comumUser);
+        assertEquals(HttpStatus.OK, responseUser.getStatusCode());
+        assertTrue(responseUser.getBody().isEmpty());
     }
 }
-

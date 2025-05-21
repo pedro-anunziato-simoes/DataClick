@@ -9,5 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface RepositoryFormualriosPreenchidos extends MongoRepository<EntityFormulariosPreenchidos,String> {
-    Optional<List<EntityFormulariosPreenchidos>> findByrecrutadorId(String recrutadorId);
+    Optional<List<EntityFormulariosPreenchidos>> findByformularioPreenchidoEventoId(String eventoId);
+
 }

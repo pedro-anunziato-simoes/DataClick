@@ -1,12 +1,15 @@
 package com.api.DataClick.controllers;
 
-import com.api.DataClick.DTO.RecrutadorUpdateDTO;
+import com.api.DataClick.DTO.RecrutadorDTO;
 import com.api.DataClick.DTO.RegisterRecrutadorDTO;
 import com.api.DataClick.entities.EntityAdministrador;
+import com.api.DataClick.entities.EntityEvento;
 import com.api.DataClick.entities.EntityRecrutador;
 import com.api.DataClick.entities.Usuario;
 import com.api.DataClick.enums.UserRole;
+import com.api.DataClick.repositories.RepositoryAdministrador;
 import com.api.DataClick.services.ServiceAdministrador;
+import com.api.DataClick.services.ServiceEvento;
 import com.api.DataClick.services.ServiceRecrutador;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -35,9 +38,9 @@ public class ControllerRecrutador {
     @Autowired
     private ServiceRecrutador serviceRecrutador;
     @Autowired
-    private ServiceAdministrador serviceAdministrador;
-    @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    ServiceEvento serviceEvento;
 
     //Adm
     @DeleteMapping("/remover/{recrutadorId}")
@@ -47,7 +50,6 @@ public class ControllerRecrutador {
 
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            System.out.println("Acesso negado: usuário não é ADMIN");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         serviceRecrutador.removerRecrutador(recrutadorId);
@@ -61,13 +63,12 @@ public class ControllerRecrutador {
 
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            System.out.println("Acesso negado: usuário não é ADMIN");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         Usuario usuarioLogado  = (Usuario) userDetails;
         List<EntityRecrutador> recrutadores = serviceRecrutador.listarRecrutadores(usuarioLogado.getUsuarioId());
         if (recrutadores.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.ok(new ArrayList<>());
         }
 
         return ResponseEntity.ok(recrutadores);
@@ -80,7 +81,6 @@ public class ControllerRecrutador {
     public ResponseEntity<EntityRecrutador> buscarRecrut(@PathVariable String recrutadorId, @AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            System.out.println("Acesso negado: usuário não é ADMIN");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         EntityRecrutador recrutador = serviceRecrutador.buscarRecrut(recrutadorId);
@@ -99,22 +99,21 @@ public class ControllerRecrutador {
             @AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            System.out.println("Acesso negado: usuário não é ADMIN");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-
         Usuario admin = (Usuario) userDetails;
-
+        String adminid = admin.getUsuarioId();
+        List<EntityEvento> eventos = serviceEvento.listarEventosPorAdmin(adminid);
         String encryptedPassword = passwordEncoder.encode(recrutadorDTO.senha());
-
         EntityRecrutador recrutador = new EntityRecrutador(
                 recrutadorDTO.nome(),
                 encryptedPassword,
                 recrutadorDTO.telefone(),
                 recrutadorDTO.email(),
                 admin.getUsuarioId(),
-                new ArrayList<>(),
-                UserRole.USER
+                UserRole.USER,
+                eventos
+
         );
 
         EntityRecrutador novoRecrutador = serviceRecrutador.criarRecrutador(recrutador);
@@ -124,10 +123,9 @@ public class ControllerRecrutador {
     @PostMapping("/alterar/{recrutadorId}")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Alterar um recrutador", description = "Altera um recrutador por meio do id")
-    ResponseEntity<EntityRecrutador> alterarRecrutador(@PathVariable String recrutadorId,@RequestBody RecrutadorUpdateDTO dto, @AuthenticationPrincipal UserDetails userDetails){
+    ResponseEntity<EntityRecrutador> alterarRecrutador(@PathVariable String recrutadorId, @RequestBody RecrutadorDTO dto, @AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            System.out.println("Acesso negado: usuário não é ADMIN");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         EntityRecrutador recrutadorAtualizado = serviceRecrutador.alterarRecrutador(recrutadorId, dto);
@@ -150,7 +148,7 @@ public class ControllerRecrutador {
    
     @PostMapping("/alterar/email")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Altera o e-amil do recrutador", description = "altera o e-mail do rec")
+    @Operation(summary = "Altera o e-email do recrutador", description = "altera o e-mail do rec")
     public ResponseEntity<Void> alterarEmail(@AuthenticationPrincipal UserDetails userDetails,@RequestBody String email){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
@@ -171,7 +169,6 @@ public class ControllerRecrutador {
 
             if (userDetails.getAuthorities().stream()
                     .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-                System.out.println("Acesso negado: usuário não é ADMIN");
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
 

@@ -1,6 +1,6 @@
 import axios from "axios";
 import { EntityRecrutador } from "../types/entityes/EntityRecrutador";
-import { RecrutadorCreateDTO } from "../types/entityes/DTO/RecrutadorCreateDTO";
+import { RecrutadorCreateDTO } from "../types/entityes/DTO/RecrutadorDTO";
 import { RecrutadorUpdateDTO } from "../types/entityes/DTO/RecrutadorUpdateDTO";
 
 const API_URL = import.meta.env.VITE_API_URL;
