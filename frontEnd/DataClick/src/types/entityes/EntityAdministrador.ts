@@ -1,3 +1,4 @@
+import { EntityEvento } from "./EntityEvento";
 import { EntityFormulario } from "./EntityFormulario";
 import { EntityRecrutador } from "./EntityRecrutador";
 
@@ -8,6 +9,6 @@ export interface EntityAdministrador {
     senha: string,
     telefone: string,
     email: string,
-    formularios:EntityFormulario[]
-    recrutadores:EntityRecrutador[]
+    adminEventos:EntityEvento[]
+    adminRecrutadores:EntityRecrutador[]
 }
