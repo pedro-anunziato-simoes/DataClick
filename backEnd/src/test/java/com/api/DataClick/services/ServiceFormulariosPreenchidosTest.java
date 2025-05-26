@@ -2,6 +2,7 @@ package com.api.DataClick.services;
 
 
 
+import com.api.DataClick.entities.EntityFormulario;
 import com.api.DataClick.entities.EntityFormulariosPreenchidos;
 import com.api.DataClick.entities.EntityRecrutador;
 import com.api.DataClick.enums.UserRole;
@@ -39,104 +40,65 @@ public class ServiceFormulariosPreenchidosTest {
     private EntityRecrutador recrutador;
     private EntityFormulariosPreenchidos formularioPreenchido;
 
-//    @BeforeEach
-//    void setUp() {
-//        MockitoAnnotations.openMocks(this);
-//
-//        recrutador = new EntityRecrutador(
-//                "Recrutador Teste",
-//                "password",
-//                "123456789",
-//                "recrutador@example.com",
-//                "adminId1",
-//                UserRole.USER,
-//                new ArrayList<>()
-//        );
-//        recrutador.setUsuarioId("recrutadorId1");
-//
-//        formularioPreenchido = new EntityFormulariosPreenchidos(new ArrayList<>() );
-//        formularioPreenchido.setFormulariosPreId("formPreenchidoId1");
-//        formularioPreenchido.setRecrutadorId("recrutadorId1");
-//        formularioPreenchido.setFormularioPreenchidoAdminId("adminId1");
-//
-//    }
-//
-//
-//    @Test
-//    void buscarListaDeFormualriosPorIdRecrutador_shouldReturnListOfForms_whenRecruiterAndFormsExist() {
-//        when(repositoryRecrutador.findById("recrutadorId1")).thenReturn(Optional.of(recrutador));
-//        when(repositoryFormulariosPreenchidos.findByrecrutadorId("recrutadorId1")).thenReturn(Optional.of(List.of(formularioPreenchido)));
-//
-//        List<EntityFormulariosPreenchidos> result = serviceFormulariosPreenchidos.buscarListaDeFormualriosPorIdRecrutador("recrutadorId1");
-//
-//        assertNotNull(result);
-//        assertFalse(result.isEmpty());
-//        assertEquals(1, result.size());
-//        assertEquals(formularioPreenchido, result.get(0));
-//        verify(repositoryRecrutador, times(1)).findById("recrutadorId1");
-//        verify(repositoryFormulariosPreenchidos, times(1)).findByrecrutadorId("recrutadorId1");
-//    }
-//
-//    @Test
-//    void buscarListaDeFormualriosPorIdRecrutador_shouldThrowException_whenRecruiterNotFound() {
-//        when(repositoryRecrutador.findById("nonExistentRecId")).thenReturn(Optional.empty());
-//
-//        assertThrows(ExeptionNaoEncontrado.class, () -> {
-//            serviceFormulariosPreenchidos.buscarListaDeFormualriosPorIdRecrutador("nonExistentRecId");
-//        });
-//
-//        verify(repositoryRecrutador, times(1)).findById("nonExistentRecId");
-//        verify(repositoryFormulariosPreenchidos, never()).findByrecrutadorId(anyString());
-//    }
-//
-//    @Test
-//    void buscarListaDeFormualriosPorIdRecrutador_shouldThrowException_whenFormsNotFoundForRecruiter() {
-//        when(repositoryRecrutador.findById("recrutadorId1")).thenReturn(Optional.of(recrutador));
-//        when(repositoryFormulariosPreenchidos.findByrecrutadorId("recrutadorId1")).thenReturn(Optional.empty());
-//
-//        assertThrows(ExeptionNaoEncontrado.class, () -> {
-//            serviceFormulariosPreenchidos.buscarListaDeFormualriosPorIdRecrutador("recrutadorId1");
-//        });
-//
-//        verify(repositoryRecrutador, times(1)).findById("recrutadorId1");
-//        verify(repositoryFormulariosPreenchidos, times(1)).findByrecrutadorId("recrutadorId1");
-//    }
-//
-//    @Test
-//    void adicionarFormulariosPreenchidos_DeveSalvarComDadosCorretos_QuandoRecrutadorExiste() {
-//        String recrutadorId = "recrutadorId1";
-//        EntityFormulariosPreenchidos novoForm = new EntityFormulariosPreenchidos(new ArrayList<>());
-//
-//        when(repositoryRecrutador.findById(recrutadorId)).thenReturn(Optional.of(recrutador));
-//        when(repositoryFormulariosPreenchidos.save(any(EntityFormulariosPreenchidos.class))).thenAnswer(invocation -> {
-//            EntityFormulariosPreenchidos form = invocation.getArgument(0);
-//            form.setFormulariosPreId("novoFormId");
-//            return form;
-//        });
-//
-//        EntityFormulariosPreenchidos resultado = serviceFormulariosPreenchidos.adicionarFormulariosPreenchidos(novoForm, recrutadorId);
-//
-//        assertAll(
-//                () -> assertEquals(recrutadorId, resultado.getRecrutadorId()),
-//                () -> assertEquals("adminId1", resultado.getAdminId()),
-//                () -> assertNotNull(resultado.getFormulariosPreId()),
-//                () -> verify(repositoryRecrutador, times(1)).findById(recrutadorId),
-//                () -> verify(repositoryFormulariosPreenchidos, times(1)).save(novoForm)
-//        );
-//    }
-//
-//    @Test
-//    void adicionarFormulariosPreenchidos_DeveLancarExcecao_QuandoRecrutadorNaoExiste() {
-//        String recrutadorIdInexistente = "recrutadorInexistente";
-//        EntityFormulariosPreenchidos novoForm = new EntityFormulariosPreenchidos(new ArrayList<>());
-//
-//        when(repositoryRecrutador.findById(recrutadorIdInexistente)).thenReturn(Optional.empty());
-//
-//        assertThrows(ExeptionNaoEncontrado.class, () -> {
-//            serviceFormulariosPreenchidos.adicionarFormulariosPreenchidos(novoForm, recrutadorIdInexistente);
-//        });
-//
-//        verify(repositoryRecrutador, times(1)).findById(recrutadorIdInexistente);
-//        verify(repositoryFormulariosPreenchidos, never()).save(any());
-//    }
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+
+        List<EntityFormulario> listaFormularios = new ArrayList<>();
+        EntityFormulario form = new EntityFormulario("FormTest", "adminId1", "Formulario Pai", null);
+        form.setFormularioEventoId("evento123");
+        listaFormularios.add(form);
+
+        formularioPreenchido = new EntityFormulariosPreenchidos("evento123", listaFormularios);
+        formularioPreenchido.setFormulariosPreId("formPreenchidoId1");
+    }
+
+    @Test
+    void buscarFormulariosPreenchidosPorEvento_DeveRetornarLista_QuandoEventoExiste() {
+        when(repositoryFormulariosPreenchidos.findByformularioPreenchidoEventoId("evento123"))
+                .thenReturn(Optional.of(List.of(formularioPreenchido)));
+
+        List<EntityFormulariosPreenchidos> resultado = serviceFormulariosPreenchidos.buscarFormualriosPreechidosPorEvento("evento123");
+
+        assertNotNull(resultado);
+        assertEquals(1, resultado.size());
+        assertEquals("evento123", resultado.get(0).getFormularioPreenchidoEventoId());
+        verify(repositoryFormulariosPreenchidos, times(1)).findByformularioPreenchidoEventoId("evento123");
+    }
+
+    @Test
+    void buscarFormulariosPreenchidosPorEvento_DeveLancarExcecao_QuandoEventoNaoExiste() {
+        when(repositoryFormulariosPreenchidos.findByformularioPreenchidoEventoId("eventoInexistente"))
+                .thenReturn(Optional.empty());
+
+        assertThrows(ExeptionNaoEncontrado.class, () -> {
+            serviceFormulariosPreenchidos.buscarFormualriosPreechidosPorEvento("eventoInexistente");
+        });
+
+        verify(repositoryFormulariosPreenchidos, times(1)).findByformularioPreenchidoEventoId("eventoInexistente");
+    }
+
+    @Test
+    void adicionarFomulariosPreenchidos_DeveSalvarComEventoExtraidoCorretamente() {
+        List<EntityFormulario> lista = new ArrayList<>();
+        EntityFormulario form = new EntityFormulario("FormTest", "adminId1", "Formulario Pai", null);
+        form.setFormularioEventoId("evento456");
+        lista.add(form);
+
+        EntityFormulariosPreenchidos expectedSaved = new EntityFormulariosPreenchidos("evento456", lista);
+
+        when(repositoryFormulariosPreenchidos.save(any(EntityFormulariosPreenchidos.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        var dto = new com.api.DataClick.DTO.FormularioPreenchidosDTO();
+        dto.setFormulariosPreenchidosDtoListForms(lista);
+
+        EntityFormulariosPreenchidos resultado = serviceFormulariosPreenchidos.adicionarFomulariosPreenchidos(dto);
+
+        assertNotNull(resultado);
+        assertEquals("evento456", resultado.getFormularioPreenchidoEventoId());
+        assertEquals(1, resultado.getFormularioPreenchidoListaFormularios().size());
+        verify(repositoryFormulariosPreenchidos, times(1)).save(any(EntityFormulariosPreenchidos.class));
+    }
 }

@@ -1,7 +1,7 @@
 package com.api.DataClick.Cors;
 
 import com.api.DataClick.filter.SecurityFilter;
-import jakarta.servlet.Filter;
+
 import lombok.Generated;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
