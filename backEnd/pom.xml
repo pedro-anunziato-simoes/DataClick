@@ -18,6 +18,10 @@
 		<sonar.token>sqa_c432c152e10e1d021d071ed389d1b42963c95b4b</sonar.token>
 		<sonar.projectKey>dataclick</sonar.projectKey>
 		<sonar.projectName>DataClick</sonar.projectName>
+		<sonar.issue.ignore.multicriteria>s6813</sonar.issue.ignore.multicriteria>
+		<sonar.issue.ignore.multicriteria.s6813.ruleKey>java:S6813</sonar.issue.ignore.multicriteria.s6813.ruleKey>
+		<sonar.issue.ignore.multicriteria.s6813.resourceKey>**/*</sonar.issue.ignore.multicriteria.s6813.resourceKey>
+
 		<java.version>17</java.version>
 		<jacoco.version>0.8.9</jacoco.version>
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>

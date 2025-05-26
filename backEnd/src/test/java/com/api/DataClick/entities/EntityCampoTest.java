@@ -13,7 +13,7 @@ public class EntityCampoTest {
 
     @BeforeEach
     void setUp() {
-        campo = new EntityCampo(TITULO, TIPO);
+        campo = new EntityCampo(TITULO, TIPO, null );
     }
 
     @Test
@@ -29,9 +29,9 @@ public class EntityCampoTest {
     @Test
     void getCampoResposta_DeveRetornarRespostaCorreta() {
         Object expectedResposta = "Resposta de teste";
-        campo.setCampoResposta(expectedResposta);
+        campo.setResposta(expectedResposta);
 
-        Object actualResposta = campo.getCampoResposta();
+        Object actualResposta = campo.getResposta();
 
         assertEquals(expectedResposta, actualResposta, "A resposta deve ser igual à configurada");
     }
@@ -41,14 +41,14 @@ public class EntityCampoTest {
         assertAll(
                 () -> {
                     Object resposta1 = "Texto simples";
-                    campo.setCampoResposta(resposta1);
-                    assertEquals(resposta1, campo.getCampoResposta());
+                    campo.setResposta(resposta1);
+                    assertEquals(resposta1, campo.getResposta());
                 },
 
                 () -> {
                     Object resposta2 = 42;
-                    campo.setCampoResposta(resposta2);
-                    assertEquals(resposta2, campo.getCampoResposta());
+                    campo.setResposta(resposta2);
+                    assertEquals(resposta2, campo.getResposta());
                 },
 
                 () -> {
@@ -59,13 +59,13 @@ public class EntityCampoTest {
                             return "Objeto customizado";
                         }
                     };
-                    campo.setCampoResposta(resposta3);
-                    assertEquals(resposta3.toString(), campo.getCampoResposta().toString());
+                    campo.setResposta(resposta3);
+                    assertEquals(resposta3.toString(), campo.getResposta().toString());
                 },
 
                 () -> {
-                    campo.setCampoResposta(null);
-                    assertNull(campo.getCampoResposta());
+                    campo.setResposta(null);
+                    assertNull(campo.getResposta());
                 }
         );
     }
@@ -75,11 +75,11 @@ public class EntityCampoTest {
         Object primeiraResposta = "Primeira resposta";
         Object segundaResposta = 123.45;
 
-        campo.setCampoResposta(primeiraResposta);
-        assertEquals(primeiraResposta, campo.getCampoResposta());
+        campo.setResposta(primeiraResposta);
+        assertEquals(primeiraResposta, campo.getResposta());
 
-        campo.setCampoResposta(segundaResposta);
-        assertEquals(segundaResposta, campo.getCampoResposta());
-        assertNotEquals(primeiraResposta, campo.getCampoResposta());
+        campo.setResposta(segundaResposta);
+        assertEquals(segundaResposta, campo.getResposta());
+        assertNotEquals(primeiraResposta, campo.getResposta());
     }
 }
