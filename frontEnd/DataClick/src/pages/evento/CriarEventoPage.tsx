@@ -1,4 +1,5 @@
 import CriarEvento from "../../components/eventos/CrirarEvento";
+import Footer from "../../components/footer/Footer";
 import Sidebar from "../../components/sideBar/Sidebar";
 import { Box } from "@mui/material";
 
@@ -19,6 +20,7 @@ const CriarEventoPage = () => {
       >
         <h1>Criar Evento</h1>
         <CriarEvento />
+        <Footer />
       </Box>
     </>
   );
