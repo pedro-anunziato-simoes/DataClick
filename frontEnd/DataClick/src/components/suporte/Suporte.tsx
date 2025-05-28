@@ -3,7 +3,7 @@ import { CardContent, Fab, Tooltip } from "@mui/material";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 
 const WHATSAPP_NUMBER = "5511999998888";
-const WHATSAPP_MESSAGE = "Olá, preciso de ajuda com a plataforma.";
+const WHATSAPP_MESSAGE = "Olá, preciso de ajuda com o dataClick";
 
 const Suporte: React.FC = () => {
   const link = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
