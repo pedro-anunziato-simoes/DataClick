@@ -1,3 +1,4 @@
+import Footer from "../../components/footer/Footer";
 import EditarRecrutador from "../../components/Recrutadores/EditarRecrutador";
 import Sidebar from "../../components/sideBar/Sidebar";
 import { Box } from "@mui/material";
@@ -20,6 +21,7 @@ const EditarRecrutadorPage = () => {
         <h1>Editar Recrutador</h1>
         <EditarRecrutador />
       </Box>
+      <Footer />
     </>
   );
 };

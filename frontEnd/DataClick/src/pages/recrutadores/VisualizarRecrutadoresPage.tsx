@@ -1,3 +1,4 @@
+import Footer from "../../components/footer/Footer";
 import Recrutadores from "../../components/Recrutadores/Recrutador";
 import Sidebar from "../../components/sideBar/Sidebar";
 import { Box } from "@mui/material";
@@ -6,6 +7,7 @@ const VisualizarRecrutadoresPage = () => {
   return (
     <>
       <Sidebar />
+     
       <Box
         sx={{
           marginLeft: { xs: "70px", sm: "250px" },
@@ -20,6 +22,7 @@ const VisualizarRecrutadoresPage = () => {
         <h1>Recrutadores</h1>
         <Recrutadores />
       </Box>
+       <Footer />
     </>
   );
 };

@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DeleteIcon from "@mui/icons-material/Delete";
+import Footer from "../footer/Footer";
 
 const Formularios = () => {
   const { idEvento } = useParams<{ idEvento: string }>();
@@ -34,10 +35,10 @@ const Formularios = () => {
     try {
       setLoading(true);
       const data = await formularioService.getFormulariosEvento(idEvento || '');
-      setFormularios(data ?? []); // garante que não será null
+      setFormularios(data ?? []); 
     } catch (error) {
       console.error("Erro ao buscar formulários:", error);
-      setFormularios([]); // fallback seguro
+      setFormularios([]); 
     } finally {
       setLoading(false);
     }
@@ -142,6 +143,7 @@ const Formularios = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      <Footer />
     </Box>
   );
 };

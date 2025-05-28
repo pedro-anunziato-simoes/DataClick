@@ -1,3 +1,4 @@
+import Footer from "../../components/footer/Footer";
 import Sidebar from "../../components/sideBar/Sidebar";
 import Suporte from "../../components/suporte/Suporte";
 import { Box, Typography } from "@mui/material";
@@ -23,7 +24,9 @@ const SuportePage = () => {
           canal principal de suporte
         </Typography>
         <Suporte />
+        
       </Box>
+      <Footer/>
     </>
   );
 };

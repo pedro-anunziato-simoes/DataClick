@@ -1,4 +1,5 @@
 import EventosList from "../../components/eventos/EventoList";
+import Footer from "../../components/footer/Footer";
 import Sidebar from "../../components/sideBar/Sidebar";
 import { Box } from "@mui/material";
 
@@ -20,6 +21,7 @@ const ListaEventosPage = () => {
         <h1>Eventos</h1>
         <EventosList />
       </Box>
+      <Footer />
     </>
   );
 };
