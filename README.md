@@ -15,9 +15,8 @@ DataClick é uma aplicação voltada para a coleta de informações offline por 
 
 ### 👤 Administrador
 - Gerenciar recrutadores (adicionar/remover).
-- Criar, editar e excluir formulários personalizados.
+- Criar, editar e excluir formulários e eventos personalizados.
 - Visualizar quantidade de leads capturados:
-  - Por recrutador
   - Por evento
 
 ### 🧑‍💼 Recrutador
@@ -77,9 +76,9 @@ As respostas são armazenadas em uma estrutura flexível no MongoDB, permitindo 
 
 ## 🧑‍💻 Equipe de Desenvolvimento
 
-- Backend: Java & Spring Boot
-- Frontend: React
-- Mobile: Flutter
+- Backend: Java & Spring Boot (Pedro Henrique, João Paulo)
+- Frontend: React (Caian, Rafael)
+- Mobile: Flutter (João Vitor, Murilo)
 
 ---
 
