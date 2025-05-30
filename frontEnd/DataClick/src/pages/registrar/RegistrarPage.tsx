@@ -1,14 +1,23 @@
 import Footer from "../../components/footer/Footer";
 import Register from "../../components/registrar/Register";
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 
 const RegistrarPage = () => {
-    return (
-        <Box>
-            <Register />
-            <Footer />
-        </Box>
-    );
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "100vh",
+        overflowX: "hidden",
+      }}
+    >
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
+        <Register />
+      </Box>
+      <Footer />
+    </Box>
+  );
 };
 
 export default RegistrarPage;
