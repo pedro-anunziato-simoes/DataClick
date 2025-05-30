@@ -97,6 +97,7 @@ class FormViewModel extends ChangeNotifier {
   Future<void> criarFormulario({
     required String titulo,
     required String eventoId,
+    required List<Campo> campos,
     String? descricao,
   }) async {
     try {
@@ -110,6 +111,7 @@ class FormViewModel extends ChangeNotifier {
       final result = await _repository.criarFormulario(
         titulo: titulo,
         eventoId: eventoId,
+        campos: campos,
         descricao: descricao,
       );
 
@@ -126,6 +128,7 @@ class FormViewModel extends ChangeNotifier {
   Future<void> atualizarFormulario({
     required String formId,
     required String titulo,
+    required List<Campo> campos,
     String? descricao,
   }) async {
     try {
@@ -139,6 +142,7 @@ class FormViewModel extends ChangeNotifier {
       final result = await _repository.atualizarFormulario(
         formId: formId,
         titulo: titulo,
+        campos: campos,
         descricao: descricao,
       );
 

@@ -143,27 +143,24 @@ class _FormularioScreenState extends State<FormularioScreen> {
             titulo: _campoTituloController.text,
           );
         } else {
-          final campoData = {
-            'titulo': _campoTituloController.text,
-            'tipo': _tipoCampoSelecionado,
-            'resposta': {},
-          };
+          await widget.campoService.adicionarCampo(
+            widget.formIdForAddCampo!,
+            _campoTituloController.text,
+            _tipoCampoSelecionado,
+          );
         }
       } else {
-        final formData = {
-          'titulo': _tituloController.text,
-          'campos': _campos.map((campo) => campo.toJson()).toList(),
-        };
-
         if (widget.formularioExistente != null) {
-          await widget.formularioService.atualizarFormulario(
+          await widget.formularioService.alterarFormulario(
             formId: widget.formularioExistente!.id,
             titulo: _tituloController.text,
+            campos: _campos,
           );
         } else {
           await widget.formularioService.criarFormulario(
             titulo: _tituloController.text,
             eventoId: widget.eventoId!,
+            campos: _campos,
           );
         }
       }
@@ -254,14 +251,27 @@ class _FormularioScreenState extends State<FormularioScreen> {
             labelText: 'Tipo de Campo',
             border: OutlineInputBorder(),
           ),
-          items: const [
-            DropdownMenuItem(value: 'TEXTO', child: Text('Texto')),
-            DropdownMenuItem(value: 'NUMERO', child: Text('Número')),
-            DropdownMenuItem(value: 'DATA', child: Text('Data')),
-            DropdownMenuItem(value: 'CHECKBOX', child: Text('Checkbox')),
-            DropdownMenuItem(value: 'EMAIL', child: Text('Email')),
-          ],
-          onChanged: (value) => setState(() => _tipoCampoSelecionado = value!),
+          items:
+              _tiposCampo.map((tipo) {
+                return DropdownMenuItem(
+                  value: tipo,
+                  child: Row(
+                    children: [
+                      _getTipoIcon(tipo),
+                      const SizedBox(width: 10),
+                      Text(_getTipoDescricao(tipo)),
+                    ],
+                  ),
+                );
+              }).toList(),
+          onChanged: (value) {
+            setState(() {
+              _tipoCampoSelecionado = value!;
+              if (value != 'SELECT' && value != 'CHECKBOX') {
+                _opcoes.clear();
+              }
+            });
+          },
         ),
         const SizedBox(height: 24),
         if (widget.campoToEdit != null)
@@ -417,7 +427,7 @@ class _FormularioScreenState extends State<FormularioScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             spreadRadius: 1,
           ),
@@ -432,7 +442,9 @@ class _FormularioScreenState extends State<FormularioScreen> {
               child: Row(
                 children: [
                   CircleAvatar(
-                    backgroundColor: const Color(0xFF26A69A).withValues(),
+                    backgroundColor: const Color(
+                      0xFF26A69A,
+                    ).withValues(alpha: 0.2),
                     child: const Icon(
                       Icons.add_circle_outline,
                       color: Color(0xFF26A69A),
@@ -519,21 +531,6 @@ class _FormularioScreenState extends State<FormularioScreen> {
                   if (_tipoCampoSelecionado == 'SELECT' ||
                       _tipoCampoSelecionado == 'CHECKBOX')
                     _buildOpcoesCampo(),
-                  const SizedBox(height: 16),
-                  SwitchListTile(
-                    title: const Text('Campo Obrigatório'),
-                    subtitle: const Text(
-                      'Os usuários precisarão preencher este campo',
-                    ),
-                    value: _campoObrigatorio,
-                    activeColor: const Color(0xFF26A69A),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 0),
-                    onChanged:
-                        (value) => setState(() => _campoObrigatorio = value),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
                   const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
@@ -674,7 +671,7 @@ class _FormularioScreenState extends State<FormularioScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             spreadRadius: 1,
           ),
@@ -687,7 +684,7 @@ class _FormularioScreenState extends State<FormularioScreen> {
           Row(
             children: [
               CircleAvatar(
-                backgroundColor: const Color(0xFF26A69A).withValues(),
+                backgroundColor: const Color(0xFF26A69A).withValues(alpha: 0.2),
                 child: const Icon(Icons.list_alt, color: Color(0xFF26A69A)),
               ),
               const SizedBox(width: 16),
@@ -752,7 +749,9 @@ class _FormularioScreenState extends State<FormularioScreen> {
                   return ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: CircleAvatar(
-                      backgroundColor: const Color(0xFF26A69A).withValues(),
+                      backgroundColor: const Color(
+                        0xFF26A69A,
+                      ).withValues(alpha: 0.2),
                       child: _getTipoIcon(campo.tipo),
                     ),
                     title: Text(

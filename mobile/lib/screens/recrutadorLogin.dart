@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/api/repository/viewmodel/auth_viewmodel.dart';
-import 'package:logging/logging.dart';
-import 'recrutadorRegisterScreen.dart';
+import 'package:mobile/screens/recrutadorregisterscreen.dart';
+import 'package:mobile/screens/recrutadordashscreen.dart';
 
-class RecruiterLoginScreen extends StatefulWidget {
-  const RecruiterLoginScreen({super.key});
+class RecrutadorLoginScreen extends StatefulWidget {
+  const RecrutadorLoginScreen({super.key});
 
   @override
-  State<RecruiterLoginScreen> createState() => _RecruiterLoginScreenState();
+  State<RecrutadorLoginScreen> createState() => _RecrutadorLoginScreenState();
 }
 
-class _RecruiterLoginScreenState extends State<RecruiterLoginScreen> {
+class _RecrutadorLoginScreenState extends State<RecrutadorLoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _senhaController = TextEditingController();
   bool _obscurePassword = true;
-  final Logger _logger = Logger('RecruiterLoginScreen');
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -26,29 +26,39 @@ class _RecruiterLoginScreenState extends State<RecruiterLoginScreen> {
   }
 
   Future<void> _loginRecruiter() async {
+    if (_isLoading) return;
+
     FocusManager.instance.primaryFocus?.unfocus();
 
     if (!_formKey.currentState!.validate()) return;
 
+    setState(() => _isLoading = true);
+
     final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
 
     try {
-      _logger.fine('Iniciando login como recrutador');
       final success = await authViewModel.login(
         _emailController.text.trim(),
         _senhaController.text.trim(),
       );
 
       if (success && mounted) {
-        _logger.fine('Login bem-sucedido, navegando para dashboard');
-        Navigator.pushReplacementNamed(context, '/recruiter/dashboard');
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const RecruiterDashboardScreen(),
+          ),
+        );
       } else if (mounted) {
         _showErrorSnackbar(authViewModel.errorMessage ?? 'Erro no login');
       }
     } catch (e) {
-      _logger.severe('Erro no login: $e');
       if (mounted) {
-        _showErrorSnackbar('Erro ao tentar fazer login');
+        _showErrorSnackbar('Erro ao tentar fazer login: ${e.toString()}');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
       }
     }
   }
@@ -64,22 +74,19 @@ class _RecruiterLoginScreenState extends State<RecruiterLoginScreen> {
   }
 
   void _navigateToRecruiterRegister() {
-    _logger.fine('Navegando para tela de registro');
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const RecruiterRegisterScreen()),
+      MaterialPageRoute(builder: (context) => const RecrutadorRegisterScreen()),
     );
   }
 
   void _navigateToUserLogin() {
-    _logger.fine('Retornando para login de administrador');
     Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
     final authViewModel = Provider.of<AuthViewModel>(context);
-    final isLoading = authViewModel.isLoading;
     final errorMessage = authViewModel.errorMessage;
 
     return Scaffold(
@@ -239,7 +246,7 @@ class _RecruiterLoginScreenState extends State<RecruiterLoginScreen> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: isLoading ? null : _loginRecruiter,
+                            onPressed: _isLoading ? null : _loginRecruiter,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF26A69A),
                               minimumSize: const Size(0, 45),
@@ -249,7 +256,7 @@ class _RecruiterLoginScreenState extends State<RecruiterLoginScreen> {
                               padding: const EdgeInsets.symmetric(vertical: 12),
                             ),
                             child:
-                                isLoading
+                                _isLoading
                                     ? const CircularProgressIndicator(
                                       color: Colors.white,
                                     )
@@ -266,7 +273,7 @@ class _RecruiterLoginScreenState extends State<RecruiterLoginScreen> {
                         const SizedBox(height: 16),
                         TextButton(
                           onPressed:
-                              isLoading ? null : _navigateToRecruiterRegister,
+                              _isLoading ? null : _navigateToRecruiterRegister,
                           child: const Text(
                             'Solicitar acesso como recrutador',
                             style: TextStyle(color: Color(0xFF26A69A)),

@@ -134,7 +134,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             icon: Icon(Icons.logout_outlined, color: corPrimariaBrancoGelo),
             onPressed: () async {
               await authViewModel.logout();
-              // Fix: Check if mounted before accessing context after async call
               if (!mounted) return;
               Navigator.of(context).pushNamedAndRemoveUntil(
                 '/login',
