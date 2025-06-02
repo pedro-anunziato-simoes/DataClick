@@ -1,26 +1,64 @@
+import Footer from "../../components/footer/Footer";
 import EditarRecrutador from "../../components/Recrutadores/EditarRecrutador";
 import Sidebar from "../../components/sideBar/Sidebar";
-import { Box } from "@mui/material";
+import { Box, Typography, useMediaQuery } from "@mui/material";
 
 const EditarRecrutadorPage = () => {
+  const isMobile = useMediaQuery("(max-width:600px)");
+
   return (
-    <>
-      <Sidebar />
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        background: "linear-gradient(to bottom, #b2dfdb, #4db6ac)",
+        overflow: "hidden",
+      }}
+    >
       <Box
         sx={{
-          marginLeft: { xs: "70px", sm: "250px" },
-          padding: 4,
-          minHeight: "100vh",
-          backgroundColor: "#c0e9e7",
           display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
+          flex: 1,
+          flexDirection: isMobile ? "column" : "row",
         }}
       >
-        <h1>Editar Recrutador</h1>
-        <EditarRecrutador />
+        <Box
+          sx={{
+            width: isMobile ? "100%" : "250px",
+            background: "inherit",
+          }}
+        >
+          <Sidebar />
+        </Box>
+
+        <Box
+          sx={{
+            flex: 1,
+            padding: 4,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            overflow: "hidden",
+          }}
+        >
+          <Typography
+            variant="h4"
+            sx={{
+              fontFamily: '"Poppins", sans-serif',
+              fontWeight: "bold",
+              marginBottom: 2,
+            }}
+          >
+            Editar Recrutador
+          </Typography>
+          <EditarRecrutador />
+        </Box>
       </Box>
-    </>
+
+      <Footer />
+    </Box>
   );
 };
 

@@ -1,26 +1,53 @@
+import Footer from "../../components/footer/Footer";
 import Recrutadores from "../../components/Recrutadores/Recrutador";
 import Sidebar from "../../components/sideBar/Sidebar";
-import { Box } from "@mui/material";
+import { Box, useMediaQuery } from "@mui/material";
 
 const VisualizarRecrutadoresPage = () => {
+  const isMobile = useMediaQuery("(max-width:600px)");
+
   return (
-    <>
-      <Sidebar />
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        background: "linear-gradient(to bottom, #b2dfdb, #4db6ac)", // igual ao Home
+        overflow: "hidden",
+      }}
+    >
       <Box
         sx={{
-          marginLeft: { xs: "70px", sm: "250px" },
-          padding: 4,
-          minHeight: "100vh",
-          backgroundColor: "#c0e9e7",
           display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
+          flex: 1,
+          flexDirection: isMobile ? "column" : "row",
         }}
       >
-        <h1>Recrutadores</h1>
-        <Recrutadores />
+        <Box
+          sx={{
+            width: isMobile ? "100%" : "250px",
+            background: "inherit",
+          }}
+        >
+          <Sidebar />
+        </Box>
+
+        <Box
+          sx={{
+            flex: 1,
+            padding: 4,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            overflow: "hidden",
+          }}
+        >
+          <Recrutadores />
+        </Box>
       </Box>
-    </>
+
+      <Footer />
+    </Box>
   );
 };
 

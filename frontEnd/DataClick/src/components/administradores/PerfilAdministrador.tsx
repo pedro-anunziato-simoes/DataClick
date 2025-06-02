@@ -31,7 +31,6 @@ const AdministradorPerfil: React.FC = () => {
       try {
         const data = await adminitradorService.getInfosAdminitrador();
         const dataEventos = await eventosService.getEventos();
-        console.log(data)
         setEventos(dataEventos)
         setAdministrador(data);
 

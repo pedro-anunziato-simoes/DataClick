@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DeleteIcon from "@mui/icons-material/Delete";
+import Footer from "../footer/Footer";
 
 const Formularios = () => {
   const { idEvento } = useParams<{ idEvento: string }>();
@@ -34,10 +35,10 @@ const Formularios = () => {
     try {
       setLoading(true);
       const data = await formularioService.getFormulariosEvento(idEvento || '');
-      setFormularios(data ?? []); // garante que não será null
+      setFormularios(data ?? []); 
     } catch (error) {
       console.error("Erro ao buscar formulários:", error);
-      setFormularios([]); // fallback seguro
+      setFormularios([]); 
     } finally {
       setLoading(false);
     }
@@ -91,7 +92,7 @@ const Formularios = () => {
             .map((formulario) => (
               <Paper key={formulario.formId} elevation={3} sx={{ p: 3 }}>
                 <Box display="flex" justifyContent="space-between" alignItems="center">
-                  <Typography variant="h6">{formulario.titulo}</Typography>
+                  <Typography variant="h6">Titulo formulário: {formulario.formularioTitulo}</Typography>
                   <IconButton onClick={() => setConfirmDeleteId(formulario.formId)} color="error">
                     <DeleteIcon />
                   </IconButton>
@@ -142,6 +143,7 @@ const Formularios = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      <Footer />
     </Box>
   );
 };
