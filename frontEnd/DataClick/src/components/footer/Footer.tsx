@@ -21,12 +21,6 @@ const Footer: React.FC = () => {
           © {new Date().getFullYear()} 4Click. Todos os direitos reservados.
         </Typography>
         <Box sx={{ display: "flex", gap: 2, mt: { xs: 2, sm: 0 } }}>
-          {/* <Link href="/privacy" color="inherit" underline="hover">
-            Política de Privacidade
-          </Link>
-          <Link href="/terms" color="inherit" underline="hover">
-            Termos de Uso
-          </Link> */}
           <Link href="https://api.whatsapp.com/send?phone=4444444444&text=Olá, preciso de ajuda com o dataClick." color="inherit" underline="hover" >
             Contato
           </Link>
