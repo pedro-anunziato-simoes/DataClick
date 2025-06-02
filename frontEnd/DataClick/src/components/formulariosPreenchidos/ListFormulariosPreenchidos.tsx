@@ -17,6 +17,8 @@ import {
   Container,
 } from '@mui/material';
 
+// ...importações mantidas
+
 const FormulariosPreenchidos: React.FC = () => {
   const { eventoId } = useParams<{ eventoId: string }>();
   const [formularios, setFormularios] = useState<EntityFormulario[]>([]);
@@ -68,11 +70,19 @@ const FormulariosPreenchidos: React.FC = () => {
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
+      {/* Contador de Leads */}
+      <Box mb={3}>
+        <Typography variant="h5" fontWeight="bold">
+          Total de Leads Recebidos: {formularios.length}
+        </Typography>
+      </Box>
+
+      {/* Lista de formulários preenchidos */}
       {formularios.map((formulario, index) => (
         <Card key={index} sx={{ mb: 3, boxShadow: 3 }}>
           <CardContent>
             <Typography variant="h6" gutterBottom>
-              <h3>Titulo formulario:{formulario.formularioTitulo}</h3>
+              <h3>Titulo formulario: {formulario.formularioTitulo}</h3>
             </Typography>
             <List disablePadding>
               {formulario.campos?.filter(Boolean).map((campo, idx) => (
@@ -80,8 +90,8 @@ const FormulariosPreenchidos: React.FC = () => {
                   <ListItemText
                     primary={
                       <span>
-                        <strong>Titulo campo: {campo.campoTitulo}:</strong> <br />
-                        <strong> Resposta: {String(campo.resposta ?? '')}</strong>
+                        <strong>Titulo campo: {campo.campoTitulo}</strong> <br />
+                        <strong>Resposta: {String(campo.resposta ?? '')}</strong>
                       </span>
                     }
                   />

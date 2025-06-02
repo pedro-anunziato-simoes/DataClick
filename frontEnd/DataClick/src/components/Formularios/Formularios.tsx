@@ -92,7 +92,7 @@ const Formularios = () => {
             .map((formulario) => (
               <Paper key={formulario.formId} elevation={3} sx={{ p: 3 }}>
                 <Box display="flex" justifyContent="space-between" alignItems="center">
-                  <Typography variant="h6">{formulario.titulo}</Typography>
+                  <Typography variant="h6">Titulo formulário: {formulario.formularioTitulo}</Typography>
                   <IconButton onClick={() => setConfirmDeleteId(formulario.formId)} color="error">
                     <DeleteIcon />
                   </IconButton>

@@ -8,19 +8,18 @@ import {
   Stack,
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
-import { EntityFormulario } from "../../types/entityes/EntityFormulario";
 import { FormularioService } from "../../api/FormularioService";
 import { FormularioCreateDTO } from "../../types/entityes/DTO/FormualrioCreateDTO";
 
 const CriarFormulario = () => {
   const { idEvento } = useParams<{ idEvento: string }>();
-  const [titulo, setTitulo] = useState("");
+  const [formularioTituloDto, setTitulo] = useState("");
   const [salvando, setSalvando] = useState(false);
   const navigate = useNavigate();
   const formularioService = FormularioService();
   const handleCriarFormulario = async () => {
     const novoFormulario: FormularioCreateDTO = {
-      titulo,
+      formularioTituloDto,
     };
     try {
       setSalvando(true);
@@ -42,7 +41,7 @@ const CriarFormulario = () => {
         <Stack spacing={2}>
           <TextField
             label="Título do Formulário"
-            value={titulo}
+            value={formularioTituloDto}
             onChange={(e) => setTitulo(e.target.value)}
             fullWidth
           />
@@ -54,7 +53,7 @@ const CriarFormulario = () => {
               variant="contained"
               color="primary"
               onClick={handleCriarFormulario}
-              disabled={salvando || titulo.trim() === ""}
+              disabled={salvando || formularioTituloDto.trim() === ""}
             >
               {salvando ? "Salvando..." : "Criar"}
             </Button>

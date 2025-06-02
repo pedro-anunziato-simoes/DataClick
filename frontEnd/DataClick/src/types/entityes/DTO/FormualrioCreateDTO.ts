@@ -1,3 +1,3 @@
 export interface FormularioCreateDTO {
-    titulo: string
+    formularioTituloDto: string
   }
