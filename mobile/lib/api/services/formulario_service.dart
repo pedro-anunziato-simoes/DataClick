@@ -63,8 +63,12 @@ class FormularioService {
     required List<Campo> campos,
   }) async {
     try {
+      // Verifica se o evento existe antes de criar o formulário
+      await _apiClient.get('/eventos/$eventoId');
+
       final formData = {
         'titulo': titulo,
+        'eventoId': eventoId,
         'campos': campos.map((campo) => campo.toJson()).toList(),
       };
 
@@ -100,7 +104,7 @@ class FormularioService {
         'campos': campos.map((campo) => campo.toJson()).toList(),
       };
 
-      final response = await _apiClient.post(
+      final response = await _apiClient.put(
         '/formularios/alterar/$formId',
         body: json.encode(formData),
         includeAuth: true,
@@ -195,7 +199,7 @@ class FormularioService {
       case 403:
         return 'Acesso negado. Permissões insuficientes para $operation';
       case 404:
-        return 'Formulário não encontrado';
+        return 'Recurso não encontrado (Evento ou Formulário)';
       case 409:
         return 'Conflito ao tentar $operation';
       case 500:
