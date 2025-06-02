@@ -107,8 +107,6 @@ const Recrutadores = () => {
           ))
         )}
       </Stack>
-
-      {/* Diálogo de confirmação de exclusão */}
       <Dialog open={!!confirmDeleteId} onClose={() => setConfirmDeleteId(null)}>
         <DialogTitle>Deseja realmente excluir este recrutador?</DialogTitle>
         <DialogActions>

@@ -3,7 +3,6 @@ import { FormulariosPreenchidosService } from '../../api/FormulariosPreenchidosS
 import { useParams } from 'react-router-dom';
 import { EntityFormulario } from '../../types/entityes/EntityFormulario';
 
-// MUI
 import {
   Box,
   Card,
@@ -16,8 +15,6 @@ import {
   Alert,
   Container,
 } from '@mui/material';
-
-// ...importações mantidas
 
 const FormulariosPreenchidos: React.FC = () => {
   const { eventoId } = useParams<{ eventoId: string }>();
@@ -70,14 +67,11 @@ const FormulariosPreenchidos: React.FC = () => {
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
-      {/* Contador de Leads */}
       <Box mb={3}>
         <Typography variant="h5" fontWeight="bold">
           Total de Leads Recebidos: {formularios.length}
         </Typography>
       </Box>
-
-      {/* Lista de formulários preenchidos */}
       {formularios.map((formulario, index) => (
         <Card key={index} sx={{ mb: 3, boxShadow: 3 }}>
           <CardContent>
