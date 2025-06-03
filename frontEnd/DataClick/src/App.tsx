@@ -11,20 +11,20 @@ import EditarFormPage from "./pages/formularios/EditarFormsPage";
 import PerfilAdminitradorPage from "./pages/administrador/PerfilAdminitradorPage";
 import PrivateRoute from "./api/privateRoute";
 import Home from "./pages/home/Home";
-import Login from "./pages/login/Login";
-import Register from "./pages/registrar/Register";
 import SuportePage from "./pages/suporte/SuportePage";
 import ListaEventosPage from "./pages/evento/ListaEventosPage";
 import CriarEventoPage from "./pages/evento/CriarEventoPage";
 import FormulariosPreenchidosPage from "./pages/formulariosPreechidos/FormulariosPreenchidosPage";
+import RegistrarPage from "./pages/registrar/RegistrarPage";
+import LoginPage from "./pages/login/loginPage";
 
 const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<LoginPage />} />
         <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/register" element={<RegistrarPage />} />
         <Route path="/recrutadores" element={<PrivateRoute><VisualizarRecrutadoresPage /></PrivateRoute>} />
         <Route path="/cadastrarRecrutadores" element={<PrivateRoute><CadastrarRecrutadorPage /></PrivateRoute>} />
         <Route path="/editarRecrutador/:id" element={<PrivateRoute><EditarRecrutadorPage /></PrivateRoute>} />

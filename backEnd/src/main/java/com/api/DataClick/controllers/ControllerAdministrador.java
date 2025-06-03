@@ -40,7 +40,7 @@ public class ControllerAdministrador {
 
     @GetMapping("/info")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Busca as informações do adminitrador", description = "Retorna a informações do adminitrador")
+    @Operation(summary = "Busca as informações do administrador", description = "Retorna a informações do adminitrador")
     public ResponseEntity<EntityAdministrador> infoAdm(@AuthenticationPrincipal UserDetails userDetails){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
@@ -54,7 +54,7 @@ public class ControllerAdministrador {
 
     @PostMapping("/alterar/email")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Altera o e-amil do administrador", description = "altera o e-mail do adm")
+    @Operation(summary = "Altera o e-mail do administrador", description = "altera o e-mail do adm")
     public ResponseEntity<Void> alterarEmail(@AuthenticationPrincipal UserDetails userDetails,@RequestBody String email){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {

@@ -25,7 +25,6 @@ public class ServiceRecrutador {
     private RepositoryRecrutador repositoryRecrutador;
 
     @Transactional
-    @Generated
     public EntityRecrutador criarRecrutador(EntityRecrutador recrutador) {
 
         EntityRecrutador novoRecrutador = repositoryRecrutador.save(recrutador);

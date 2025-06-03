@@ -148,7 +148,7 @@ public class ControllerRecrutador {
    
     @PostMapping("/alterar/email")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Altera o e-amil do recrutador", description = "altera o e-mail do rec")
+    @Operation(summary = "Altera o e-email do recrutador", description = "altera o e-mail do rec")
     public ResponseEntity<Void> alterarEmail(@AuthenticationPrincipal UserDetails userDetails,@RequestBody String email){
         if (userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {

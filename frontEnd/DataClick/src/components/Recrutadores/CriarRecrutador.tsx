@@ -38,7 +38,6 @@ const CriarRecrutador = () => {
             nome,
             telefone,
             email,
-            formularios: [],
             senha
         });
 

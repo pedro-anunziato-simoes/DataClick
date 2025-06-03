@@ -37,6 +37,10 @@ public class ServiceCampo {
 
     public void removerCampo(String campoId){
         EntityCampo campo = repositoryCampo.findById(campoId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.CAMPO_NAO_ENCONTRADO));
+        String id = campo.getCampoFormId();
+        EntityFormulario form = repositoryFormulario.findById(id).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.FORM_NAO_ENCONTRADO));
+        form.getCampos().remove(campo);
+        repositoryFormulario.save(form);
         repositoryCampo.delete(campo);
     }
 

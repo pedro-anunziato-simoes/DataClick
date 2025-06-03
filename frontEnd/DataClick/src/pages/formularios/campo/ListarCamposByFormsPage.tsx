@@ -1,3 +1,4 @@
+import Footer from "../../../components/footer/Footer";
 import AlterarCamposForms from "../../../components/Formularios/Campos/AlterarCampos";
 import CriarCampo from "../../../components/Formularios/Campos/CriarCampo";
 import Sidebar from "../../../components/sideBar/Sidebar";
@@ -9,6 +10,7 @@ const ListarCampoPage = () => {
         <AlterarCamposForms />
         <CriarCampo/>
         <Sidebar />
+        <Footer />
       </div>
     );
   };

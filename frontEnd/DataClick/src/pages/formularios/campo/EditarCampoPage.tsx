@@ -1,3 +1,4 @@
+import Footer from "../../../components/footer/Footer";
 import CriarCampo from "../../../components/Formularios/Campos/CriarCampo";
 import Sidebar from "../../../components/sideBar/Sidebar";
 
@@ -7,6 +8,7 @@ const EditarCampoPage = () => {
         <h1>Criando campos</h1>
         <CriarCampo />
         <Sidebar />
+        <Footer />
       </div>
     );
   };

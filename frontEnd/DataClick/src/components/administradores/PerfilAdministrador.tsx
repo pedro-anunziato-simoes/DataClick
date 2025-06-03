@@ -13,20 +13,27 @@ import {
 } from "@mui/material";
 import { AdministradorService } from "../../api/AdminitradorService";
 import { EntityAdministrador } from "../../types/entityes/EntityAdministrador";
+import { EventoService } from "../../api/EventoService";
+import { EntityEvento } from "../../types/entityes/EntityEvento";
 
 
 const AdministradorPerfil: React.FC = () => {
   const [administrador, setAdministrador] = useState<EntityAdministrador | null>(null);
+  const [eventos, setEventos] = useState<EntityEvento[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const adminitradorService = AdministradorService();
+  const eventosService = EventoService();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await adminitradorService.getInfosAdminitrador();
+        const dataEventos = await eventosService.getEventos();
+        setEventos(dataEventos)
         setAdministrador(data);
+
       } catch (err) {
         console.error(err);
         setError("Erro ao carregar perfil do administrador.");
@@ -75,8 +82,8 @@ const AdministradorPerfil: React.FC = () => {
 
           <Typography variant="h6">Recrutadores</Typography>
           <List dense>
-            {administrador.recrutadores.length > 0 ? (
-              administrador.recrutadores.map((r) => (
+            {administrador.adminRecrutadores.length > 0 ? (
+              administrador.adminRecrutadores.map((r) => (
                 <ListItem key={r.usuarioId}>
                   <ListItemText primary={r.nome} />
                 </ListItem>
@@ -88,17 +95,20 @@ const AdministradorPerfil: React.FC = () => {
 
           <Divider sx={{ my: 2 }} />
 
-          <Typography variant="h6">Formulários</Typography>
-          <List dense>
-            {administrador.formularios.length > 0 ? (
-              administrador.formularios.map((f) => (
-                <ListItem key={f.adminId}>
-                  <ListItemText primary={f.titulo} />
-                </ListItem>
-              ))
-            ) : (
-              <Typography variant="body2">Nenhum formulário vinculado.</Typography>
-            )}
+          <Typography variant="h6">Eventos</Typography>
+          <List>
+            {eventos?.map((evento, index) => (
+              <ListItem key={index}>
+                <ListItemText
+                  primary={evento.eventoTitulo}
+                  secondary={
+                    evento.eventoData
+                      ? new Date(evento.eventoData).toLocaleString('pt-BR')
+                      : 'Data não disponível'
+                  }
+                />
+              </ListItem>
+            ))}
           </List>
           <Divider sx={{ my: 2 }} />
           <Typography variant="h6">Licensa</Typography>

@@ -44,7 +44,7 @@ const CriarCampo = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.campoTituloDto || !formData.campoTituloDto) {
+    if (!formData.campoTituloDto || !formData.campoTipoDto) {
       alert("Por favor, preencha todos os campos.");
       return;
     }
