@@ -8,26 +8,52 @@ class RecrutadorService {
 
   RecrutadorService(this._apiClient);
 
-  Future<List<Recrutador>> getRecrutadores() async {
+  Future<String> login(String email, String senha) async {
     try {
-      final response = await _apiClient.get(
-        '/recrutadores/list',
-        includeAuth: true,
+      final response = await _apiClient.post(
+        '/auth/login',
+        body: json.encode({'email': email, 'senha': senha}),
+        includeAuth: false,
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        return data.map((json) => Recrutador.fromJson(json)).toList();
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        return responseData['token'] as String;
       } else {
         throw ApiException(
-          _getErrorMessage(response, 'listar recrutadores'),
+          _getErrorMessage(response, 'fazer login'),
           response.statusCode,
         );
       }
     } on ApiException {
       rethrow;
     } catch (e) {
-      throw ApiException('Erro ao listar recrutadores: ${e.toString()}', 0);
+      throw ApiException('Erro ao fazer login: ${e.toString()}', 0);
+    }
+  }
+
+  Future<Recrutador> getRecrutadorByEmail(String email) async {
+    try {
+      final response = await _apiClient.get(
+        '/recrutadores/por-email/$email',
+        includeAuth: true,
+      );
+
+      if (response.statusCode == 200) {
+        return Recrutador.fromJson(json.decode(response.body));
+      } else {
+        throw ApiException(
+          _getErrorMessage(response, 'buscar recrutador por email'),
+          response.statusCode,
+        );
+      }
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(
+        'Erro ao buscar recrutador por email: ${e.toString()}',
+        0,
+      );
     }
   }
 
@@ -53,37 +79,46 @@ class RecrutadorService {
     }
   }
 
-  Future<Recrutador> alterarRecrutador({
-    required String recrutadorId,
-    required RecrutadorUpdateDTO recrutadorData,
-  }) async {
+  Future<List<Recrutador>> getRecrutadores() async {
     try {
-      final response = await _apiClient.post(
-        '/recrutadores/alterar/$recrutadorId',
-        body: json.encode(recrutadorData.toJson()),
+      final response = await _apiClient.get(
+        '/recrutadores/list',
         includeAuth: true,
       );
 
       if (response.statusCode == 200) {
-        return Recrutador.fromJson(json.decode(response.body));
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Recrutador.fromJson(json)).toList();
       } else {
         throw ApiException(
-          _getErrorMessage(response, 'alterar recrutador'),
+          _getErrorMessage(response, 'listar recrutadores'),
           response.statusCode,
         );
       }
     } on ApiException {
       rethrow;
     } catch (e) {
-      throw ApiException('Erro ao alterar recrutador: ${e.toString()}', 0);
+      throw ApiException('Erro ao listar recrutadores: ${e.toString()}', 0);
     }
   }
 
-  Future<Recrutador> criarRecrutador(RecrutadorCreateDTO recrutadorData) async {
+  Future<Recrutador> criarRecrutador({
+    required String nome,
+    required String email,
+    required String telefone,
+    required String senha,
+    required String adminId,
+  }) async {
     try {
       final response = await _apiClient.post(
         '/recrutadores',
-        body: json.encode(recrutadorData.toJson()),
+        body: json.encode({
+          'nome': nome,
+          'email': email,
+          'telefone': telefone,
+          'senha': senha,
+          'adminId': adminId,
+        }),
         includeAuth: true,
       );
 
@@ -99,6 +134,34 @@ class RecrutadorService {
       rethrow;
     } catch (e) {
       throw ApiException('Erro ao criar recrutador: ${e.toString()}', 0);
+    }
+  }
+
+  Future<Recrutador> alterarRecrutador({
+    required String recrutadorId,
+    required String nome,
+    required String telefone,
+    required String email,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        '/recrutadores/alterar/$recrutadorId',
+        body: json.encode({'nome': nome, 'telefone': telefone, 'email': email}),
+        includeAuth: true,
+      );
+
+      if (response.statusCode == 200) {
+        return Recrutador.fromJson(json.decode(response.body));
+      } else {
+        throw ApiException(
+          _getErrorMessage(response, 'alterar recrutador'),
+          response.statusCode,
+        );
+      }
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException('Erro ao alterar recrutador: ${e.toString()}', 0);
     }
   }
 
@@ -122,7 +185,7 @@ class RecrutadorService {
     }
   }
 
-  Future<Recrutador> alterarEmail(String email, String recrutadorId) async {
+  Future<void> alterarEmail(String email, String recrutadorId) async {
     try {
       final response = await _apiClient.post(
         '/recrutadores/alterar/email',
@@ -130,9 +193,7 @@ class RecrutadorService {
         includeAuth: true,
       );
 
-      if (response.statusCode == 200) {
-        return Recrutador.fromJson(json.decode(response.body));
-      } else {
+      if (response.statusCode != 200) {
         throw ApiException(
           _getErrorMessage(response, 'alterar email do recrutador'),
           response.statusCode,
@@ -145,7 +206,7 @@ class RecrutadorService {
     }
   }
 
-  Future<Recrutador> alterarSenha(String senha, String recrutadorId) async {
+  Future<void> alterarSenha(String senha, String recrutadorId) async {
     try {
       final response = await _apiClient.post(
         '/recrutadores/alterar/senha',
@@ -153,9 +214,7 @@ class RecrutadorService {
         includeAuth: true,
       );
 
-      if (response.statusCode == 200) {
-        return Recrutador.fromJson(json.decode(response.body));
-      } else {
+      if (response.statusCode != 200) {
         throw ApiException(
           _getErrorMessage(response, 'alterar senha do recrutador'),
           response.statusCode,
@@ -192,13 +251,13 @@ class RecrutadorService {
       case 400:
         return 'Requisição inválida ao $operation';
       case 401:
-        return 'Não autorizado. Faça login novamente.';
+        return 'Não autorizado';
       case 403:
-        return 'Acesso negado. Permissões insuficientes para $operation';
+        return 'Acesso proibido';
       case 404:
         return 'Recurso não encontrado';
       case 500:
-        return 'Erro interno do servidor ao $operation';
+        return 'Erro interno do servidor';
       default:
         return 'Falha ao $operation: Status $statusCode';
     }

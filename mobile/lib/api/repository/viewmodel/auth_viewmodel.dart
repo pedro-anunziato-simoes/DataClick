@@ -92,26 +92,21 @@ class AuthViewModel with ChangeNotifier {
     required String email,
     required String telefone,
     required String senha,
+    required String adminId,
   }) async {
     _isLoading = true;
     notifyListeners();
     _errorMessage = null;
 
     try {
-      final recrutadorData = RecrutadorCreateDTO(
+      await _recrutadorService.criarRecrutador(
         nome: nome,
         email: email,
         telefone: telefone,
         senha: senha,
+        adminId: adminId,
       );
-
-      final recrutador = await _recrutadorService.criarRecrutador(
-        recrutadorData,
-      );
-      if (recrutador != null) {
-        return await login(email, senha);
-      }
-      return false;
+      return await login(email, senha);
     } catch (e) {
       _errorMessage = _getErrorMessage(e);
       return false;
@@ -150,10 +145,10 @@ class AuthViewModel with ChangeNotifier {
   Future<bool> isAuthenticated() async {
     try {
       final isAuth = await _authService.isAuthenticated();
-      if (isAuth && _currentUser == null) {
+      if (isAuth) {
         await _loadCurrentUser();
       }
-      return isAuth && _currentUser != null;
+      return isAuth;
     } catch (e) {
       return false;
     }
@@ -211,7 +206,9 @@ class AuthViewModel with ChangeNotifier {
 
   Future<bool> atualizarRecrutador({
     required String recrutadorId,
-    required RecrutadorUpdateDTO recrutadorData,
+    required String nome,
+    required String telefone,
+    required String email,
   }) async {
     _isLoading = true;
     notifyListeners();
@@ -220,7 +217,9 @@ class AuthViewModel with ChangeNotifier {
     try {
       await _recrutadorService.alterarRecrutador(
         recrutadorId: recrutadorId,
-        recrutadorData: recrutadorData,
+        nome: nome,
+        telefone: telefone,
+        email: email,
       );
       return true;
     } catch (e) {

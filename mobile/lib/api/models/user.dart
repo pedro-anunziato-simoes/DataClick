@@ -2,12 +2,12 @@ import 'administrador.dart';
 import 'recrutador.dart';
 import 'evento.dart';
 
-enum UserRole { ADMIN, USER }
+enum UserRole { admin, recrutador, candidato }
 
 class User {
   final String usuarioId;
-  final String? nome;
-  final String? email;
+  final String nome;
+  final String email;
   final String? telefone;
   final String tipo;
   final String? senha;
@@ -18,8 +18,8 @@ class User {
 
   User({
     required this.usuarioId,
-    this.nome,
-    this.email,
+    required this.nome,
+    required this.email,
     this.telefone,
     required this.tipo,
     this.senha,
@@ -36,9 +36,9 @@ class User {
       email: admin.email,
       telefone: admin.telefone,
       tipo: 'admin',
-      role: UserRole.ADMIN,
+      role: UserRole.admin,
       eventos: admin.eventos,
-      token: null,
+      token: admin.token,
     );
   }
 
@@ -50,18 +50,22 @@ class User {
       telefone: recrutador.telefone,
       tipo: 'recrutador',
       adminId: recrutador.adminId,
-      role: UserRole.USER,
+      role: UserRole.recrutador,
       eventos: recrutador.eventos,
-      token: null,
+      token: recrutador.token,
     );
   }
 
   factory User.fromJson(Map<String, dynamic> json) {
     UserRole roleFromString(String? roleStr) {
-      if (roleStr == 'ADMIN' || roleStr == 'ROLE_ADMIN') {
-        return UserRole.ADMIN;
+      switch (roleStr?.toLowerCase()) {
+        case 'admin':
+          return UserRole.admin;
+        case 'recrutador':
+          return UserRole.recrutador;
+        default:
+          return UserRole.candidato;
       }
-      return UserRole.USER;
     }
 
     List<Evento>? eventosFromJson(List<dynamic>? eventosJson) {
@@ -70,28 +74,28 @@ class User {
     }
 
     return User(
-      usuarioId: json['usuarioId'] as String? ?? json['id'] as String? ?? '',
-      nome: json['nome'] as String?,
-      email: json['email'] as String?,
-      telefone: json['telefone'] as String?,
-      tipo: json['tipo'] as String? ?? 'usuario',
-      senha: json['senha'] as String?,
-      adminId: json['adminId'] as String?,
-      role: roleFromString(json['role'] as String?),
-      eventos: eventosFromJson(json['eventos'] as List<dynamic>?),
-      token: json['token'] as String?,
+      usuarioId: json['usuarioId'] ?? json['id'] ?? '',
+      nome: json['nome'] ?? '',
+      email: json['email'] ?? '',
+      telefone: json['telefone'],
+      tipo: json['tipo'] ?? 'usuario',
+      senha: json['senha'],
+      adminId: json['adminId'],
+      role: roleFromString(json['role']),
+      eventos: eventosFromJson(json['eventos']),
+      token: json['token'],
     );
   }
 
   Map<String, dynamic> toJson() {
     String roleToString() {
       switch (role) {
-        case UserRole.ADMIN:
-          return 'ADMIN';
-        case UserRole.USER:
-          return 'USER';
-        default:
-          return 'USER';
+        case UserRole.admin:
+          return 'admin';
+        case UserRole.recrutador:
+          return 'recrutador';
+        case UserRole.candidato:
+          return 'candidato';
       }
     }
 
@@ -135,7 +139,13 @@ class User {
     );
   }
 
-  bool hasAdminRole() {
-    return role == UserRole.ADMIN;
+  bool hasAdminRole() => role == UserRole.admin;
+  bool isAdmin() => role == UserRole.admin;
+  bool isRecrutador() => role == UserRole.recrutador;
+  bool isCandidato() => role == UserRole.candidato;
+
+  @override
+  String toString() {
+    return 'User{usuarioId: $usuarioId, nome: $nome, email: $email, role: $role}';
   }
 }
