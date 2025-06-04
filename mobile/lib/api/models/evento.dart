@@ -6,14 +6,24 @@ class FormularioSimplificado {
 
   factory FormularioSimplificado.fromJson(Map<String, dynamic> json) {
     return FormularioSimplificado(
-      id: json['id'] as String,
-      titulo: json['titulo'] as String,
+      id: json['id'] as String? ?? '',
+      titulo: json['titulo'] as String? ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
     return {'id': id, 'titulo': titulo};
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FormularioSimplificado &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
 }
 
 class UsuarioSimplificado {
@@ -32,6 +42,16 @@ class UsuarioSimplificado {
   Map<String, dynamic> toJson() {
     return {'id': id, 'nome': nome};
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is UsuarioSimplificado &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
 }
 
 class Evento {
@@ -148,4 +168,131 @@ class Evento {
       adminId: adminId ?? this.adminId,
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Evento && runtimeType == other.runtimeType && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  String toString() {
+    return 'Evento{id: $id, nome: $nome, status: $status}';
+  }
+
+  /// Verifica se o evento está ativo
+  bool get isAtivo => status.toLowerCase() == 'ativo';
+
+  /// Verifica se o evento está agendado
+  bool get isAgendado => status.toLowerCase() == 'agendado';
+
+  /// Verifica se o evento está em andamento
+  bool get isEmAndamento => status.toLowerCase() == 'em andamento';
+
+  /// Verifica se o evento está finalizado
+  bool get isFinalizado => status.toLowerCase() == 'finalizado';
+
+  /// Retorna a duração do evento em dias
+  int get duracaoEmDias => dataFim.difference(dataInicio).inDays;
+
+  /// Verifica se o evento já passou
+  bool get jaPassou => DateTime.now().isAfter(dataFim);
+
+  /// Verifica se o evento está acontecendo agora
+  bool get estaHappeningNow {
+    final agora = DateTime.now();
+    return agora.isAfter(dataInicio) && agora.isBefore(dataFim);
+  }
+}
+
+class EventoSimplificado {
+  final String eventoAdminId;
+  final String? eventoTitulo;
+  final String? eventoDescricao;
+  final DateTime? eventoData;
+  final List<dynamic> eventoFormularios;
+  final String eventoId;
+
+  EventoSimplificado({
+    required this.eventoAdminId,
+    this.eventoTitulo,
+    this.eventoDescricao,
+    this.eventoData,
+    required this.eventoFormularios,
+    required this.eventoId,
+  });
+
+  factory EventoSimplificado.fromJson(Map<String, dynamic> json) {
+    return EventoSimplificado(
+      eventoAdminId: json['eventoAdminId'] as String? ?? '',
+      eventoTitulo: json['eventoTitulo'] as String?,
+      eventoDescricao: json['eventoDescricao'] as String?,
+      eventoData:
+          json['eventoData'] != null
+              ? DateTime.parse(json['eventoData'] as String)
+              : null,
+      eventoFormularios: json['eventoFormularios'] as List<dynamic>? ?? [],
+      eventoId: json['eventoId'] as String? ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'eventoAdminId': eventoAdminId,
+      'eventoTitulo': eventoTitulo,
+      'eventoDescricao': eventoDescricao,
+      'eventoData': eventoData?.toIso8601String(),
+      'eventoFormularios': eventoFormularios,
+      'eventoId': eventoId,
+    };
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is EventoSimplificado &&
+          runtimeType == other.runtimeType &&
+          eventoId == other.eventoId;
+
+  @override
+  int get hashCode => eventoId.hashCode;
+}
+
+class ListaEventosSimplificados {
+  final List<EventoSimplificado> eventos;
+
+  ListaEventosSimplificados({required this.eventos});
+
+  factory ListaEventosSimplificados.fromJson(List<dynamic> json) {
+    return ListaEventosSimplificados(
+      eventos:
+          json
+              .map(
+                (e) => EventoSimplificado.fromJson(e as Map<String, dynamic>),
+              )
+              .toList(),
+    );
+  }
+
+  List<Map<String, dynamic>> toJson() {
+    return eventos.map((e) => e.toJson()).toList();
+  }
+
+  EventoSimplificado? getEventoById(String eventoId) {
+    try {
+      return eventos.firstWhere((evento) => evento.eventoId == eventoId);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  List<String> getTodosIds() {
+    return eventos.map((e) => e.eventoId).toList();
+  }
+
+  bool get isEmpty => eventos.isEmpty;
+  bool get isNotEmpty => eventos.isNotEmpty;
+  int get length => eventos.length;
 }

@@ -57,28 +57,81 @@ class FormularioService {
     }
   }
 
+  Future<Map<String, dynamic>?> buscarEventoPorId(String eventoId) async {
+    try {
+      // Validação básica
+      if (eventoId.trim().isEmpty) {
+        throw ApiException('ID do evento é obrigatório', 400);
+      }
+
+      // 1. Busca TODOS os eventos
+      final response = await _apiClient.get('/eventos', includeAuth: true);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> eventos = json.decode(response.body);
+
+        // 2. Filtra o evento com o ID desejado
+        final evento = eventos.firstWhere(
+          (evento) => evento['eventoId'] == eventoId,
+          orElse: () => null,
+        );
+
+        return evento as Map<String, dynamic>?;
+      } else {
+        throw ApiException(
+          _getErrorMessage(response, 'buscar evento'),
+          response.statusCode,
+        );
+      }
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException('Erro ao buscar evento: ${e.toString()}', 0);
+    }
+  }
+
   Future<Formulario> criarFormulario({
     required String titulo,
     required String eventoId,
+    required String adminId,
     required List<Campo> campos,
+    String? descricao,
   }) async {
     try {
-      // Verifica se o evento existe antes de criar o formulário
-      await _apiClient.get('/eventos/$eventoId');
+      // Validações básicas
+      if (titulo.trim().isEmpty) {
+        throw ApiException('Título do formulário é obrigatório', 400);
+      }
+
+      if (eventoId.isEmpty) {
+        throw ApiException('ID do evento é obrigatório', 400);
+      }
+
+      if (adminId.isEmpty) {
+        throw ApiException('ID do administrador é obrigatório', 400);
+      }
+
+      if (campos.isEmpty) {
+        throw ApiException('O formulário deve ter pelo menos um campo', 400);
+      }
+
+      await _apiClient.get('/eventos');
 
       final formData = {
-        'titulo': titulo,
+        'titulo': titulo.trim(),
         'eventoId': eventoId,
+        'adminId': adminId,
         'campos': campos.map((campo) => campo.toJson()).toList(),
+        if (descricao != null) 'descricao': descricao,
       };
 
       final response = await _apiClient.post(
-        '/formularios/add/$eventoId',
+        '/formularios/add/{eventoId}',
         body: json.encode(formData),
         includeAuth: true,
       );
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 201 || response.statusCode == 200) {
         return Formulario.fromJson(json.decode(response.body));
       } else {
         throw ApiException(
@@ -97,11 +150,21 @@ class FormularioService {
     required String formId,
     required String titulo,
     required List<Campo> campos,
+    String? descricao,
   }) async {
     try {
+      if (titulo.trim().isEmpty) {
+        throw ApiException('Título do formulário é obrigatório', 400);
+      }
+
+      if (campos.isEmpty) {
+        throw ApiException('O formulário deve ter pelo menos um campo', 400);
+      }
+
       final formData = {
-        'titulo': titulo,
+        'titulo': titulo.trim(),
         'campos': campos.map((campo) => campo.toJson()).toList(),
+        if (descricao != null) 'descricao': descricao,
       };
 
       final response = await _apiClient.put(

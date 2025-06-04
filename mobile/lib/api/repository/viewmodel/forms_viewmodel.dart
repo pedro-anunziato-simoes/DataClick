@@ -27,101 +27,108 @@ class ErrorState<T> extends RequestState<T> {
 
 class FormViewModel extends ChangeNotifier {
   final IFormularioRepository _repository;
-  RequestState<List<Formulario>> _formularios = const InitialState();
-  RequestState<List<Formulario>> _formulariosPreenchidos = const InitialState();
-  RequestState<Formulario?> _formularioAtual = const InitialState();
+
+  // Estados
+  RequestState<List<Formulario>> _formulariosState = const InitialState();
+  RequestState<List<Formulario>> _formulariosPreenchidosState =
+      const InitialState();
+  RequestState<Formulario?> _formularioAtualState = const InitialState();
   bool _isAdmin = false;
 
   FormViewModel(this._repository);
 
-  RequestState<List<Formulario>> get formularios => _formularios;
-  RequestState<List<Formulario>> get formulariosPreenchidos =>
-      _formulariosPreenchidos;
-  RequestState<Formulario?> get formularioAtual => _formularioAtual;
+  // Getters
+  RequestState<List<Formulario>> get formulariosState => _formulariosState;
+  RequestState<List<Formulario>> get formulariosPreenchidosState =>
+      _formulariosPreenchidosState;
+  RequestState<Formulario?> get formularioAtualState => _formularioAtualState;
   bool get isLoading =>
-      _formularios is LoadingState ||
-      _formularioAtual is LoadingState ||
-      _formulariosPreenchidos is LoadingState;
+      _formulariosState is LoadingState ||
+      _formularioAtualState is LoadingState ||
+      _formulariosPreenchidosState is LoadingState;
   bool get isAdmin => _isAdmin;
 
+  // Setters
   void setIsAdmin(bool isAdmin) {
     _isAdmin = isAdmin;
     notifyListeners();
   }
 
+  // Métodos para carregar dados
   Future<void> carregarFormulariosPorEvento(String eventoId) async {
     try {
-      _formularios = const LoadingState();
+      _formulariosState = const LoadingState();
       notifyListeners();
 
-      final result = await _repository.listarFormulariosPorEvento(eventoId);
-      _formularios = SuccessState(result);
-      notifyListeners();
+      final formularios = await _repository.listarFormulariosPorEvento(
+        eventoId,
+      );
+      _formulariosState = SuccessState(formularios);
     } catch (e) {
-      _formularios = ErrorState(e.toString());
+      _formulariosState = ErrorState(_tratarMensagemErro(e));
+    } finally {
       notifyListeners();
-      rethrow;
     }
   }
 
   Future<void> carregarFormulariosPreenchidos(String eventoId) async {
     try {
-      _formulariosPreenchidos = const LoadingState();
+      _formulariosPreenchidosState = const LoadingState();
       notifyListeners();
 
-      final result = await _repository.listarFormulariosPreenchidos(eventoId);
-      _formulariosPreenchidos = SuccessState(result);
-      notifyListeners();
+      final formularios = await _repository.listarFormulariosPreenchidos(
+        eventoId,
+      );
+      _formulariosPreenchidosState = SuccessState(formularios);
     } catch (e) {
-      _formulariosPreenchidos = ErrorState(e.toString());
+      _formulariosPreenchidosState = ErrorState(_tratarMensagemErro(e));
+    } finally {
       notifyListeners();
-      rethrow;
     }
   }
 
   Future<void> obterFormularioPorId(String id) async {
     try {
-      _formularioAtual = const LoadingState();
+      _formularioAtualState = const LoadingState();
       notifyListeners();
 
-      final result = await _repository.obterFormularioPorId(id);
-      _formularioAtual = SuccessState(result);
-      notifyListeners();
+      final formulario = await _repository.obterFormularioPorId(id);
+      _formularioAtualState = SuccessState(formulario);
     } catch (e) {
-      _formularioAtual = ErrorState(e.toString());
+      _formularioAtualState = ErrorState(_tratarMensagemErro(e));
+    } finally {
       notifyListeners();
-      rethrow;
     }
   }
 
+  // Métodos para manipulação de formulários
   Future<void> criarFormulario({
     required String titulo,
     required String eventoId,
+    required String adminId,
     required List<Campo> campos,
     String? descricao,
   }) async {
     try {
-      if (!_isAdmin) {
-        throw Exception('Apenas administradores podem criar formulários');
-      }
-
-      _formularioAtual = const LoadingState();
+      _validarPermissoesAdmin();
+      _formularioAtualState = const LoadingState();
       notifyListeners();
 
-      final result = await _repository.criarFormulario(
+      final novoFormulario = await _repository.criarFormulario(
         titulo: titulo,
         eventoId: eventoId,
+        adminId: adminId,
         campos: campos,
         descricao: descricao,
       );
 
-      _formularioAtual = SuccessState(result);
-      await carregarFormulariosPorEvento(eventoId);
-      notifyListeners();
+      _formularioAtualState = SuccessState(novoFormulario);
+      await _atualizarListaFormularios(eventoId);
     } catch (e) {
-      _formularioAtual = ErrorState(e.toString());
-      notifyListeners();
+      _formularioAtualState = ErrorState(_tratarMensagemErro(e));
       rethrow;
+    } finally {
+      notifyListeners();
     }
   }
 
@@ -132,72 +139,88 @@ class FormViewModel extends ChangeNotifier {
     String? descricao,
   }) async {
     try {
-      if (!_isAdmin) {
-        throw Exception('Apenas administradores podem atualizar formulários');
-      }
-
-      _formularioAtual = const LoadingState();
+      _validarPermissoesAdmin();
+      _formularioAtualState = const LoadingState();
       notifyListeners();
 
-      final result = await _repository.atualizarFormulario(
+      final formularioAtualizado = await _repository.atualizarFormulario(
         formId: formId,
         titulo: titulo,
         campos: campos,
         descricao: descricao,
       );
 
-      _formularioAtual = SuccessState(result);
-
-      if (_formularios is SuccessState<List<Formulario>>) {
-        final currentList =
-            (_formularios as SuccessState<List<Formulario>>).data;
-        if (currentList.isNotEmpty) {
-          await carregarFormulariosPorEvento(currentList.first.eventoId ?? '');
-        }
-      }
-
-      notifyListeners();
+      _formularioAtualState = SuccessState(formularioAtualizado);
+      await _atualizarListaFormularios(formularioAtualizado.eventoId);
     } catch (e) {
-      _formularioAtual = ErrorState(e.toString());
-      notifyListeners();
+      _formularioAtualState = ErrorState(_tratarMensagemErro(e));
       rethrow;
+    } finally {
+      notifyListeners();
     }
   }
 
   Future<void> removerFormulario(String id) async {
     try {
-      if (!_isAdmin) {
-        throw Exception('Apenas administradores podem remover formulários');
-      }
+      _validarPermissoesAdmin();
 
-      String? eventoId;
-      if (_formularios is SuccessState<List<Formulario>>) {
-        final formulario = (_formularios as SuccessState<List<Formulario>>).data
-            .firstWhere(
-              (f) => f.id == id,
-              orElse:
-                  () => Formulario(id: '', titulo: '', adminId: '', campos: []),
-            );
-        eventoId = formulario.eventoId;
-      }
-
+      final eventoId = _obterEventoIdDoFormulario(id);
       await _repository.removerFormulario(id);
 
       if (eventoId != null) {
-        await carregarFormulariosPorEvento(eventoId);
+        await _atualizarListaFormularios(eventoId);
       }
     } catch (e) {
+      _formularioAtualState = ErrorState(_tratarMensagemErro(e));
       rethrow;
+    } finally {
+      notifyListeners();
     }
   }
 
+  // Métodos auxiliares
   void limparFormularioAtual() {
-    _formularioAtual = const InitialState();
+    _formularioAtualState = const InitialState();
     notifyListeners();
   }
 
   void limparFormulariosPreenchidos() {
-    _formulariosPreenchidos = const InitialState();
+    _formulariosPreenchidosState = const InitialState();
     notifyListeners();
+  }
+
+  // Métodos privados
+  Future<void> _atualizarListaFormularios(String? eventoId) async {
+    if (eventoId != null &&
+        _formulariosState is SuccessState<List<Formulario>>) {
+      await carregarFormulariosPorEvento(eventoId);
+    }
+  }
+
+  String? _obterEventoIdDoFormulario(String formId) {
+    if (_formulariosState is SuccessState<List<Formulario>>) {
+      final formularios =
+          (_formulariosState as SuccessState<List<Formulario>>).data;
+      return formularios
+          .firstWhere(
+            (f) => f.id == formId,
+            orElse:
+                () => Formulario(id: '', titulo: '', adminId: '', campos: []),
+          )
+          .eventoId;
+    }
+    return null;
+  }
+
+  void _validarPermissoesAdmin() {
+    if (!_isAdmin) {
+      throw Exception('Apenas administradores podem realizar esta ação');
+    }
+  }
+
+  String _tratarMensagemErro(dynamic error) {
+    if (error is String) return error;
+    if (error is Exception) return error.toString();
+    return 'Ocorreu um erro inesperado';
   }
 }

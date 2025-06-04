@@ -31,8 +31,11 @@ class Formulario {
       }
 
       return Formulario(
-        id: json['id']?.toString() ?? '',
-        titulo: json['titulo']?.toString() ?? 'Sem título',
+        id: json['id']?.toString() ?? json['formId']?.toString() ?? '',
+        titulo:
+            json['titulo']?.toString() ??
+            json['formularioTitulo']?.toString() ??
+            'Sem título',
         adminId:
             json['adminId']?.toString() ??
             json['formAdminId']?.toString() ??
@@ -43,7 +46,9 @@ class Formulario {
             json['dataCriacao'] != null
                 ? DateTime.tryParse(json['dataCriacao'])
                 : null,
-        eventoId: json['eventoId']?.toString(),
+        eventoId:
+            json['eventoId']?.toString() ??
+            json['formularioEventoId']?.toString(),
       );
     } catch (e) {
       debugPrint('Erro ao parsear Formulario: $e');
@@ -65,4 +70,9 @@ class Formulario {
     if (dataCriacao != null) 'dataCriacao': dataCriacao!.toIso8601String(),
     if (eventoId != null) 'eventoId': eventoId,
   };
+
+  @override
+  String toString() {
+    return 'Formulario{id: $id, titulo: $titulo, adminId: $adminId, campos: ${campos.length}, descricao: $descricao}';
+  }
 }

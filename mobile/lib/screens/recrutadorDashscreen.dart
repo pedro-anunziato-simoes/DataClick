@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/api/repository/viewmodel/auth_viewmodel.dart';
 import 'package:mobile/api/repository/viewmodel/forms_viewmodel.dart'
-    as FormsVM;
+    as forms_vm;
 import 'package:mobile/api/repository/viewmodel/recrutador_viewmodel.dart'
-    as RecrutadorVM;
+    as recruiter_vm;
 import 'package:mobile/api/models/formulario.dart';
 import 'package:mobile/api/models/evento.dart' as evento_model;
 
@@ -49,11 +49,11 @@ class _RecruiterDashboardScreenState extends State<RecruiterDashboardScreen>
     if (!mounted) return;
 
     setState(() => _isLoading = true);
-    final recruiterViewModel = Provider.of<RecrutadorVM.RecrutadorViewModel>(
+    final recruiterViewModel = Provider.of<recruiter_vm.RecrutadorViewModel>(
       context,
       listen: false,
     );
-    final formViewModel = Provider.of<FormsVM.FormViewModel>(
+    final formViewModel = Provider.of<forms_vm.FormViewModel>(
       context,
       listen: false,
     );
@@ -104,10 +104,10 @@ class _RecruiterDashboardScreenState extends State<RecruiterDashboardScreen>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final authViewModel = Provider.of<AuthViewModel>(context);
-    final recruiterViewModel = Provider.of<RecrutadorVM.RecrutadorViewModel>(
+    final recruiterViewModel = Provider.of<recruiter_vm.RecrutadorViewModel>(
       context,
     );
-    final formViewModel = Provider.of<FormsVM.FormViewModel>(context);
+    final formViewModel = Provider.of<forms_vm.FormViewModel>(context);
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
@@ -184,7 +184,7 @@ class _RecruiterDashboardScreenState extends State<RecruiterDashboardScreen>
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: Colors.black.withOpacity(0.1),
             blurRadius: 8,
             offset: const Offset(0, -2),
           ),
@@ -196,7 +196,7 @@ class _RecruiterDashboardScreenState extends State<RecruiterDashboardScreen>
         type: BottomNavigationBarType.fixed,
         backgroundColor: theme.colorScheme.surface,
         selectedItemColor: theme.colorScheme.primary,
-        unselectedItemColor: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+        unselectedItemColor: theme.colorScheme.onSurface.withOpacity(0.6),
         elevation: 0,
         items: const [
           BottomNavigationBarItem(
@@ -217,8 +217,8 @@ class _RecruiterDashboardScreenState extends State<RecruiterDashboardScreen>
   }
 
   Widget _buildBody(
-    RecrutadorVM.RecrutadorViewModel recruiterViewModel,
-    FormsVM.FormViewModel formViewModel,
+    recruiter_vm.RecrutadorViewModel recruiterViewModel,
+    forms_vm.FormViewModel formViewModel,
   ) {
     switch (_currentIndex) {
       case 0:
@@ -276,8 +276,8 @@ class _RecruiterDashboardScreenState extends State<RecruiterDashboardScreen>
 }
 
 class _OverviewTab extends StatelessWidget {
-  final RecrutadorVM.RecrutadorViewModel recruiterViewModel;
-  final FormsVM.FormViewModel formViewModel;
+  final recruiter_vm.RecrutadorViewModel recruiterViewModel;
+  final forms_vm.FormViewModel formViewModel;
 
   const _OverviewTab({
     required this.recruiterViewModel,
@@ -289,12 +289,10 @@ class _OverviewTab extends StatelessWidget {
     final theme = Theme.of(context);
     final recruiter = recruiterViewModel.recrutador;
     final forms =
-        formViewModel.formularios is FormsVM.LoadingState
-            ? <Formulario>[]
-            : formViewModel.formularios
-                is FormsVM.SuccessState<List<Formulario>>
-            ? (formViewModel.formularios
-                    as FormsVM.SuccessState<List<Formulario>>)
+        formViewModel.formulariosState
+                is forms_vm.SuccessState<List<Formulario>>
+            ? (formViewModel.formulariosState
+                    as forms_vm.SuccessState<List<Formulario>>)
                 .data
             : <Formulario>[];
 
@@ -331,7 +329,7 @@ class _OverviewTab extends StatelessWidget {
         gradient: LinearGradient(
           colors: [
             theme.colorScheme.primary,
-            theme.colorScheme.primary.withValues(alpha: 0.8),
+            theme.colorScheme.primary.withOpacity(0.8),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -339,7 +337,7 @@ class _OverviewTab extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: theme.colorScheme.primary.withValues(alpha: 0.3),
+            color: theme.colorScheme.primary.withOpacity(0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -351,7 +349,7 @@ class _OverviewTab extends StatelessWidget {
           Text(
             'Bem-vindo!',
             style: theme.textTheme.titleMedium?.copyWith(
-              color: theme.colorScheme.onPrimary.withValues(alpha: 0.9),
+              color: theme.colorScheme.onPrimary.withOpacity(0.9),
             ),
           ),
           const SizedBox(height: 4),
@@ -473,7 +471,7 @@ class _OverviewTab extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: Colors.blue.withValues(alpha: 0.1),
+                              color: Colors.blue.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Icon(
@@ -486,9 +484,7 @@ class _OverviewTab extends StatelessWidget {
                           Icon(
                             Icons.arrow_forward_ios_rounded,
                             size: 16,
-                            color: theme.colorScheme.onSurface.withValues(
-                              alpha: 0.6,
-                            ),
+                            color: theme.colorScheme.onSurface.withOpacity(0.6),
                           ),
                         ],
                       ),
@@ -558,7 +554,7 @@ class _OverviewTab extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.green.withValues(alpha: 0.1),
+                      color: Colors.green.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
@@ -582,9 +578,7 @@ class _OverviewTab extends StatelessWidget {
                         Text(
                           evento.descricao,
                           style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurface.withValues(
-                              alpha: 0.7,
-                            ),
+                            color: theme.colorScheme.onSurface.withOpacity(0.7),
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -610,7 +604,7 @@ class _OverviewTab extends StatelessWidget {
                   Icon(
                     Icons.arrow_forward_ios_rounded,
                     size: 16,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                    color: theme.colorScheme.onSurface.withOpacity(0.6),
                   ),
                 ],
               ),
@@ -630,11 +624,9 @@ class _OverviewTab extends StatelessWidget {
       height: 120,
       width: double.infinity,
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: theme.colorScheme.outline.withOpacity(0.2)),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -642,13 +634,13 @@ class _OverviewTab extends StatelessWidget {
           Icon(
             icon,
             size: 32,
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+            color: theme.colorScheme.onSurface.withOpacity(0.5),
           ),
           const SizedBox(height: 8),
           Text(
             message,
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+              color: theme.colorScheme.onSurface.withOpacity(0.7),
             ),
           ),
         ],
@@ -684,7 +676,7 @@ class _StatCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
+                color: color.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, size: 28, color: color),
@@ -701,7 +693,7 @@ class _StatCard extends StatelessWidget {
             Text(
               label,
               style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                color: theme.colorScheme.onSurface.withOpacity(0.7),
               ),
             ),
           ],
@@ -712,7 +704,7 @@ class _StatCard extends StatelessWidget {
 }
 
 class _FormsTab extends StatelessWidget {
-  final FormsVM.FormViewModel formViewModel;
+  final forms_vm.FormViewModel formViewModel;
 
   const _FormsTab({required this.formViewModel});
 
@@ -720,20 +712,18 @@ class _FormsTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final forms =
-        formViewModel.formularios is FormsVM.LoadingState
-            ? <Formulario>[]
-            : formViewModel.formularios
-                is FormsVM.SuccessState<List<Formulario>>
-            ? (formViewModel.formularios
-                    as FormsVM.SuccessState<List<Formulario>>)
+        formViewModel.formulariosState
+                is forms_vm.SuccessState<List<Formulario>>
+            ? (formViewModel.formulariosState
+                    as forms_vm.SuccessState<List<Formulario>>)
                 .data
             : <Formulario>[];
 
-    if (formViewModel.formularios is FormsVM.LoadingState) {
+    if (formViewModel.formulariosState is forms_vm.LoadingState) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (formViewModel.formularios is FormsVM.ErrorState) {
+    if (formViewModel.formulariosState is forms_vm.ErrorState) {
       return _buildErrorState(theme);
     }
 
@@ -784,7 +774,7 @@ class _FormsTab extends StatelessWidget {
                                 Container(
                                   padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
-                                    color: Colors.blue.withValues(alpha: 0.1),
+                                    color: Colors.blue.withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: Icon(
@@ -832,9 +822,8 @@ class _FormsTab extends StatelessWidget {
                                 Icon(
                                   Icons.arrow_forward_ios_rounded,
                                   size: 16,
-                                  color: theme.colorScheme.onSurface.withValues(
-                                    alpha: 0.6,
-                                  ),
+                                  color: theme.colorScheme.onSurface
+                                      .withOpacity(0.6),
                                 ),
                               ],
                             ),
@@ -885,7 +874,7 @@ class _FormsTab extends StatelessWidget {
           Icon(
             Icons.assignment_rounded,
             size: 64,
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+            color: theme.colorScheme.onSurface.withOpacity(0.5),
           ),
           const SizedBox(height: 16),
           Text(
@@ -898,7 +887,7 @@ class _FormsTab extends StatelessWidget {
           Text(
             'Crie seu primeiro formulário para começar',
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+              color: theme.colorScheme.onSurface.withOpacity(0.7),
             ),
           ),
           const SizedBox(height: 24),
@@ -914,7 +903,7 @@ class _FormsTab extends StatelessWidget {
 }
 
 class _EventsTab extends StatelessWidget {
-  final RecrutadorVM.RecrutadorViewModel recruiterViewModel;
+  final recruiter_vm.RecrutadorViewModel recruiterViewModel;
 
   const _EventsTab({required this.recruiterViewModel});
 
@@ -923,11 +912,11 @@ class _EventsTab extends StatelessWidget {
     final theme = Theme.of(context);
     final eventos = recruiterViewModel.recrutador?.eventos ?? [];
 
-    if (recruiterViewModel.state is RecrutadorVM.LoadingState) {
+    if (recruiterViewModel.state is recruiter_vm.LoadingState) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (recruiterViewModel.state is RecrutadorVM.ErrorState) {
+    if (recruiterViewModel.state is recruiter_vm.ErrorState) {
       return _buildErrorState(theme);
     }
 
@@ -978,7 +967,7 @@ class _EventsTab extends StatelessWidget {
                                 Container(
                                   padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
-                                    color: Colors.green.withValues(alpha: 0.1),
+                                    color: Colors.green.withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: Icon(
@@ -1006,7 +995,7 @@ class _EventsTab extends StatelessWidget {
                                         style: theme.textTheme.bodyMedium
                                             ?.copyWith(
                                               color: theme.colorScheme.onSurface
-                                                  .withValues(alpha: 0.7),
+                                                  .withOpacity(0.7),
                                             ),
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
@@ -1037,9 +1026,8 @@ class _EventsTab extends StatelessWidget {
                                 Icon(
                                   Icons.arrow_forward_ios_rounded,
                                   size: 16,
-                                  color: theme.colorScheme.onSurface.withValues(
-                                    alpha: 0.6,
-                                  ),
+                                  color: theme.colorScheme.onSurface
+                                      .withOpacity(0.6),
                                 ),
                               ],
                             ),
@@ -1090,7 +1078,7 @@ class _EventsTab extends StatelessWidget {
           Icon(
             Icons.event_rounded,
             size: 64,
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+            color: theme.colorScheme.onSurface.withOpacity(0.5),
           ),
           const SizedBox(height: 16),
           Text(
@@ -1103,7 +1091,7 @@ class _EventsTab extends StatelessWidget {
           Text(
             'Crie seu primeiro evento para começar',
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+              color: theme.colorScheme.onSurface.withOpacity(0.7),
             ),
           ),
           const SizedBox(height: 24),

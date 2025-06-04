@@ -7,6 +7,7 @@ import 'package:mobile/api/repository/viewmodel/event_viewmodel.dart';
 import 'package:mobile/api/models/evento.dart';
 import 'package:mobile/api/services/formulario_service.dart';
 import 'package:mobile/api/services/campo_service.dart';
+import 'package:mobile/api/services/event_service.dart';
 
 class EventosScreen extends StatefulWidget {
   const EventosScreen({super.key});
@@ -62,7 +63,7 @@ class _EventosScreenState extends State<EventosScreen> {
           Container(
             margin: const EdgeInsets.only(right: 8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withAlpha(51),
               borderRadius: BorderRadius.circular(10),
             ),
             child: IconButton(
@@ -87,7 +88,7 @@ class _EventosScreenState extends State<EventosScreen> {
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF26A69A).withOpacity(0.3),
+                      color: const Color(0xFF26A69A).withAlpha(77),
                       blurRadius: 12,
                       offset: const Offset(0, 6),
                     ),
@@ -114,40 +115,7 @@ class _EventosScreenState extends State<EventosScreen> {
 
   Widget _buildBody(EventViewModel eventViewModel, bool isAdmin) {
     if (eventViewModel.eventos is LoadingState) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(15),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: const CircularProgressIndicator(
-                color: Color(0xFF26A69A),
-                strokeWidth: 3,
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Carregando eventos...',
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      );
+      return _buildLoadingState();
     }
 
     if (eventViewModel.eventos is ErrorState) {
@@ -166,6 +134,43 @@ class _EventosScreenState extends State<EventosScreen> {
     return _buildEmptyState(isAdmin);
   }
 
+  Widget _buildLoadingState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withAlpha(25),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: const CircularProgressIndicator(
+              color: Color(0xFF26A69A),
+              strokeWidth: 3,
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'Carregando eventos...',
+            style: TextStyle(
+              color: Colors.grey,
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildErrorState(EventViewModel eventViewModel) {
     return Center(
       child: Padding(
@@ -177,7 +182,7 @@ class _EventosScreenState extends State<EventosScreen> {
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.red.withOpacity(0.1),
+                color: Colors.red.withAlpha(25),
                 blurRadius: 15,
                 offset: const Offset(0, 8),
               ),
@@ -189,7 +194,7 @@ class _EventosScreenState extends State<EventosScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.1),
+                  color: Colors.red.withAlpha(25),
                   borderRadius: BorderRadius.circular(50),
                 ),
                 child: const Icon(
@@ -261,13 +266,15 @@ class _EventosScreenState extends State<EventosScreen> {
   }
 
   Widget _buildEventCard(Evento event, bool isAdmin, BuildContext context) {
+    final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withAlpha(20),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -280,6 +287,12 @@ class _EventosScreenState extends State<EventosScreen> {
           child: InkWell(
             borderRadius: BorderRadius.circular(20),
             onTap: () {
+              final eventService = Provider.of<EventService>(
+                context,
+                listen: false,
+              );
+              eventService.setEventoAtual(event);
+
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -295,6 +308,10 @@ class _EventosScreenState extends State<EventosScreen> {
                           listen: false,
                         ),
                         eventoId: event.id,
+                        // CORREÇÃO: Removendo o acesso ao .id que não existe em User
+                        // Substituindo por uma string vazia ou implementando o getter correto
+                        adminId:
+                            '', // ou você pode usar outro identificador disponível
                       ),
                 ),
               );
@@ -309,8 +326,8 @@ class _EventosScreenState extends State<EventosScreen> {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        const Color(0xFF26A69A).withOpacity(0.8),
-                        const Color(0xFF00796B).withOpacity(0.9),
+                        const Color(0xFF26A69A).withAlpha(204),
+                        const Color(0xFF00796B).withAlpha(229),
                       ],
                     ),
                   ),
@@ -337,7 +354,7 @@ class _EventosScreenState extends State<EventosScreen> {
                       if (isAdmin)
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withAlpha(51),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: IconButton(
@@ -353,7 +370,6 @@ class _EventosScreenState extends State<EventosScreen> {
                     ],
                   ),
                 ),
-
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: Column(
@@ -374,7 +390,7 @@ class _EventosScreenState extends State<EventosScreen> {
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF26A69A).withOpacity(0.1),
+                          color: const Color(0xFF26A69A).withAlpha(25),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
@@ -389,7 +405,7 @@ class _EventosScreenState extends State<EventosScreen> {
                             Text(
                               'Toque para ver formulários',
                               style: TextStyle(
-                                color: const Color(0xFF26A69A).withOpacity(0.8),
+                                color: const Color(0xFF26A69A).withAlpha(204),
                                 fontWeight: FontWeight.w600,
                                 fontSize: 14,
                               ),
@@ -414,7 +430,7 @@ class _EventosScreenState extends State<EventosScreen> {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: iconColor.withOpacity(0.1),
+            color: iconColor.withAlpha(25),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, size: 18, color: iconColor),
@@ -465,12 +481,9 @@ class _EventosScreenState extends State<EventosScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color:
-            isHeader
-                ? Colors.white.withOpacity(0.2)
-                : statusColor.withOpacity(0.1),
+            isHeader ? Colors.white.withAlpha(51) : statusColor.withAlpha(25),
         borderRadius: BorderRadius.circular(20),
-        border:
-            isHeader ? null : Border.all(color: statusColor.withOpacity(0.3)),
+        border: isHeader ? null : Border.all(color: statusColor.withAlpha(76)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -501,7 +514,7 @@ class _EventosScreenState extends State<EventosScreen> {
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
+                color: Colors.grey.withAlpha(25),
                 blurRadius: 15,
                 offset: const Offset(0, 8),
               ),
@@ -513,7 +526,7 @@ class _EventosScreenState extends State<EventosScreen> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF26A69A).withOpacity(0.1),
+                  color: const Color(0xFF26A69A).withAlpha(25),
                   borderRadius: BorderRadius.circular(50),
                 ),
                 child: const Icon(

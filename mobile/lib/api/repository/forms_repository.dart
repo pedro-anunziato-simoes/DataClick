@@ -9,6 +9,7 @@ abstract class IFormularioRepository {
   Future<Formulario> criarFormulario({
     required String titulo,
     required String eventoId,
+    required String adminId,
     required List<Campo> campos,
     String? descricao,
   });
@@ -57,6 +58,7 @@ class FormularioRepository implements IFormularioRepository {
   Future<Formulario> criarFormulario({
     required String titulo,
     required String eventoId,
+    required String adminId,
     required List<Campo> campos,
     String? descricao,
   }) async {
@@ -64,7 +66,9 @@ class FormularioRepository implements IFormularioRepository {
       return await _formularioService.criarFormulario(
         titulo: titulo,
         eventoId: eventoId,
+        adminId: adminId,
         campos: campos,
+        descricao: descricao,
       );
     } catch (e) {
       rethrow;
@@ -83,6 +87,7 @@ class FormularioRepository implements IFormularioRepository {
         formId: formId,
         titulo: titulo,
         campos: campos,
+        descricao: descricao,
       );
     } catch (e) {
       rethrow;

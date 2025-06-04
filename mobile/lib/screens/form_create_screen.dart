@@ -12,7 +12,8 @@ class FormularioScreen extends StatefulWidget {
   final bool isEditingCampo;
   final Campo? campoToEdit;
   final String? formIdForAddCampo;
-  final String? eventoId;
+  final String eventoId;
+  final String adminId;
 
   const FormularioScreen({
     super.key,
@@ -22,7 +23,8 @@ class FormularioScreen extends StatefulWidget {
     this.isEditingCampo = false,
     this.campoToEdit,
     this.formIdForAddCampo,
-    this.eventoId,
+    required this.eventoId,
+    required this.adminId,
   });
 
   @override
@@ -104,7 +106,17 @@ class _FormularioScreenState extends State<FormularioScreen> {
     );
 
     setState(() {
-      _campos.add(campo);
+      if (widget.campoToEdit != null) {
+        // Se estiver editando, substitui o campo existente
+        final index = _campos.indexWhere(
+          (c) => c.campoId == widget.campoToEdit!.campoId,
+        );
+        if (index != -1) {
+          _campos[index] = campo;
+        }
+      } else {
+        _campos.add(campo);
+      }
       _resetCampoForm();
     });
   }
@@ -189,19 +201,10 @@ class _FormularioScreenState extends State<FormularioScreen> {
         campos: _campos,
       );
     } else {
-      final camposFormatados =
-          _campos.map((campo) {
-            return {
-              'campoTitulo': campo.titulo,
-              'campoTipo': campo.tipo,
-              'campoId': campo.campoId,
-              'resposta': campo.resposta,
-            };
-          }).toList();
-
       await widget.formularioService.criarFormulario(
         titulo: _tituloController.text,
-        eventoId: widget.eventoId!,
+        eventoId: widget.eventoId,
+        adminId: widget.adminId,
         campos: _campos,
       );
     }
@@ -241,6 +244,115 @@ class _FormularioScreenState extends State<FormularioScreen> {
       icons[tipo] ?? Icons.help_outline,
       color: const Color(0xFF26A69A),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[100],
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF26A69A),
+        title: Text(
+          _isCampoMode
+              ? widget.campoToEdit != null
+                  ? 'Editar Campo'
+                  : 'Adicionar Campo'
+              : widget.formularioExistente != null
+              ? 'Editar Formulário'
+              : 'Criar Formulário',
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+        actions: [
+          if (!_isCampoMode)
+            IconButton(
+              icon: const Icon(Icons.save),
+              onPressed: _isLoading ? null : _salvarFormulario,
+            ),
+        ],
+      ),
+      body: _buildBody(),
+      floatingActionButton: _buildFloatingActionButton(),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return _isCampoMode
+        ? _buildCampoForm()
+        : Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              _buildFormHeader(),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      _buildAdicionarCampoCard(),
+                      const SizedBox(height: 16),
+                      if (_campos.isNotEmpty) _buildListaCampos(),
+                      const SizedBox(height: 72),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+  }
+
+  Widget _buildFormHeader() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      color: const Color(0xFF26A69A),
+      child: TextFormField(
+        controller: _tituloController,
+        style: const TextStyle(color: Colors.white, fontSize: 18),
+        decoration: InputDecoration(
+          labelText: 'Título do Formulário',
+          labelStyle: const TextStyle(color: Colors.white),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.white70),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.white),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.red),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.red),
+          ),
+          prefixIcon: const Icon(Icons.title, color: Colors.white),
+          errorStyle: const TextStyle(color: Colors.yellow),
+        ),
+        validator:
+            (value) =>
+                value?.isEmpty ?? true
+                    ? 'Informe o título do formulário'
+                    : null,
+      ),
+    );
+  }
+
+  Widget? _buildFloatingActionButton() {
+    return !_isLoading && !_isCampoMode
+        ? FloatingActionButton.extended(
+          onPressed: _salvarFormulario,
+          label: const Text('SALVAR FORMULÁRIO'),
+          icon: const Icon(Icons.save),
+        )
+        : null;
   }
 
   Widget _buildCampoForm() {
@@ -352,115 +464,6 @@ class _FormularioScreenState extends State<FormularioScreen> {
         ),
       );
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF26A69A),
-        title: Text(
-          _isCampoMode
-              ? widget.campoToEdit != null
-                  ? 'Editar Campo'
-                  : 'Adicionar Campo'
-              : widget.formularioExistente != null
-              ? 'Editar Formulário'
-              : 'Criar Formulário',
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          if (!_isCampoMode)
-            IconButton(
-              icon: const Icon(Icons.save),
-              onPressed: _isLoading ? null : _salvarFormulario,
-            ),
-        ],
-      ),
-      body: _buildBody(),
-      floatingActionButton: _buildFloatingActionButton(),
-    );
-  }
-
-  Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    return _isCampoMode
-        ? _buildCampoForm()
-        : Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              _buildFormHeader(),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      _buildAdicionarCampoCard(),
-                      const SizedBox(height: 16),
-                      if (_campos.isNotEmpty) _buildListaCampos(),
-                      const SizedBox(height: 72),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-  }
-
-  Widget _buildFormHeader() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      color: const Color(0xFF26A69A),
-      child: TextFormField(
-        controller: _tituloController,
-        style: const TextStyle(color: Colors.white, fontSize: 18),
-        decoration: InputDecoration(
-          labelText: 'Título do Formulário',
-          labelStyle: const TextStyle(color: Colors.white),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.white70),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.white),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.red),
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.red),
-          ),
-          prefixIcon: const Icon(Icons.title, color: Colors.white),
-          errorStyle: const TextStyle(color: Colors.yellow),
-        ),
-        validator:
-            (value) =>
-                value?.isEmpty ?? true
-                    ? 'Informe o título do formulário'
-                    : null,
-      ),
-    );
-  }
-
-  Widget? _buildFloatingActionButton() {
-    return !_isLoading && !_isCampoMode
-        ? FloatingActionButton.extended(
-          onPressed: _salvarFormulario,
-          label: const Text('SALVAR FORMULÁRIO'),
-          icon: const Icon(Icons.save),
-        )
-        : null;
   }
 
   Widget _buildAdicionarCampoCard() {

@@ -127,18 +127,27 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => const ProfileScreen(),
         '/settings': (context) => const SettingsScreen(),
         '/recrutador/register': (context) => const RecrutadorRegisterScreen(),
-        '/forms':
-            (context) => FormsScreen(
-              formularioService: context.read<FormularioService>(),
-              campoService: context.read<CampoService>(),
-              isAdmin:
-                  context.read<AuthViewModel>().currentUser?.tipo == 'admin',
-              eventoId: '',
-            ),
+        '/forms': (context) {
+          final authViewModel = Provider.of<AuthViewModel>(
+            context,
+            listen: false,
+          );
+          return FormsScreen(
+            formularioService: context.read<FormularioService>(),
+            campoService: context.read<CampoService>(),
+            isAdmin: authViewModel.currentUser?.tipo == 'admin',
+            eventoId: '',
+            adminId: authViewModel.currentUser?.usuarioId ?? '',
+          );
+        },
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/create-form') {
           final args = settings.arguments as Map<String, dynamic>?;
+          final authViewModel = Provider.of<AuthViewModel>(
+            context,
+            listen: false,
+          );
           return MaterialPageRoute(
             builder:
                 (context) => FormularioScreen(
@@ -146,12 +155,17 @@ class MyApp extends StatelessWidget {
                   formularioService: context.read<FormularioService>(),
                   campoService: context.read<CampoService>(),
                   eventoId: args?['eventoId'] ?? '',
+                  adminId: authViewModel.currentUser?.usuarioId ?? '',
                 ),
           );
         }
 
         if (settings.name == '/add-campo') {
           final args = settings.arguments as Map<String, dynamic>;
+          final authViewModel = Provider.of<AuthViewModel>(
+            context,
+            listen: false,
+          );
           return MaterialPageRoute(
             builder:
                 (context) => FormularioScreen(
@@ -160,12 +174,17 @@ class MyApp extends StatelessWidget {
                   formularioService: context.read<FormularioService>(),
                   isEditingCampo: false,
                   eventoId: args['eventoId'] ?? '',
+                  adminId: authViewModel.currentUser?.usuarioId ?? '',
                 ),
           );
         }
 
         if (settings.name == '/edit-campo') {
           final args = settings.arguments as Map<String, dynamic>;
+          final authViewModel = Provider.of<AuthViewModel>(
+            context,
+            listen: false,
+          );
           return MaterialPageRoute(
             builder:
                 (context) => FormularioScreen(
@@ -175,6 +194,7 @@ class MyApp extends StatelessWidget {
                   formularioService: context.read<FormularioService>(),
                   isEditingCampo: true,
                   eventoId: args['eventoId'] ?? '',
+                  adminId: authViewModel.currentUser?.usuarioId ?? '',
                 ),
           );
         }
