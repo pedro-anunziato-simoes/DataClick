@@ -5,29 +5,39 @@ import { Box, Typography } from "@mui/material";
 
 const SuportePage = () => {
   return (
-    <>
+    <div style={{ display: "flex", minHeight: "100vh" }}>
       <Sidebar />
+
       <Box
         sx={{
-          marginLeft: { xs: "70px", sm: "250px" },
-          minHeight: "100vh",
-          backgroundColor: "#c0e9e7",
+          flexGrow: 1,
           display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          textAlign: "center",
-          padding: 4,
-          position: "relative",
+          flexDirection: "column",
+          background: "linear-gradient(to bottom, #b2dfdb, #4db6ac)",
         }}
       >
-        <Typography variant="h4" fontWeight="bold">
-          canal principal de suporte
-        </Typography>
+        <Box
+          sx={{
+            flexGrow: 1,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: 4,
+            textAlign: "center",
+          }}
+        >
+          <Typography
+            variant="h4"
+            fontWeight="bold"
+            sx={{ color: "#000" }}
+          >
+            canal principal de suporte
+          </Typography>
+        </Box>
+        <Footer />
         <Suporte />
-        
       </Box>
-      <Footer/>
-    </>
+    </div>
   );
 };
 
