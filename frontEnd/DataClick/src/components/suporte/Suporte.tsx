@@ -13,8 +13,8 @@ const Suporte: React.FC = () => {
       <CardContent
         sx={{
           position: "fixed",
-          bottom: 16,
-          right: 16, 
+          bottom: 80, //
+          right: 16,
           zIndex: 1000,
         }}
       >
