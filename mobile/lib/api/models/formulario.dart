@@ -65,4 +65,6 @@ class Formulario {
     if (dataCriacao != null) 'dataCriacao': dataCriacao!.toIso8601String(),
     if (eventoId != null) 'eventoId': eventoId,
   };
+
+  copyWith({required String id, required String titulo}) {}
 }
