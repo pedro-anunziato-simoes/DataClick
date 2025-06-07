@@ -39,4 +39,12 @@ class AdministradorService {
       throw Exception('Falha ao remover administrador: ${response.statusCode}');
     }
   }
+
+  listarAdministradores() {}
+
+  atualizarAdministrador(Administrador updatedAdmin) {}
+
+  alterarSenha(String s, String t) {}
+
+  login(String s, String t) {}
 }

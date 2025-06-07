@@ -66,7 +66,7 @@ class _RecruiterDashboardScreenState extends State<RecruiterDashboardScreen>
 
         if (recruiterViewModel.recrutador?.eventos != null) {
           for (var evento in recruiterViewModel.recrutador!.eventos!) {
-            await formViewModel.carregarFormulariosPorEvento(evento.id!);
+            await formViewModel.carregarFormulariosPorEvento(evento.id);
           }
         }
       }
@@ -512,7 +512,7 @@ class _OverviewTab extends StatelessWidget {
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
-                          '${form.campos?.length ?? 0} campos',
+                          '${form.campos.length ?? 0} campos',
                           style: theme.textTheme.bodySmall,
                         ),
                       ),
@@ -822,7 +822,7 @@ class _FormsTab extends StatelessWidget {
                                           ),
                                         ),
                                         child: Text(
-                                          '${form.campos?.length ?? 0} campos',
+                                          '${form.campos.length ?? 0} campos',
                                           style: theme.textTheme.bodySmall,
                                         ),
                                       ),
