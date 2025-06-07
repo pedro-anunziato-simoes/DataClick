@@ -7,7 +7,6 @@ import '../../mobile/lib/api/api_client.dart';
 import '../../mobile/lib/api/models/recrutador.dart';
 import '../../mobile/lib/api/services/api_exception.dart';
 
-// Definição manual do mock
 class MockApiClient extends Mock implements ApiClient {}
 
 void main() {
@@ -21,7 +20,6 @@ void main() {
 
   group('RecrutadorService Tests', () {
     test('Listar recrutadores com sucesso', () async {
-      // Arrange
       final recrutadoresJson = [
         {
           'usuarioId': 'rec-123',
@@ -47,10 +45,8 @@ void main() {
       )).thenAnswer(
           (_) async => http.Response(json.encode(recrutadoresJson), 200));
 
-      // Act
       final recrutadores = await recrutadorService.getRecrutadores();
 
-      // Assert
       expect(recrutadores, isA<List<Recrutador>>());
       expect(recrutadores.length, 2);
       expect(recrutadores[0].usuarioId, 'rec-123');
@@ -61,7 +57,6 @@ void main() {
     });
 
     test('Buscar recrutador por ID com sucesso', () async {
-      // Arrange
       final recrutadorId = 'rec-123';
       final recrutadorJson = {
         'usuarioId': recrutadorId,
@@ -78,11 +73,9 @@ void main() {
       )).thenAnswer(
           (_) async => http.Response(json.encode(recrutadorJson), 200));
 
-      // Act
       final recrutador =
           await recrutadorService.getRecrutadorById(recrutadorId);
 
-      // Assert
       expect(recrutador, isA<Recrutador>());
       expect(recrutador.usuarioId, recrutadorId);
       expect(recrutador.nome, 'Recrutador Teste');
@@ -92,7 +85,6 @@ void main() {
     });
 
     test('Buscar recrutador por email com sucesso', () async {
-      // Arrange
       final email = 'recrutador@example.com';
       final recrutadorJson = {
         'usuarioId': 'rec-123',
@@ -109,10 +101,8 @@ void main() {
       )).thenAnswer(
           (_) async => http.Response(json.encode(recrutadorJson), 200));
 
-      // Act
       final recrutador = await recrutadorService.getRecrutadorByEmail(email);
 
-      // Assert
       expect(recrutador, isA<Recrutador>());
       expect(recrutador.email, email);
       expect(recrutador.nome, 'Recrutador Teste');
@@ -122,7 +112,6 @@ void main() {
     });
 
     test('Buscar recrutador inexistente deve lançar ApiException', () async {
-      // Arrange
       final recrutadorId = 'rec-999';
       when(mockApiClient.get(
         '/recrutadores/$recrutadorId',
@@ -130,7 +119,6 @@ void main() {
       )).thenAnswer((_) async => http.Response(
           json.encode({'message': 'Recrutador não encontrado'}), 404));
 
-      // Act & Assert
       expect(
           () async => await recrutadorService.getRecrutadorById(recrutadorId),
           throwsA(isA<ApiException>()));
@@ -140,14 +128,12 @@ void main() {
     });
 
     test('Criar novo recrutador com sucesso', () async {
-      // Arrange
       final nome = 'Novo Recrutador';
       final email = 'novo@recrutador.com';
       final telefone = '11977777777';
       final senha = 'senha789';
       final adminId = 'admin-456';
 
-      // Criar o DTO que será passado como argumento posicional
       final recrutadorCreateDTO = RecrutadorCreateDTO(
           nome: nome,
           telefone: telefone,
@@ -179,8 +165,6 @@ void main() {
       )).thenAnswer(
           (_) async => http.Response(json.encode(recrutadorResponseJson), 201));
 
-      // Act
-      // Passando o DTO como argumento posicional e os parâmetros nomeados
       final recrutador = await recrutadorService.criarRecrutador(
         recrutadorCreateDTO,
         nome: nome,
@@ -190,7 +174,6 @@ void main() {
         adminId: adminId,
       );
 
-      // Assert
       expect(recrutador, isA<Recrutador>());
       expect(recrutador.usuarioId, 'rec-789');
       expect(recrutador.nome, nome);
@@ -203,7 +186,6 @@ void main() {
     });
 
     test('Alterar recrutador com sucesso', () async {
-      // Arrange
       final recrutadorId = 'rec-123';
       final nome = 'Recrutador Atualizado';
       final telefone = '11966666666';
@@ -231,7 +213,6 @@ void main() {
       )).thenAnswer(
           (_) async => http.Response(json.encode(recrutadorResponseJson), 200));
 
-      // Act
       final recrutador = await recrutadorService.alterarRecrutador(
         recrutadorId: recrutadorId,
         nome: nome,
@@ -239,7 +220,6 @@ void main() {
         email: email,
       );
 
-      // Assert
       expect(recrutador, isA<Recrutador>());
       expect(recrutador.usuarioId, recrutadorId);
       expect(recrutador.nome, nome);
@@ -253,17 +233,14 @@ void main() {
     });
 
     test('Excluir recrutador com sucesso', () async {
-      // Arrange
       final recrutadorId = 'rec-123';
       when(mockApiClient.delete(
         '/recrutadores/remover/$recrutadorId',
         includeAuth: true,
       )).thenAnswer((_) async => http.Response('', 200));
 
-      // Act
       await recrutadorService.excluirRecrutador(recrutadorId);
 
-      // Assert - Verificamos apenas que o método foi chamado, já que ele retorna void
       verify(mockApiClient.delete(
         '/recrutadores/remover/$recrutadorId',
         includeAuth: true,
@@ -271,7 +248,6 @@ void main() {
     });
 
     test('Alterar email do recrutador com sucesso', () async {
-      // Arrange
       final recrutadorId = 'rec-123';
       final novoEmail = 'novo.email@example.com';
       final requestBody = {'email': novoEmail, 'recrutadorId': recrutadorId};
@@ -282,10 +258,8 @@ void main() {
         includeAuth: true,
       )).thenAnswer((_) async => http.Response('', 200));
 
-      // Act
       await recrutadorService.alterarEmail(novoEmail, recrutadorId);
 
-      // Assert - Verificamos apenas que o método foi chamado, já que ele retorna void
       verify(mockApiClient.post(
         '/recrutadores/alterar/email',
         body: json.encode(requestBody),
@@ -294,7 +268,6 @@ void main() {
     });
 
     test('Alterar senha do recrutador com sucesso', () async {
-      // Arrange
       final recrutadorId = 'rec-123';
       final novaSenha = 'novaSenha456';
       final requestBody = {'senha': novaSenha, 'recrutadorId': recrutadorId};
@@ -305,10 +278,8 @@ void main() {
         includeAuth: true,
       )).thenAnswer((_) async => http.Response('', 200));
 
-      // Act
       await recrutadorService.alterarSenha(novaSenha, recrutadorId);
 
-      // Assert - Verificamos apenas que o método foi chamado, já que ele retorna void
       verify(mockApiClient.post(
         '/recrutadores/alterar/senha',
         body: json.encode(requestBody),
@@ -317,7 +288,6 @@ void main() {
     });
 
     test('Login com sucesso', () async {
-      // Arrange
       final email = 'recrutador@example.com';
       final senha = 'senha123';
       final requestBody = {'email': email, 'senha': senha};
@@ -329,10 +299,8 @@ void main() {
         includeAuth: false,
       )).thenAnswer((_) async => http.Response(json.encode(responseJson), 200));
 
-      // Act
       final token = await recrutadorService.login(email, senha);
 
-      // Assert
       expect(token, 'jwt-token-123');
       verify(mockApiClient.post(
         '/auth/login',

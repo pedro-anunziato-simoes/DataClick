@@ -1,33 +1,27 @@
 import 'dart:convert';
-// Assuming http is used by ApiClient or needed here
-import 'package:shared_preferences/shared_preferences.dart'; // Assuming needed
-
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../mobile/lib/api/api_client.dart';
 import '../../mobile/lib/api/models/user.dart';
-// Assuming needed
 import '../../mobile/lib/api/endpoints.dart';
 
 class AuthService {
   final ApiClient apiClient;
-  final SharedPreferences sharedPreferences; // Added based on test code
-
-  // Constructor updated based on test code
+  final SharedPreferences sharedPreferences;
   AuthService({required this.apiClient, required this.sharedPreferences});
 
   Future<User> login(String email, String password) async {
     final response = await apiClient.post(
-      Endpoints.login, // Assuming Endpoints.login exists
+      Endpoints.login,
       body: json.encode({'email': email, 'senha': password}),
     );
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      // Ensure 'user' key exists and is a map before accessing
       if (data != null && data['user'] is Map<String, dynamic>) {
         final user = User.fromJson(data['user']);
         final token = data['token'] as String?;
         if (token != null) {
-          await sharedPreferences.setString('auth_token', token); // Save token
+          await sharedPreferences.setString('auth_token', token);
         }
         return user;
       } else {
@@ -36,7 +30,6 @@ class AuthService {
         );
       }
     } else {
-      // Handle error based on response body or status code
       try {
         final errorData = json.decode(response.body);
         throw Exception(
@@ -50,7 +43,6 @@ class AuthService {
     }
   }
 
-  // Register method updated based on test code
   Future<User> register({
     required String nome,
     required String email,
@@ -60,7 +52,7 @@ class AuthService {
     required String tipo,
   }) async {
     final response = await apiClient.post(
-      Endpoints.register, // Assuming Endpoints.register exists
+      Endpoints.register,
       body: json.encode({
         'nome': nome,
         'email': email,
@@ -73,12 +65,11 @@ class AuthService {
 
     if (response.statusCode == 201) {
       final data = json.decode(response.body);
-      // Ensure 'user' key exists and is a map before accessing
       if (data != null && data['user'] is Map<String, dynamic>) {
         final user = User.fromJson(data['user']);
         final token = data['token'] as String?;
         if (token != null) {
-          await sharedPreferences.setString('auth_token', token); // Save token
+          await sharedPreferences.setString('auth_token', token);
         }
         return user;
       } else {
@@ -99,6 +90,4 @@ class AuthService {
       }
     }
   }
-
-  // Add other methods like logout, checkAuthStatus etc. if they exist
 }
