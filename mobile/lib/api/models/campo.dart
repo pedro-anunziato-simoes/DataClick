@@ -1,7 +1,7 @@
 class Campo {
   final String titulo;
   final String tipo;
-  final Map<String, dynamic> resposta;
+  final Map<String, dynamic>? resposta;
   final String campoId;
 
   Campo({
@@ -15,7 +15,7 @@ class Campo {
     return Campo(
       titulo: json['campoTitulo'] ?? json['titulo'] ?? '',
       tipo: json['campoTipo'] ?? json['tipo'] ?? '',
-      resposta: Map<String, dynamic>.from(json['resposta'] ?? {}),
+      resposta: json['resposta'] != null ? Map<String, dynamic>.from(json['resposta']) : null,
       campoId: json['campoId'] ?? '',
     );
   }

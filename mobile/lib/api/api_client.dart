@@ -1,24 +1,18 @@
 import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-
-import '../../mobile/api/api_service_test.dart';
-import '../../test/recrutador_service_test.mocks.dart';
 
 class ApiClient {
   final http.Client _httpClient;
   final SharedPreferences _prefs;
   String? _authToken;
-  final String baseUrl = 'http://localhost:8080';
+  final String baseUrl;
 
-  ApiClient(
-    this._httpClient,
-    this._prefs,
-    String baseUrl, {
-    required String baseUrl,
-    required MockClient httpClient,
-    required MockSharedPreferences sharedPreferences,
-  }) {
+  ApiClient(http.Client httpClient, SharedPreferences sharedPreferences, {
+    required SharedPreferences prefs,
+    required this.baseUrl,
+  }) : _httpClient = httpClient, _prefs = prefs {
     _loadToken();
   }
 

@@ -50,7 +50,7 @@ List<SingleChildWidget> _buildProviders(
     Provider<SharedPreferences>.value(value: sharedPreferences),
     Provider<http.Client>.value(value: httpClient),
     Provider<ApiClient>(
-      create: (context) => ApiClient(httpClient, sharedPreferences),
+      create: (context) => ApiClient(httpClient, sharedPreferences, baseUrl: 'http://localhost:8080', prefs: sharedPreferences),
     ),
     ProxyProvider<ApiClient, AuthService>(
       update: (_, apiClient, __) => AuthService(apiClient, sharedPreferences),
@@ -217,7 +217,7 @@ class MyApp extends StatelessWidget {
           color: Colors.white,
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(8),

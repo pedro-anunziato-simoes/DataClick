@@ -30,7 +30,7 @@ class _RecrutadorRegisterScreenState extends State<RecrutadorRegisterScreen> {
     _confirmarSenhaController.dispose();
     super.dispose();
   }
-
+  /*
   Future<void> _registerRecruiter() async {
     FocusManager.instance.primaryFocus?.unfocus();
 
@@ -92,7 +92,7 @@ class _RecrutadorRegisterScreenState extends State<RecrutadorRegisterScreen> {
       }
     }
   }
-
+  */
   @override
   Widget build(BuildContext context) {
     final authViewModel = Provider.of<AuthViewModel>(context);
@@ -377,7 +377,7 @@ class _RecrutadorRegisterScreenState extends State<RecrutadorRegisterScreen> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: isLoading ? null : _registerRecruiter,
+                            onPressed: isLoading ? null : () => Navigator.pop(context),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF26A69A),
                               minimumSize: const Size(0, 45),

@@ -87,6 +87,7 @@ class AuthViewModel with ChangeNotifier {
     }
   }
 
+  /*
   Future<bool> registerRecrutador({
     required String nome,
     required String email,
@@ -115,7 +116,7 @@ class AuthViewModel with ChangeNotifier {
       notifyListeners();
     }
   }
-
+  */
   Future<void> logout() async {
     _isLoading = true;
     notifyListeners();

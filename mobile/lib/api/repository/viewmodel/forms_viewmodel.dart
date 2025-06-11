@@ -152,7 +152,7 @@ class FormViewModel extends ChangeNotifier {
         final currentList =
             (_formularios as SuccessState<List<Formulario>>).data;
         if (currentList.isNotEmpty) {
-          await carregarFormulariosPorEvento(currentList.first.eventoId ?? '');
+          await carregarFormulariosPorEvento(currentList.first.formularioEventoId ?? '');
         }
       }
 
@@ -176,9 +176,9 @@ class FormViewModel extends ChangeNotifier {
             .firstWhere(
               (f) => f.id == id,
               orElse:
-                  () => Formulario(id: '', titulo: '', adminId: '', campos: []),
+                  () => Formulario(id: '', formularioTitulo: '', formAdminId: '', campos: []),
             );
-        eventoId = formulario.eventoId;
+        eventoId = formulario.formularioEventoId;
       }
 
       await _repository.removerFormulario(id);
