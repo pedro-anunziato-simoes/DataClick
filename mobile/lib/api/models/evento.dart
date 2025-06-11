@@ -6,13 +6,13 @@ class FormularioSimplificado {
 
   factory FormularioSimplificado.fromJson(Map<String, dynamic> json) {
     return FormularioSimplificado(
-      id: json['id'] as String,
-      titulo: json['titulo'] as String,
+      id: json["id"]?.toString() ?? "",
+      titulo: json["formularioTitulo"]?.toString() ?? "",
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'id': id, 'titulo': titulo};
+    return {"id": id, "titulo": titulo};
   }
 }
 
@@ -24,22 +24,20 @@ class UsuarioSimplificado {
 
   factory UsuarioSimplificado.fromJson(Map<String, dynamic> json) {
     return UsuarioSimplificado(
-      id: json['id'] as String? ?? json['usuarioId'] as String? ?? '',
-      nome: json['nome'] as String? ?? '',
+    id: json["id"]?.toString() ?? json["usuarioId"]?.toString() ?? "",
+    nome: json["nome"]?.toString() ?? "",
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'id': id, 'nome': nome};
+    return {"id": id, "nome": nome};
   }
 }
 
 class Evento {
   final String id;
   final String nome;
-  final DateTime dataInicio;
-  final DateTime dataFim;
-  final String local;
+  final DateTime data;
   final String descricao;
   final List<FormularioSimplificado> formulariosAssociados;
   final List<UsuarioSimplificado> recrutadoresEnvolvidos;
@@ -50,9 +48,7 @@ class Evento {
   Evento({
     required this.id,
     required this.nome,
-    required this.dataInicio,
-    required this.dataFim,
-    required this.local,
+    required this.data,
     required this.descricao,
     required this.formulariosAssociados,
     required this.recrutadoresEnvolvidos,
@@ -62,68 +58,40 @@ class Evento {
   });
 
   factory Evento.fromJson(Map<String, dynamic> json) {
+    print('Evento JSON: $json'); // Debug para identificar problemas de dados
     return Evento(
-      id: json['id'] as String? ?? '',
-      nome: json['nome'] as String? ?? '',
-      dataInicio:
-          json['dataInicio'] is String
-              ? DateTime.parse(json['dataInicio'] as String)
-              : DateTime.now(),
-      dataFim:
-          json['dataFim'] is String
-              ? DateTime.parse(json['dataFim'] as String)
-              : DateTime.now().add(const Duration(days: 1)),
-      local: json['local'] as String? ?? '',
-      descricao: json['descricao'] as String? ?? '',
-      formulariosAssociados:
-          (json['formulariosAssociados'] as List<dynamic>? ?? [])
-              .map(
-                (e) =>
-                    FormularioSimplificado.fromJson(e as Map<String, dynamic>),
-              )
-              .toList(),
-      recrutadoresEnvolvidos:
-          (json['recrutadoresEnvolvidos'] as List<dynamic>? ?? [])
-              .map(
-                (e) => UsuarioSimplificado.fromJson(e as Map<String, dynamic>),
-              )
-              .toList(),
-      administradoresEnvolvidos:
-          (json['administradoresEnvolvidos'] as List<dynamic>? ?? [])
-              .map(
-                (e) => UsuarioSimplificado.fromJson(e as Map<String, dynamic>),
-              )
-              .toList(),
-      status: json['status'] as String? ?? 'ATIVO',
-      adminId: json['adminId'] as String?,
+      id: json["eventoId"]?.toString() ?? "",
+      nome: json["eventoTitulo"]?.toString() ?? "",
+      data: json["eventoData"] != null
+          ? DateTime.tryParse(json["eventoData"].toString()) ?? DateTime.now()
+          : DateTime.now(),
+      descricao: json["eventoDescricao"]?.toString() ?? "",
+      formulariosAssociados: (json["eventoFormularios"] as List<dynamic>? ?? [])
+          .map((e) => FormularioSimplificado.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      recrutadoresEnvolvidos: (json["recrutadoresEnvolvidos"] as List<dynamic>? ?? [])
+          .map((e) => UsuarioSimplificado.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      administradoresEnvolvidos: (json["administradoresEnvolvidos"] as List<dynamic>? ?? [])
+          .map((e) => UsuarioSimplificado.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      status: json["status"]?.toString() ?? "ATIVO",
+      adminId: json["eventoAdminId"]?.toString(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'nome': nome,
-      'dataInicio': dataInicio.toIso8601String(),
-      'dataFim': dataFim.toIso8601String(),
-      'local': local,
-      'descricao': descricao,
-      'formulariosAssociados':
-          formulariosAssociados.map((e) => e.toJson()).toList(),
-      'recrutadoresEnvolvidos':
-          recrutadoresEnvolvidos.map((e) => e.toJson()).toList(),
-      'administradoresEnvolvidos':
-          administradoresEnvolvidos.map((e) => e.toJson()).toList(),
-      'status': status,
-      'adminId': adminId,
+      "eventoTituloDto": nome,
+      "eventoDescricaoDto": descricao,
+      "eventoDataDto": data.toIso8601String(),
     };
   }
 
   Evento copyWith({
     String? id,
     String? nome,
-    DateTime? dataInicio,
-    DateTime? dataFim,
-    String? local,
+    DateTime? data,
     String? descricao,
     List<FormularioSimplificado>? formulariosAssociados,
     List<UsuarioSimplificado>? recrutadoresEnvolvidos,
@@ -134,9 +102,7 @@ class Evento {
     return Evento(
       id: id ?? this.id,
       nome: nome ?? this.nome,
-      dataInicio: dataInicio ?? this.dataInicio,
-      dataFim: dataFim ?? this.dataFim,
-      local: local ?? this.local,
+      data: data ?? this.data,
       descricao: descricao ?? this.descricao,
       formulariosAssociados:
           formulariosAssociados ?? this.formulariosAssociados,

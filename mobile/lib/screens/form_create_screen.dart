@@ -61,16 +61,16 @@ class _FormularioScreenState extends State<FormularioScreen> {
     _isCampoMode = widget.isEditingCampo || widget.formIdForAddCampo != null;
 
     if (widget.formularioExistente != null) {
-      _tituloController.text = widget.formularioExistente!.titulo;
+      _tituloController.text = widget.formularioExistente!.formularioTitulo;
       _campos.addAll(widget.formularioExistente!.campos);
     }
 
     if (widget.campoToEdit != null) {
       _campoTituloController.text = widget.campoToEdit!.titulo;
       _tipoCampoSelecionado = widget.campoToEdit!.tipo;
-      if (widget.campoToEdit!.resposta['opcoes'] != null) {
+      if (widget.campoToEdit!.resposta != null && widget.campoToEdit!.resposta!['opcoes'] != null) {
         _opcoes.addAll(
-          List<String>.from(widget.campoToEdit!.resposta['opcoes']),
+          List<String>.from(widget.campoToEdit!.resposta!['opcoes']),
         );
       }
     }

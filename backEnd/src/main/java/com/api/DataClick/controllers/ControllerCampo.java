@@ -16,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -56,6 +57,7 @@ public class ControllerCampo {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         EntityCampo campoAdicionado = serviceCampo.adicionarCampo(campo, formId);
+        campoAdicionado.setResposta(campoAdicionado.getResposta() != null ? campoAdicionado.getResposta() : new HashMap<>());
         return ResponseEntity.status(HttpStatus.CREATED).body(campoAdicionado);
     }
 
@@ -87,6 +89,7 @@ public class ControllerCampo {
         if (campo == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+        campo.setResposta(campo.getResposta() != null ? campo.getResposta() : new HashMap<>());
         return ResponseEntity.ok(campo);
     }
 
@@ -100,6 +103,7 @@ public class ControllerCampo {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         EntityCampo campoAlterado = serviceCampo.alterarCampo(campoId,dto);
+        campoAlterado.setResposta(campoAlterado.getResposta() != null ? campoAlterado.getResposta() : new HashMap<>());
         return ResponseEntity.ok(campoAlterado);
     }
 

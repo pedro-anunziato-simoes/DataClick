@@ -46,7 +46,7 @@ const Formularios = () => {
   };
 
   const handleEditarCampos = (formId: string) => {
-    navigate(`/campos/${formId}`);
+    navigate(`/formularios/${formId}/campos/criar`);
   };
 
   const handleEditarFormulario = (formId: string) => {

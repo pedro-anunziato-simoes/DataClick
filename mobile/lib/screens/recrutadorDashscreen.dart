@@ -494,7 +494,7 @@ class _OverviewTab extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        form.titulo ?? 'Formulário sem título',
+                        form.formularioTitulo ?? 'Formulário sem título',
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -800,7 +800,7 @@ class _FormsTab extends StatelessWidget {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        form.titulo ?? 'Formulário sem título',
+                                        form.formularioTitulo ?? 'Formulário sem título',
                                         style: theme.textTheme.titleMedium
                                             ?.copyWith(
                                               fontWeight: FontWeight.w600,

@@ -3,21 +3,21 @@ import 'campo.dart';
 
 class Formulario {
   final String id;
-  final String titulo;
-  final String adminId;
+  final String formularioTitulo;
+  final String formAdminId;
   final List<Campo> campos;
   final String? descricao;
   final DateTime? dataCriacao;
-  final String? eventoId;
+  final String? formularioEventoId;
 
   Formulario({
     required this.id,
-    required this.titulo,
-    required this.adminId,
+    required this.formularioTitulo,
+    required this.formAdminId,
     required this.campos,
     this.descricao,
     this.dataCriacao,
-    this.eventoId,
+    this.formularioEventoId,
   });
 
   factory Formulario.fromJson(Map<String, dynamic> json) {
@@ -32,8 +32,8 @@ class Formulario {
 
       return Formulario(
         id: json['id']?.toString() ?? '',
-        titulo: json['titulo']?.toString() ?? 'Sem título',
-        adminId:
+        formularioTitulo: json['formularioTitulo']?.toString() ?? 'Sem título',
+        formAdminId:
             json['adminId']?.toString() ??
             json['formAdminId']?.toString() ??
             '',
@@ -43,14 +43,14 @@ class Formulario {
             json['dataCriacao'] != null
                 ? DateTime.tryParse(json['dataCriacao'])
                 : null,
-        eventoId: json['eventoId']?.toString(),
+        formularioEventoId: json['eventoId']?.toString(),
       );
     } catch (e) {
       debugPrint('Erro ao parsear Formulario: $e');
       return Formulario(
         id: '',
-        titulo: 'Erro ao carregar',
-        adminId: '',
+        formularioTitulo: 'Erro ao carregar',
+        formAdminId: '',
         campos: [],
       );
     }
@@ -58,12 +58,12 @@ class Formulario {
 
   Map<String, dynamic> toJson() => {
     'id': id,
-    'titulo': titulo,
-    'adminId': adminId,
+    'formularioTitulo': formularioTitulo,
+    'formAdminId': formAdminId,
     'campos': campos.map((e) => e.toJson()).toList(),
     if (descricao != null) 'descricao': descricao,
     if (dataCriacao != null) 'dataCriacao': dataCriacao!.toIso8601String(),
-    if (eventoId != null) 'eventoId': eventoId,
+    if (formularioEventoId != null) 'eventoId': formularioEventoId,
   };
 
   copyWith({required String id, required String titulo}) {}
