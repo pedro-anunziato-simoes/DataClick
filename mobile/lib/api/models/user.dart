@@ -2,17 +2,16 @@ import 'administrador.dart';
 import 'recrutador.dart';
 import 'evento.dart';
 
-enum UserRole { admin, recrutador, candidato }
+enum UserRole { admin, user, invalid }
 
 class User {
   final String usuarioId;
   final String nome;
   final String email;
-  final String? telefone;
-  final String tipo;
+  final String telefone;
   final String? senha;
-  final String? adminId;
   final UserRole role;
+  final String? adminId;
   final List<Evento>? eventos;
   final String? token;
 
@@ -20,11 +19,10 @@ class User {
     required this.usuarioId,
     required this.nome,
     required this.email,
-    this.telefone,
-    required this.tipo,
+    required this.telefone,
     this.senha,
-    this.adminId,
     required this.role,
+    this.adminId,
     this.eventos,
     this.token,
   });
@@ -35,9 +33,8 @@ class User {
       nome: admin.nome,
       email: admin.email,
       telefone: admin.telefone,
-      tipo: 'admin',
       role: UserRole.admin,
-      eventos: admin.eventos,
+      eventos: admin.adminEventos,
       token: admin.token,
     );
   }
@@ -48,9 +45,8 @@ class User {
       nome: recrutador.nome,
       email: recrutador.email,
       telefone: recrutador.telefone,
-      tipo: 'recrutador',
+      role: UserRole.user,
       adminId: recrutador.adminId,
-      role: UserRole.recrutador,
       eventos: recrutador.eventos,
       token: recrutador.token,
     );
@@ -60,11 +56,13 @@ class User {
     UserRole roleFromString(String? roleStr) {
       switch (roleStr?.toLowerCase()) {
         case 'admin':
+        case 'role_admin':
           return UserRole.admin;
-        case 'recrutador':
-          return UserRole.recrutador;
+        case 'user':
+        case 'role_user':
+          return UserRole.user;
         default:
-          return UserRole.candidato;
+          return UserRole.invalid;
       }
     }
 
@@ -77,11 +75,10 @@ class User {
       usuarioId: json['usuarioId'] ?? json['id'] ?? '',
       nome: json['nome'] ?? '',
       email: json['email'] ?? '',
-      telefone: json['telefone'],
-      tipo: json['tipo'] ?? 'usuario',
+      telefone: json['telefone'] ?? '',
       senha: json['senha'],
-      adminId: json['adminId'],
       role: roleFromString(json['role']),
+      adminId: json['adminId'],
       eventos: eventosFromJson(json['eventos']),
       token: json['token'],
     );
@@ -91,11 +88,11 @@ class User {
     String roleToString() {
       switch (role) {
         case UserRole.admin:
-          return 'admin';
-        case UserRole.recrutador:
-          return 'recrutador';
-        case UserRole.candidato:
-          return 'candidato';
+          return 'ROLE_ADMIN';
+        case UserRole.user:
+          return 'ROLE_USER';
+        case UserRole.invalid:
+          return 'ROLE_INVALID';
       }
     }
 
@@ -104,10 +101,9 @@ class User {
       'nome': nome,
       'email': email,
       'telefone': telefone,
-      'tipo': tipo,
       'senha': senha,
-      'adminId': adminId,
       'role': roleToString(),
+      'adminId': adminId,
       'eventos': eventos?.map((e) => e.toJson()).toList(),
       'token': token,
     };
@@ -118,10 +114,9 @@ class User {
     String? nome,
     String? email,
     String? telefone,
-    String? tipo,
     String? senha,
-    String? adminId,
     UserRole? role,
+    String? adminId,
     List<Evento>? eventos,
     String? token,
   }) {
@@ -130,22 +125,42 @@ class User {
       nome: nome ?? this.nome,
       email: email ?? this.email,
       telefone: telefone ?? this.telefone,
-      tipo: tipo ?? this.tipo,
       senha: senha ?? this.senha,
-      adminId: adminId ?? this.adminId,
       role: role ?? this.role,
+      adminId: adminId ?? this.adminId,
       eventos: eventos ?? this.eventos,
       token: token ?? this.token,
     );
   }
 
+  // Getters para compatibilidade com código existente
+  String get tipo {
+    switch (role) {
+      case UserRole.admin:
+        return 'admin';
+      case UserRole.user:
+        return 'recrutador';
+      case UserRole.invalid:
+        return 'usuario';
+    }
+  }
+
   bool hasAdminRole() => role == UserRole.admin;
   bool isAdmin() => role == UserRole.admin;
-  bool isRecrutador() => role == UserRole.recrutador;
-  bool isCandidato() => role == UserRole.candidato;
+  bool isRecrutador() => role == UserRole.user;
+  bool isCandidato() => role == UserRole.invalid;
 
   @override
   String toString() {
     return 'User{usuarioId: $usuarioId, nome: $nome, email: $email, role: $role}';
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is User && other.usuarioId == usuarioId;
+  }
+
+  @override
+  int get hashCode => usuarioId.hashCode;
 }

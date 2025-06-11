@@ -16,6 +16,7 @@ import 'api/services/event_service.dart';
 import 'api/repository/viewmodel/forms_viewmodel.dart';
 import 'api/repository/viewmodel/auth_viewmodel.dart';
 import 'api/repository/viewmodel/recrutador_viewmodel.dart';
+import 'api/repository/viewmodel/administrador_viewmodel.dart';
 import 'api/repository/viewmodel/event_viewmodel.dart';
 import 'api/repository/forms_repository.dart';
 
@@ -91,6 +92,12 @@ List<SingleChildWidget> _buildProviders(
       create:
           (context) => RecrutadorViewModel(context.read<RecrutadorService>()),
       update: (_, service, __) => RecrutadorViewModel(service),
+    ),
+    ChangeNotifierProxyProvider<AdministradorService, AdministradorViewModel>(
+      create:
+          (context) =>
+              AdministradorViewModel(context.read<AdministradorService>()),
+      update: (_, service, __) => AdministradorViewModel(service),
     ),
     ChangeNotifierProxyProvider<FormularioRepository, FormViewModel>(
       create: (context) => FormViewModel(context.read<FormularioRepository>()),
