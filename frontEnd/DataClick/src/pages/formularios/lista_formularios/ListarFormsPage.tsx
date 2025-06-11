@@ -4,7 +4,7 @@ import Sidebar from "../../../components/sideBar/Sidebar";
 const ListarFormsPage = () => {  
     return (
       <div>
-        <h1>Listando Formularios</h1>
+        <h1></h1>
         <Formularios />
         
       </div>
