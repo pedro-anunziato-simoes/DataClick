@@ -91,19 +91,6 @@ class _RecrutadorLoginScreenState extends State<RecrutadorLoginScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF26A69A),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: _navigateToUserLogin,
-        ),
-        title: const Text(
-          'Acesso Recrutador',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-      ),
       body: SafeArea(
         child: GestureDetector(
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -276,6 +263,14 @@ class _RecrutadorLoginScreenState extends State<RecrutadorLoginScreen> {
                               _isLoading ? null : _navigateToRecruiterRegister,
                           child: const Text(
                             'Solicitar acesso como recrutador',
+                            style: TextStyle(color: Color(0xFF26A69A)),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        TextButton(
+                          onPressed: _isLoading ? null : _navigateToUserLogin,
+                          child: const Text(
+                            'Voltar ao login principal',
                             style: TextStyle(color: Color(0xFF26A69A)),
                           ),
                         ),
