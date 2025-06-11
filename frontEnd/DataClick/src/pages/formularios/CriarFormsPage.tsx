@@ -5,7 +5,7 @@ import Sidebar from "../../components/sideBar/Sidebar";
 const CriarFormsPage = () => {  
     return (
       <div>
-        <h1>Criando campos</h1>
+        <h1></h1>
         <CriarFormulario />
         <Sidebar />
         <Footer />

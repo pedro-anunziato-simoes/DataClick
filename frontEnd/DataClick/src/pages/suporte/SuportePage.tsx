@@ -31,7 +31,7 @@ const SuportePage = () => {
             fontWeight="bold"
             sx={{ color: "#000" }}
           >
-            canal principal de suporte
+            Canal de suporte.
           </Typography>
         </Box>
         <Footer />

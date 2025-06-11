@@ -31,7 +31,7 @@ const PerfilAdminitradorPage = () => {
             padding: "2rem"
           }}
         >
-          <h1 style={{ marginBottom: "1rem", color: "#004d40" }}>Seu perfil</h1>
+          <h1 style={{ marginBottom: "1rem", color: "#000000" }}>Seu perfil</h1>
           <AdministradorPerfil />
         </main>
 
