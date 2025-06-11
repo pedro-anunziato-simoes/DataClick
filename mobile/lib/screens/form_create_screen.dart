@@ -201,12 +201,21 @@ class _FormularioScreenState extends State<FormularioScreen> {
         campos: _campos,
       );
     } else {
-      await widget.formularioService.criarFormulario(
+      // 1. Cria o formulário sem campos
+      final formularioCriado = await widget.formularioService.criarFormulario(
         titulo: _tituloController.text,
         eventoId: widget.eventoId,
         adminId: widget.adminId,
-        campos: _campos,
+        campos: [], // Cria vazio
       );
+      // 2. Adiciona cada campo usando o endpoint de campos
+      for (final campo in _campos) {
+        await widget.campoService.adicionarCampo(
+          formularioCriado.id,
+          campo.titulo,
+          campo.tipo,
+        );
+      }
     }
   }
 

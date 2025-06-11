@@ -66,6 +66,18 @@ class _ProfileScreenState extends State<ProfileScreen>
     super.dispose();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final administradorViewModel = Provider.of<AdministradorViewModel>(
+      context,
+      listen: false,
+    );
+    if (administradorViewModel.administrador == null) {
+      administradorViewModel.carregarAdministradorInfo();
+    }
+  }
+
   Future<void> _loadAdministradorInfo() async {
     final administradorViewModel = Provider.of<AdministradorViewModel>(
       context,
@@ -208,6 +220,15 @@ class _ProfileScreenState extends State<ProfileScreen>
     final theme = Theme.of(context);
     final administradorViewModel = Provider.of<AdministradorViewModel>(context);
     final administrador = administradorViewModel.administrador;
+    final state = administradorViewModel.state;
+
+    // Atualiza os controllers sempre que o admin for carregado
+    if (administrador != null) {
+      nomeController.text = administrador.nome;
+      emailController.text = administrador.email;
+      telefoneController.text = administrador.telefone;
+      cnpjController.text = administrador.cnpj;
+    }
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
@@ -303,19 +324,32 @@ class _ProfileScreenState extends State<ProfileScreen>
       ),
       body: FadeTransition(
         opacity: _fadeAnimation,
-        child:
-            administrador == null
-                ? const Center(child: CircularProgressIndicator())
-                : SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      _buildProfileHeader(theme, administrador),
-                      const SizedBox(height: 24),
-                      _buildProfileForm(theme),
-                    ],
-                  ),
-                ),
+        child: () {
+          if (state is LoadingState) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (state is ErrorState) {
+            return Center(
+              child: Text(
+                (state as ErrorState).message,
+                style: const TextStyle(color: Colors.red, fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+            );
+          } else if (administrador == null || nomeController.text.isEmpty) {
+            return const Center(child: Text('Nenhum dado encontrado.'));
+          } else {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  _buildProfileHeader(theme, administrador),
+                  const SizedBox(height: 24),
+                  _buildProfileForm(theme),
+                ],
+              ),
+            );
+          }
+        }(),
       ),
     );
   }
@@ -453,6 +487,8 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   Widget _buildProfileForm(ThemeData theme) {
+    final administrador =
+        Provider.of<AdministradorViewModel>(context).administrador;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -477,7 +513,9 @@ class _ProfileScreenState extends State<ProfileScreen>
                 children: [
                   _buildProfileField(
                     label: 'Nome Completo',
-                    controller: nomeController,
+                    controller: isEditing ? nomeController : null,
+                    initialValue:
+                        !isEditing ? (administrador?.nome ?? '') : null,
                     icon: Icons.person_rounded,
                     enabled: isEditing,
                     theme: theme,
@@ -491,7 +529,9 @@ class _ProfileScreenState extends State<ProfileScreen>
                   const SizedBox(height: 20),
                   _buildProfileField(
                     label: 'E-mail',
-                    controller: emailController,
+                    controller: isEditing ? emailController : null,
+                    initialValue:
+                        !isEditing ? (administrador?.email ?? '') : null,
                     icon: Icons.email_rounded,
                     enabled: isEditing,
                     theme: theme,
@@ -509,7 +549,9 @@ class _ProfileScreenState extends State<ProfileScreen>
                   const SizedBox(height: 20),
                   _buildProfileField(
                     label: 'Telefone',
-                    controller: telefoneController,
+                    controller: isEditing ? telefoneController : null,
+                    initialValue:
+                        !isEditing ? (administrador?.telefone ?? '') : null,
                     icon: Icons.phone_rounded,
                     enabled: isEditing,
                     theme: theme,
@@ -518,7 +560,9 @@ class _ProfileScreenState extends State<ProfileScreen>
                   const SizedBox(height: 20),
                   _buildProfileField(
                     label: 'CNPJ',
-                    controller: cnpjController,
+                    controller: isEditing ? cnpjController : null,
+                    initialValue:
+                        !isEditing ? (administrador?.cnpj ?? '') : null,
                     icon: Icons.business_rounded,
                     enabled: isEditing,
                     theme: theme,
@@ -544,7 +588,8 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   Widget _buildProfileField({
     required String label,
-    required TextEditingController controller,
+    TextEditingController? controller,
+    String? initialValue,
     required IconData icon,
     required bool enabled,
     required ThemeData theme,
@@ -569,6 +614,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         const SizedBox(height: 8),
         TextFormField(
           controller: controller,
+          initialValue: controller == null ? initialValue : null,
           enabled: enabled,
           keyboardType: keyboardType,
           validator: validator,

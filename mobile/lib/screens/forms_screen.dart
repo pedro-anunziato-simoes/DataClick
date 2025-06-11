@@ -88,6 +88,13 @@ class _FormsScreenState extends State<FormsScreen> {
             ),
         ],
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _navegarParaCriarFormulario,
+        icon: const Icon(Icons.add),
+        label: const Text('Novo Formulário'),
+        backgroundColor: const Color(0xFF26A69A),
+        foregroundColor: Colors.white,
+      ),
       body:
           _isLoading
               ? const Center(child: CircularProgressIndicator())
@@ -216,9 +223,25 @@ class _FormsScreenState extends State<FormsScreen> {
           ),
           if (widget.isAdmin) ...[
             const SizedBox(height: 16),
-            ElevatedButton(
+            ElevatedButton.icon(
               onPressed: _navegarParaCriarFormulario,
-              child: const Text('Criar primeiro formulário'),
+              icon: const Icon(Icons.add),
+              label: const Text('Criar formulário'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF26A69A),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                textStyle: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
             ),
           ],
         ],

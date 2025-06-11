@@ -3,6 +3,8 @@ import 'package:mobile/api/models/evento.dart';
 import 'package:mobile/api/services/event_service.dart';
 import 'package:mobile/api/services/api_exception.dart';
 import 'package:mobile/api/repository/viewmodel/auth_viewmodel.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class RequestState<T> {}
 
@@ -26,14 +28,86 @@ class EventViewModel extends ChangeNotifier {
 
   RequestState<List<Evento>> _eventos = InitialState();
   RequestState<Evento?> _eventoAtual = InitialState();
+  String? _eventoIdAtual;
 
-  EventViewModel(this._eventService, this._authViewModel);
+  EventViewModel(this._eventService, this._authViewModel) {
+    _lerListaEventosDoCacheEAtribuir();
+    _lerEventoIdDoCache();
+  }
 
   RequestState<List<Evento>> get eventos => _eventos;
   RequestState<Evento?> get eventoAtual => _eventoAtual;
+  String? get eventoIdAtual => _eventoIdAtual;
   bool get isLoading =>
       _eventos is LoadingState || _eventoAtual is LoadingState;
   bool get isAdmin => _authViewModel.isAdmin;
+
+  Future<void> _salvarEventoIdNoCache(String eventoId) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('evento_id_atual', eventoId);
+  }
+
+  Future<void> _lerEventoIdDoCache() async {
+    final prefs = await SharedPreferences.getInstance();
+    final id = prefs.getString('evento_id_atual');
+    if (id != null) {
+      _eventoIdAtual = id;
+      notifyListeners();
+      await obterEventoDoCache(id);
+    }
+  }
+
+  Future<void> _salvarEventoNoCache(Evento evento) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString(
+      'evento_json_${evento.eventoId}',
+      jsonEncode(evento.toJson()),
+    );
+  }
+
+  Future<void> obterEventoDoCache(String eventoId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString('evento_json_$eventoId');
+    if (jsonString != null) {
+      try {
+        final evento = Evento.fromJson(jsonDecode(jsonString));
+        _eventoAtual = SuccessState(evento);
+        notifyListeners();
+      } catch (e) {
+        // Se der erro, ignora o cache
+      }
+    }
+  }
+
+  Future<void> _salvarListaEventosNoCache(List<Evento> eventos) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString(
+      'eventos_lista_json',
+      jsonEncode(eventos.map((e) => e.toJson()).toList()),
+    );
+  }
+
+  Future<List<Evento>> _lerListaEventosDoCache() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString('eventos_lista_json');
+    if (jsonString != null) {
+      try {
+        final List<dynamic> list = jsonDecode(jsonString);
+        return list.map((e) => Evento.fromJson(e)).toList();
+      } catch (e) {
+        return [];
+      }
+    }
+    return [];
+  }
+
+  Future<void> _lerListaEventosDoCacheEAtribuir() async {
+    final eventos = await _lerListaEventosDoCache();
+    if (eventos.isNotEmpty) {
+      _eventos = SuccessState(eventos);
+      notifyListeners();
+    }
+  }
 
   Future<void> carregarEventos() async {
     try {
@@ -42,29 +116,47 @@ class EventViewModel extends ChangeNotifier {
 
       final result = await _eventService.listarEventos();
       _eventos = SuccessState(result);
+      await _salvarListaEventosNoCache(result);
     } on ApiException catch (e) {
-      _eventos = ErrorState(e.message);
+      final cache = await _lerListaEventosDoCache();
+      if (cache.isNotEmpty) {
+        _eventos = SuccessState(cache);
+      } else {
+        _eventos = ErrorState(e.message);
+      }
     } catch (e) {
-      _eventos = ErrorState(
-        'Ocorreu um erro inesperado ao carregar eventos: ${e.toString()}',
-      );
+      final cache = await _lerListaEventosDoCache();
+      if (cache.isNotEmpty) {
+        _eventos = SuccessState(cache);
+      } else {
+        _eventos = ErrorState(
+          'Ocorreu um erro inesperado ao carregar eventos: ${e.toString()}',
+        );
+      }
     }
     notifyListeners();
   }
 
-  Future<void> obterEventoPorId(String eventoId) async {
+  Future<void> obterEventoPorId(String id) async {
     try {
       _eventoAtual = LoadingState();
       notifyListeners();
 
-      final result = await _eventService.obterEventoPorId(eventoId);
+      final result = await _eventService.obterEventoPorId(id);
       _eventoAtual = SuccessState(result);
+      _eventoIdAtual = id;
+      await _salvarEventoIdNoCache(id);
+      await _salvarEventoNoCache(result);
     } on ApiException catch (e) {
       _eventoAtual = ErrorState(e.message);
+      notifyListeners();
+      await obterEventoDoCache(id); // tenta do cache se falhar
     } catch (e) {
       _eventoAtual = ErrorState(
         'Ocorreu um erro inesperado ao obter evento: ${e.toString()}',
       );
+      notifyListeners();
+      await obterEventoDoCache(id);
     }
     notifyListeners();
   }
@@ -78,6 +170,7 @@ class EventViewModel extends ChangeNotifier {
 
       final result = await _eventService.criarEvento(evento);
       _eventoAtual = SuccessState(result);
+      await _salvarEventoNoCache(result);
       await carregarEventos();
 
       return true;
@@ -94,15 +187,16 @@ class EventViewModel extends ChangeNotifier {
     }
   }
 
-  Future<bool> atualizarEvento(String eventoId, Evento evento) async {
+  Future<bool> atualizarEvento(String id, Evento evento) async {
     if (!isAdmin) return false;
 
     try {
       _eventoAtual = LoadingState();
       notifyListeners();
 
-      final result = await _eventService.atualizarEvento(eventoId, evento);
+      final result = await _eventService.atualizarEvento(id, evento);
       _eventoAtual = SuccessState(result);
+      await _salvarEventoNoCache(result);
       await carregarEventos();
 
       return true;
@@ -119,14 +213,16 @@ class EventViewModel extends ChangeNotifier {
     }
   }
 
-  Future<bool> removerEvento(String eventoId) async {
+  Future<bool> removerEvento(String id) async {
     if (!isAdmin) return false;
 
     try {
       _eventos = LoadingState();
       notifyListeners();
 
-      await _eventService.removerEvento(eventoId);
+      await _eventService.removerEvento(id);
+      final prefs = await SharedPreferences.getInstance();
+      prefs.remove('evento_json_$id');
       await carregarEventos();
 
       return true;

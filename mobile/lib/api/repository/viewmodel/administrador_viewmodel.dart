@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/api/models/administrador.dart';
 import 'package:mobile/api/services/administrador_service.dart';
-
+import 'package:mobile/api/services/api_exception.dart';
 import 'package:mobile/api/repository/viewmodel/request_state.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AdministradorViewModel extends ChangeNotifier {
   final AdministradorService _administradorService;
@@ -11,10 +13,31 @@ class AdministradorViewModel extends ChangeNotifier {
   Administrador? _administrador;
   RequestState _state = const InitialState();
 
-  AdministradorViewModel(this._administradorService);
+  AdministradorViewModel(this._administradorService) {
+    _lerAdminDoCache();
+  }
 
   Administrador? get administrador => _administrador;
   RequestState get state => _state;
+
+  Future<void> _lerAdminDoCache() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString('admin_json');
+    if (jsonString != null) {
+      try {
+        _administrador = Administrador.fromJson(jsonDecode(jsonString));
+        _state = SuccessState(_administrador!);
+        notifyListeners();
+      } catch (e) {
+        // Se der erro, ignora o cache
+      }
+    }
+  }
+
+  Future<void> _salvarAdminNoCache(Administrador admin) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('admin_json', jsonEncode(admin.toJson()));
+  }
 
   Future<void> carregarAdministradorInfo() async {
     _logger.fine('Iniciando carregamento das informações do administrador');
@@ -23,8 +46,8 @@ class AdministradorViewModel extends ChangeNotifier {
 
     try {
       _administrador = await _administradorService.getAdministradorInfo();
-
       if (_administrador != null) {
+        await _salvarAdminNoCache(_administrador!);
         _logger.fine(
           'Administrador carregado com sucesso: ${_administrador?.nome}',
         );
@@ -40,7 +63,6 @@ class AdministradorViewModel extends ChangeNotifier {
         _logger.fine(
           '  - adminRecrutadores: ${_administrador?.adminRecrutadores?.length ?? 0}',
         );
-
         _state = SuccessState(_administrador!);
       } else {
         _logger.severe('Administrador retornado é null');
@@ -62,12 +84,11 @@ class AdministradorViewModel extends ChangeNotifier {
 
     try {
       await _administradorService.alterarEmail(email);
-
       if (_administrador != null) {
         _administrador = _administrador!.copyWith(email: email);
+        await _salvarAdminNoCache(_administrador!);
         _state = SuccessState(_administrador!);
       }
-
       _logger.fine('Email do administrador alterado com sucesso');
       return true;
     } catch (e) {
@@ -109,8 +130,6 @@ class AdministradorViewModel extends ChangeNotifier {
       if (email != null && email != _administrador?.email) {
         await _administradorService.alterarEmail(email);
       }
-
-      // Atualiza o administrador local
       if (_administrador != null) {
         _administrador = _administrador!.copyWith(
           nome: nome ?? _administrador!.nome,
@@ -118,9 +137,9 @@ class AdministradorViewModel extends ChangeNotifier {
           telefone: telefone ?? _administrador!.telefone,
           cnpj: cnpj ?? _administrador!.cnpj,
         );
+        await _salvarAdminNoCache(_administrador!);
         _state = SuccessState(_administrador!);
       }
-
       _logger.fine('Perfil do administrador atualizado com sucesso');
       return true;
     } catch (e) {

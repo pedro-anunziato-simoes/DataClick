@@ -33,7 +33,7 @@ class _EventosScreenState extends State<EventosScreen> {
     final bool isAdmin = authViewModel.currentUser?.role == UserRole.admin;
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: const Color(0xFFF6FAF9),
       appBar: AppBar(
         backgroundColor: const Color(0xFF26A69A),
         elevation: 0,
@@ -82,35 +82,36 @@ class _EventosScreenState extends State<EventosScreen> {
           child: _buildBody(eventViewModel, isAdmin),
         ),
       ),
-      floatingActionButton:
-          isAdmin
-              ? Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF26A69A).withAlpha(77),
-                      blurRadius: 12,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: FloatingActionButton.extended(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const CriarEventoScreen(),
-                      ),
-                    );
-                  },
-                  backgroundColor: const Color(0xFF26A69A),
-                  foregroundColor: Colors.white,
-                  icon: const Icon(Icons.add),
-                  label: const Text('Novo Evento'),
-                ),
-              )
-              : null,
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF26A69A).withAlpha(77),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: FloatingActionButton.extended(
+          onPressed: () async {
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const CriarEventoScreen(),
+              ),
+            );
+            // Recarrega a lista ao voltar
+            if (result == null || result == true) {
+              eventViewModel.carregarEventos();
+            }
+          },
+          backgroundColor: const Color(0xFF26A69A),
+          foregroundColor: Colors.white,
+          icon: const Icon(Icons.add),
+          label: const Text('Novo Evento'),
+        ),
+      ),
     );
   }
 
@@ -267,200 +268,123 @@ class _EventosScreenState extends State<EventosScreen> {
   }
 
   Widget _buildEventCard(Evento event, bool isAdmin, BuildContext context) {
-    final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
-
     return Container(
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        gradient: const LinearGradient(
+          colors: [Color(0xFF26A69A), Color(0xFF7DE2D1)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(20),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(20),
-            onTap: () {
-              final eventService = Provider.of<EventService>(
-                context,
-                listen: false,
-              );
-              eventService.setEventoAtual(event);
-
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder:
-                      (context) => FormsScreen(
-                        isAdmin: isAdmin,
-                        formularioService: Provider.of<FormularioService>(
-                          context,
-                          listen: false,
-                        ),
-                        campoService: Provider.of<CampoService>(
-                          context,
-                          listen: false,
-                        ),
-                        eventoId: event.eventoId,
-                        adminId: event.eventoAdminId ?? '',
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () {
+            final eventService = Provider.of<EventService>(
+              context,
+              listen: false,
+            );
+            eventService.setEventoAtual(event);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => FormsScreen(
+                      isAdmin: isAdmin,
+                      formularioService: Provider.of<FormularioService>(
+                        context,
+                        listen: false,
                       ),
-                ),
-              );
-            },
-            child: Column(
-              children: [
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        const Color(0xFF26A69A).withAlpha(204),
-                        const Color(0xFF00796B).withAlpha(229),
-                      ],
+                      campoService: Provider.of<CampoService>(
+                        context,
+                        listen: false,
+                      ),
+                      eventoId: event.eventoId,
+                      adminId: event.eventoAdminId ?? '',
                     ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              event.eventoTitulo,
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                          if (isAdmin)
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white.withAlpha(51),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: IconButton(
-                                icon: const Icon(Icons.edit, color: Colors.white),
-                                onPressed: () {
-                                  _showNotImplementedSnackbar(
-                                    context,
-                                    'Editar evento',
-                                  );
-                                },
-                              ),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        event.descricao,
+              ),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        event.eventoTitulo,
                         style: const TextStyle(
-                          fontSize: 16,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 12),
-                      _buildStatusIndicator(event.status, isHeader: true),
-                    ],
-                  ),
+                    ),
+                    if (isAdmin)
+                      IconButton(
+                        icon: const Icon(Icons.edit, color: Colors.white),
+                        onPressed: () {
+                          _showNotImplementedSnackbar(context, 'Editar evento');
+                        },
+                      ),
+                  ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    children: [
-                      _buildEventInfoRow(
-                        Icons.calendar_today,
-                        'Data de Início: ${_formatDate(event.dataInicio)}',
-                        const Color(0xFF26A69A),
-                      ),
-                      const SizedBox(height: 8),
-                      _buildEventInfoRow(
-                        Icons.calendar_today,
-                        'Data de Término: ${_formatDate(event.dataFim)}',
-                        const Color(0xFF26A69A),
-                      ),
-                      const SizedBox(height: 12),
-                      _buildEventInfoRow(
-                        Icons.location_on,
-                        event.local,
-                        Colors.orange,
-                      ),
-                      const SizedBox(height: 16),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF26A69A).withAlpha(25),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.assignment_rounded,
-                              color: Color(0xFF26A69A),
-                              size: 18,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '${event.formulariosAssociados.length} formulário${event.formulariosAssociados.length != 1 ? 's' : ''} associado${event.formulariosAssociados.length != 1 ? 's' : ''}',
-                              style: TextStyle(
-                                color: const Color(0xFF26A69A).withAlpha(204),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                const SizedBox(height: 8),
+                Text(
+                  event.descricao,
+                  style: const TextStyle(fontSize: 16, color: Colors.white),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Icon(Icons.calendar_today, color: Colors.white, size: 18),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Início: ${_formatDate(event.dataInicio)}',
+                      style: const TextStyle(color: Colors.white, fontSize: 15),
+                    ),
+                    const SizedBox(width: 16),
+                    Icon(Icons.event, color: Colors.white, size: 18),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Fim: ${_formatDate(event.dataFim)}',
+                      style: const TextStyle(color: Colors.white, fontSize: 15),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Icon(Icons.assignment, color: Colors.white, size: 18),
+                    const SizedBox(width: 6),
+                    Text(
+                      '${event.formulariosAssociados.length} formulário${event.formulariosAssociados.length == 1 ? '' : 's'} associado${event.formulariosAssociados.length == 1 ? '' : 's'}',
+                      style: const TextStyle(color: Colors.white, fontSize: 15),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildEventInfoRow(IconData icon, String text, Color iconColor) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: iconColor.withAlpha(25),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(icon, size: 18, color: iconColor),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            text,
-            style: const TextStyle(
-              fontSize: 15,
-              color: Colors.black87,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-      ],
     );
   }
 
@@ -605,22 +529,7 @@ class _EventosScreenState extends State<EventosScreen> {
   }
 
   String _formatDate(DateTime date) {
-    const meses = [
-      'Jan',
-      'Fev',
-      'Mar',
-      'Abr',
-      'Mai',
-      'Jun',
-      'Jul',
-      'Ago',
-      'Set',
-      'Out',
-      'Nov',
-      'Dez',
-    ];
-
-    return '${date.day} ${meses[date.month - 1]} ${date.year}';
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 
   void _showNotImplementedSnackbar(BuildContext context, String message) {

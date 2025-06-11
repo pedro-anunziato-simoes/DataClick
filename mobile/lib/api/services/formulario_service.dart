@@ -117,9 +117,7 @@ class FormularioService {
         throw ApiException('ID do administrador é obrigatório', 400);
       }
 
-      if (campos.isEmpty) {
-        throw ApiException('O formulário deve ter pelo menos um campo', 400);
-      }
+      // Permitir criar formulário sem campos, pois os campos serão adicionados depois
 
       await _apiClient.get('/eventos');
 
