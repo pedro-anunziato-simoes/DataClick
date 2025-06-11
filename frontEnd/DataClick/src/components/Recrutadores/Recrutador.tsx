@@ -76,28 +76,55 @@ const Recrutadores = () => {
       </Typography>
       <Stack spacing={2}>
         {recrutadores.length === 0 ? (
-          <Typography variant="body1">Nenhum recrutador encontrado.
+          <Typography variant="body1">
+            Nenhum recrutador encontrado.
             <br />
-            <Button variant="contained" color="primary" onClick={handleCriarRecrutador} sx={{ mb: 2 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleCriarRecrutador}
+              sx={{ mt: 2 }}
+            >
               Adicionar Recrutador
-            </Button></Typography>
+            </Button>
+          </Typography>
         ) : (
           recrutadores.map((recrutador) => (
-            <Paper key={recrutador.usuarioId} elevation={3} sx={{ p: 3 }}>
+            <Paper
+              key={recrutador.usuarioId}
+              elevation={3}
+              sx={{
+                p: 3,
+                display: "flex",
+                flexDirection: "column",
+                gap: 1.5,
+                alignItems: "flex-start",
+              }}
+            >
               <Typography><strong>Nome:</strong> {recrutador.nome}</Typography>
               <Typography><strong>Telefone:</strong> {recrutador.telefone}</Typography>
               <Typography><strong>E-mail:</strong> {recrutador.email}</Typography>
+
               <Box mt={2} display="flex" gap={2}>
                 <Button
-                  variant="outlined"
-                  color="primary"
+                  variant="contained"
+                  sx={{
+                    backgroundColor: "#1976d2",
+                    color: "#fff",
+                    "&:hover": { backgroundColor: "#125ea2" },
+                  }}
                   onClick={() => handleEditarRecrutador(recrutador.usuarioId)}
                 >
                   Editar
                 </Button>
+
                 <Button
-                  variant="outlined"
-                  color="error"
+                  variant="contained"
+                  sx={{
+                    backgroundColor: "#d32f2f",
+                    color: "#fff",
+                    "&:hover": { backgroundColor: "#a72828" },
+                  }}
                   onClick={() => handleConfirmDelete(recrutador.usuarioId)}
                 >
                   Excluir
@@ -107,6 +134,7 @@ const Recrutadores = () => {
           ))
         )}
       </Stack>
+
       <Dialog open={!!confirmDeleteId} onClose={() => setConfirmDeleteId(null)}>
         <DialogTitle>Deseja realmente excluir este recrutador?</DialogTitle>
         <DialogActions>

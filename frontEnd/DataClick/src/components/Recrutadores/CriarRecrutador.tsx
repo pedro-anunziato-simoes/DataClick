@@ -1,5 +1,4 @@
 import { useState } from "react";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {
     Box,
     Button,
@@ -7,8 +6,7 @@ import {
     TextField,
     Typography,
     Paper,
-    Alert,
-    IconButton
+    Alert
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { RecrutadorService } from "../../api/RecrutadorService";
@@ -34,15 +32,16 @@ const CriarRecrutador = () => {
             setLoading(false);
             return;
         }
-        try {await recrutadorService.criarRecrutador({
-            nome,
-            telefone,
-            email,
-            senha
-        });
+        try {
+            await recrutadorService.criarRecrutador({
+                nome,
+                telefone,
+                email,
+                senha
+            });
 
             setSucesso("Recrutador criado com sucesso!");
-            navigate("/recrutadores")
+            navigate("/recrutadores");
         } catch (error) {
             console.error(error);
             setErro("Erro ao criar recrutador.");
@@ -53,9 +52,6 @@ const CriarRecrutador = () => {
 
     return (
         <Container maxWidth="sm">
-            <IconButton onClick={() => navigate("/recrutadores")} sx={{ alignSelf: "flex-start", mb: 2 }}>
-                <ArrowBackIcon />
-            </IconButton>
             <Paper elevation={3} sx={{ p: 4, mt: 6 }}>
                 <Typography variant="h5" gutterBottom>
                     Criar Recrutador
@@ -102,24 +98,31 @@ const CriarRecrutador = () => {
                     disabled={loading}
                 />
 
-
-                <Box mt={3} display="flex" justifyContent="space-between">
+                <Box mt={3} display="flex" justifyContent="center" gap={4}>
                     <Button
                         variant="contained"
                         color="primary"
                         onClick={handleSalvar}
                         disabled={loading}
+                        sx={{ width: '120px' }}
                     >
                         {loading ? "Salvando..." : "Salvar"}
                     </Button>
 
                     <Button
-                        variant="outlined"
-                        color="secondary"
+                        variant="contained"
+                        sx={{
+                            width: '120px',
+                            backgroundColor: "#d32f2f",
+                            color: "#fff",
+                            "&:hover": {
+                                backgroundColor: "#b71c1c",
+                            },
+                        }}
                         onClick={() => navigate(-1)}
                         disabled={loading}
                     >
-                        Voltar
+                        Cancelar
                     </Button>
                 </Box>
             </Paper>
