@@ -52,12 +52,12 @@ class EventViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> obterEventoPorId(String id) async {
+  Future<void> obterEventoPorId(String eventoId) async {
     try {
       _eventoAtual = LoadingState();
       notifyListeners();
 
-      final result = await _eventService.obterEventoPorId(id);
+      final result = await _eventService.obterEventoPorId(eventoId);
       _eventoAtual = SuccessState(result);
     } on ApiException catch (e) {
       _eventoAtual = ErrorState(e.message);
@@ -94,14 +94,14 @@ class EventViewModel extends ChangeNotifier {
     }
   }
 
-  Future<bool> atualizarEvento(String id, Evento evento) async {
+  Future<bool> atualizarEvento(String eventoId, Evento evento) async {
     if (!isAdmin) return false;
 
     try {
       _eventoAtual = LoadingState();
       notifyListeners();
 
-      final result = await _eventService.atualizarEvento(id, evento);
+      final result = await _eventService.atualizarEvento(eventoId, evento);
       _eventoAtual = SuccessState(result);
       await carregarEventos();
 
@@ -119,14 +119,14 @@ class EventViewModel extends ChangeNotifier {
     }
   }
 
-  Future<bool> removerEvento(String id) async {
+  Future<bool> removerEvento(String eventoId) async {
     if (!isAdmin) return false;
 
     try {
       _eventos = LoadingState();
       notifyListeners();
 
-      await _eventService.removerEvento(id);
+      await _eventService.removerEvento(eventoId);
       await carregarEventos();
 
       return true;

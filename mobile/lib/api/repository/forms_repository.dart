@@ -20,6 +20,10 @@ abstract class IFormularioRepository {
     String? descricao,
   });
   Future<void> removerFormulario(String id);
+  Future<void> enviarRespostasFormulario({
+    required String formId,
+    required Map<String, dynamic> respostas,
+  });
 }
 
 class FormularioRepository implements IFormularioRepository {
@@ -98,6 +102,21 @@ class FormularioRepository implements IFormularioRepository {
   Future<void> removerFormulario(String id) async {
     try {
       await _formularioService.removerFormulario(id);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> enviarRespostasFormulario({
+    required String formId,
+    required Map<String, dynamic> respostas,
+  }) async {
+    try {
+      await _formularioService.enviarRespostasFormulario(
+        formId: formId,
+        respostas: respostas,
+      );
     } catch (e) {
       rethrow;
     }

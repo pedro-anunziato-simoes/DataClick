@@ -15,12 +15,12 @@ class EventService {
 
   void setEventoAtual(Evento evento) {
     _eventoAtual = evento;
-    _eventoIdAtual = evento.id;
+    _eventoIdAtual = evento.eventoId;
   }
 
   void setEventoIdAtual(String eventoId) {
     _eventoIdAtual = eventoId;
-    if (_eventoAtual?.id != eventoId) {
+    if (_eventoAtual?.eventoId != eventoId) {
       _eventoAtual = null;
     }
   }
@@ -101,10 +101,10 @@ class EventService {
     }
   }
 
-  Future<Evento> obterEventoPorId(String id, {bool setAsAtual = true}) async {
+  Future<Evento> obterEventoPorId(String eventoId, {bool setAsAtual = true}) async {
     try {
       final response = await _apiClient.get(
-        '$_eventosBasePath/$id',
+        '$_eventosBasePath/$eventoId',
         includeAuth: true,
       );
 
@@ -175,10 +175,10 @@ class EventService {
     }
   }
 
-  Future<Evento> atualizarEvento(String id, Evento evento) async {
+  Future<Evento> atualizarEvento(String eventoId, Evento evento) async {
     try {
       final response = await _apiClient.put(
-        '$_eventosBasePath/alterar/$id',
+        '$_eventosBasePath/alterar/$eventoId',
         body: json.encode(evento.toJson()),
         includeAuth: true,
       );
@@ -187,7 +187,7 @@ class EventService {
         final Map<String, dynamic> responseData = json.decode(response.body);
         final eventoAtualizado = Evento.fromJson(responseData);
 
-        if (_eventoIdAtual == id) {
+        if (_eventoIdAtual == eventoId) {
           setEventoAtual(eventoAtualizado);
         }
 
@@ -205,15 +205,15 @@ class EventService {
     }
   }
 
-  Future<void> removerEvento(String id) async {
+  Future<void> removerEvento(String eventoId) async {
     try {
       final response = await _apiClient.delete(
-        '$_eventosBasePath/remove/$id',
+        '$_eventosBasePath/remove/$eventoId',
         includeAuth: true,
       );
 
       if (response.statusCode == 204 || response.statusCode == 200) {
-        if (_eventoIdAtual == id) {
+        if (_eventoIdAtual == eventoId) {
           clearEventoAtual();
         }
         return;

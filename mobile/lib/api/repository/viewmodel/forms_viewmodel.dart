@@ -178,6 +178,23 @@ class FormViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> enviarRespostasFormulario({
+    required String formId,
+    required Map<String, dynamic> respostas,
+  }) async {
+    try {
+      await _repository.enviarRespostasFormulario(
+        formId: formId,
+        respostas: respostas,
+      );
+    } catch (e) {
+      _formularioAtualState = ErrorState(_tratarMensagemErro(e));
+      rethrow;
+    } finally {
+      notifyListeners();
+    }
+  }
+
   // Métodos auxiliares
   void limparFormularioAtual() {
     _formularioAtualState = const InitialState();

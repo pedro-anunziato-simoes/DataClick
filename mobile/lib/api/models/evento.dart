@@ -1,18 +1,36 @@
 class FormularioSimplificado {
-  final String id;
-  final String titulo;
+  final String formId;
+  final String formularioTitulo;
+  final String formAdminId;
+  final String formularioEventoId;
+  final List<dynamic> campos;
 
-  FormularioSimplificado({required this.id, required this.titulo});
+  FormularioSimplificado({
+    required this.formId,
+    required this.formularioTitulo,
+    required this.formAdminId,
+    required this.formularioEventoId,
+    required this.campos,
+  });
 
   factory FormularioSimplificado.fromJson(Map<String, dynamic> json) {
     return FormularioSimplificado(
-      id: json['id'] as String? ?? '',
-      titulo: json['titulo'] as String? ?? '',
+      formId: json['formId'] as String? ?? '',
+      formularioTitulo: json['formularioTitulo'] as String? ?? '',
+      formAdminId: json['formAdminId'] as String? ?? '',
+      formularioEventoId: json['formularioEventoId'] as String? ?? '',
+      campos: json['campos'] as List<dynamic>? ?? [],
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'id': id, 'titulo': titulo};
+    return {
+      'formId': formId,
+      'formularioTitulo': formularioTitulo,
+      'formAdminId': formAdminId,
+      'formularioEventoId': formularioEventoId,
+      'campos': campos,
+    };
   }
 
   @override
@@ -20,10 +38,10 @@ class FormularioSimplificado {
       identical(this, other) ||
       other is FormularioSimplificado &&
           runtimeType == other.runtimeType &&
-          id == other.id;
+          formId == other.formId;
 
   @override
-  int get hashCode => id.hashCode;
+  int get hashCode => formId.hashCode;
 }
 
 class UsuarioSimplificado {
@@ -55,8 +73,8 @@ class UsuarioSimplificado {
 }
 
 class Evento {
-  final String id;
-  final String nome;
+  final String eventoId;
+  final String eventoTitulo;
   final DateTime dataInicio;
   final DateTime dataFim;
   final String local;
@@ -65,11 +83,11 @@ class Evento {
   final List<UsuarioSimplificado> recrutadoresEnvolvidos;
   final List<UsuarioSimplificado> administradoresEnvolvidos;
   final String status;
-  final String? adminId;
+  final String? eventoAdminId;
 
   Evento({
-    required this.id,
-    required this.nome,
+    required this.eventoId,
+    required this.eventoTitulo,
     required this.dataInicio,
     required this.dataFim,
     required this.local,
@@ -78,51 +96,49 @@ class Evento {
     required this.recrutadoresEnvolvidos,
     required this.administradoresEnvolvidos,
     required this.status,
-    this.adminId,
+    this.eventoAdminId,
   });
 
   factory Evento.fromJson(Map<String, dynamic> json) {
+    // Mapear formulários do evento
+    List<FormularioSimplificado> formularios = [];
+    if (json['eventoFormularios'] != null) {
+      formularios = (json['eventoFormularios'] as List<dynamic>)
+          .map((e) => FormularioSimplificado.fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
+
     return Evento(
-      id: json['id'] as String? ?? '',
-      nome: json['nome'] as String? ?? '',
-      dataInicio:
-          json['dataInicio'] is String
-              ? DateTime.parse(json['dataInicio'] as String)
+      eventoId: json['eventoId'] as String? ?? json['id'] as String? ?? '',
+      eventoTitulo: json['eventoTitulo'] as String? ?? json['nome'] as String? ?? '',
+      dataInicio: json['dataInicio'] is String
+          ? DateTime.parse(json['dataInicio'] as String)
+          : json['eventoData'] is String
+              ? DateTime.parse(json['eventoData'] as String)
               : DateTime.now(),
-      dataFim:
-          json['dataFim'] is String
-              ? DateTime.parse(json['dataFim'] as String)
+      dataFim: json['dataFim'] is String
+          ? DateTime.parse(json['dataFim'] as String)
+          : json['eventoData'] is String
+              ? DateTime.parse(json['eventoData'] as String).add(const Duration(days: 1))
               : DateTime.now().add(const Duration(days: 1)),
       local: json['local'] as String? ?? '',
-      descricao: json['descricao'] as String? ?? '',
-      formulariosAssociados:
-          (json['formulariosAssociados'] as List<dynamic>? ?? [])
-              .map(
-                (e) =>
-                    FormularioSimplificado.fromJson(e as Map<String, dynamic>),
-              )
-              .toList(),
-      recrutadoresEnvolvidos:
-          (json['recrutadoresEnvolvidos'] as List<dynamic>? ?? [])
-              .map(
-                (e) => UsuarioSimplificado.fromJson(e as Map<String, dynamic>),
-              )
-              .toList(),
-      administradoresEnvolvidos:
-          (json['administradoresEnvolvidos'] as List<dynamic>? ?? [])
-              .map(
-                (e) => UsuarioSimplificado.fromJson(e as Map<String, dynamic>),
-              )
-              .toList(),
+      descricao: json['descricao'] as String? ?? json['eventoDescricao'] as String? ?? '',
+      formulariosAssociados: formularios,
+      recrutadoresEnvolvidos: (json['recrutadoresEnvolvidos'] as List<dynamic>? ?? [])
+          .map((e) => UsuarioSimplificado.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      administradoresEnvolvidos: (json['administradoresEnvolvidos'] as List<dynamic>? ?? [])
+          .map((e) => UsuarioSimplificado.fromJson(e as Map<String, dynamic>))
+          .toList(),
       status: json['status'] as String? ?? 'ATIVO',
-      adminId: json['adminId'] as String?,
+      eventoAdminId: json['eventoAdminId'] as String? ?? json['adminId'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'nome': nome,
+      'eventoId': eventoId,
+      'eventoTitulo': eventoTitulo,
       'dataInicio': dataInicio.toIso8601String(),
       'dataFim': dataFim.toIso8601String(),
       'local': local,
@@ -134,13 +150,13 @@ class Evento {
       'administradoresEnvolvidos':
           administradoresEnvolvidos.map((e) => e.toJson()).toList(),
       'status': status,
-      'adminId': adminId,
+      'eventoAdminId': eventoAdminId,
     };
   }
 
   Evento copyWith({
-    String? id,
-    String? nome,
+    String? eventoId,
+    String? eventoTitulo,
     DateTime? dataInicio,
     DateTime? dataFim,
     String? local,
@@ -149,11 +165,11 @@ class Evento {
     List<UsuarioSimplificado>? recrutadoresEnvolvidos,
     List<UsuarioSimplificado>? administradoresEnvolvidos,
     String? status,
-    String? adminId,
+    String? eventoAdminId,
   }) {
     return Evento(
-      id: id ?? this.id,
-      nome: nome ?? this.nome,
+      eventoId: eventoId ?? this.eventoId,
+      eventoTitulo: eventoTitulo ?? this.eventoTitulo,
       dataInicio: dataInicio ?? this.dataInicio,
       dataFim: dataFim ?? this.dataFim,
       local: local ?? this.local,
@@ -165,21 +181,21 @@ class Evento {
       administradoresEnvolvidos:
           administradoresEnvolvidos ?? this.administradoresEnvolvidos,
       status: status ?? this.status,
-      adminId: adminId ?? this.adminId,
+      eventoAdminId: eventoAdminId ?? this.eventoAdminId,
     );
   }
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is Evento && runtimeType == other.runtimeType && id == other.id;
+      other is Evento && runtimeType == other.runtimeType && eventoId == other.eventoId;
 
   @override
-  int get hashCode => id.hashCode;
+  int get hashCode => eventoId.hashCode;
 
   @override
   String toString() {
-    return 'Evento{id: $id, nome: $nome, status: $status}';
+    return 'Evento{eventoId: $eventoId, eventoTitulo: $eventoTitulo, status: $status}';
   }
 
   /// Verifica se o evento está ativo
