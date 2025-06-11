@@ -29,7 +29,7 @@ class AdministradorViewModel extends ChangeNotifier {
         _state = SuccessState(_administrador!);
         notifyListeners();
       } catch (e) {
-        // Se der erro, ignora o cache
+       
       }
     }
   }
