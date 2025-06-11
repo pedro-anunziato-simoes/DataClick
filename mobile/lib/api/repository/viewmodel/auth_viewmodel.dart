@@ -22,8 +22,8 @@ class AuthViewModel with ChangeNotifier {
   String? get errorMessage => _errorMessage;
   bool get isLoading => _isLoading;
 
-  bool get isAdmin => _currentUser?.tipo == 'admin';
-  bool get isRecruiter => _currentUser?.tipo == 'recrutador';
+  bool get isAdmin => _currentUser?.role == UserRole.admin;
+  bool get isRecruiter => _currentUser?.role == UserRole.user;
 
   Future<void> initialize() async {
     await _loadCurrentUser();

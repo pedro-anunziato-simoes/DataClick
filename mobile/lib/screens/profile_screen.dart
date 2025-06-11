@@ -43,17 +43,12 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
     _animationController.forward();
 
-    final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
-    final currentUser = authViewModel.currentUser;
-
-    nomeController = TextEditingController(text: currentUser?.nome ?? '');
-    emailController = TextEditingController(text: currentUser?.email ?? '');
-    telefoneController = TextEditingController(
-      text: currentUser?.telefone ?? '',
-    );
+    nomeController = TextEditingController();
+    emailController = TextEditingController();
+    telefoneController = TextEditingController();
     cnpjController = TextEditingController();
 
-    // Se for administrador, carrega as informações do administrador
+    final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
     if (authViewModel.isAdmin) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _loadAdministradorInfo();
@@ -77,117 +72,54 @@ class _ProfileScreenState extends State<ProfileScreen>
       listen: false,
     );
     await administradorViewModel.carregarAdministradorInfo();
+    final administrador = administradorViewModel.administrador;
+    if (administrador != null && mounted) {
+      setState(() {
+        nomeController.text = administrador.nome;
+        emailController.text = administrador.email;
+        telefoneController.text = administrador.telefone;
+        cnpjController.text = administrador.cnpj;
+      });
+    }
   }
 
   Future<void> saveProfile() async {
     if (!mounted) return;
-
     FocusManager.instance.primaryFocus?.unfocus();
-
     if (formKey.currentState!.validate()) {
-      final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
-
-      try {
-        if (authViewModel.isAdmin) {
-          // Se for administrador, usa o AdministradorViewModel
-          final administradorViewModel = Provider.of<AdministradorViewModel>(
-            context,
-            listen: false,
-          );
-
-          final success = await administradorViewModel.atualizarPerfil(
-            nome: nomeController.text,
-            email: emailController.text,
-            telefone: telefoneController.text,
-            cnpj: cnpjController.text,
-          );
-
-          if (success) {
-            if (!mounted) return;
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Row(
-                  children: [
-                    const Icon(Icons.check_circle, color: Colors.white),
-                    const SizedBox(width: 8),
-                    const Expanded(
-                      child: Text('Perfil atualizado com sucesso!'),
-                    ),
-                  ],
-                ),
-                backgroundColor: Colors.green.shade600,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            );
-
-            setState(() {
-              isEditing = false;
-            });
-          } else {
-            if (!mounted) return;
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Row(
-                  children: [
-                    const Icon(Icons.error_outline, color: Colors.white),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        administradorViewModel.state is ErrorState
-                            ? (administradorViewModel.state as ErrorState)
-                                .message
-                            : 'Erro ao atualizar perfil',
-                      ),
-                    ),
-                  ],
-                ),
-                backgroundColor: Colors.red.shade600,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            );
-          }
-        } else {
-          // Se for recrutador, usa o AuthViewModel (implementação existente)
-          await authViewModel.updateProfile(
-            nome: nomeController.text,
-            email: emailController.text,
-            telefone: telefoneController.text,
-          );
-
-          if (!mounted) return;
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  const Icon(Icons.check_circle, color: Colors.white),
-                  const SizedBox(width: 8),
-                  const Expanded(child: Text('Perfil atualizado com sucesso!')),
-                ],
-              ),
-              backgroundColor: Colors.green.shade600,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-          );
-
-          setState(() {
-            isEditing = false;
-          });
-        }
-      } catch (e) {
+      final administradorViewModel = Provider.of<AdministradorViewModel>(
+        context,
+        listen: false,
+      );
+      final success = await administradorViewModel.atualizarPerfil(
+        nome: nomeController.text,
+        email: emailController.text,
+        telefone: telefoneController.text,
+        cnpj: cnpjController.text,
+      );
+      if (success) {
         if (!mounted) return;
-
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 8),
+                const Expanded(child: Text('Perfil atualizado com sucesso!')),
+              ],
+            ),
+            backgroundColor: Colors.green.shade600,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        );
+        setState(() {
+          isEditing = false;
+        });
+      } else {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
@@ -195,7 +127,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                 const Icon(Icons.error_outline, color: Colors.white),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text('Erro ao atualizar perfil: ${e.toString()}'),
+                  child: Text(
+                    administradorViewModel.state is ErrorState
+                        ? (administradorViewModel.state as ErrorState).message
+                        : 'Erro ao atualizar perfil',
+                  ),
                 ),
               ],
             ),
@@ -270,25 +206,8 @@ class _ProfileScreenState extends State<ProfileScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final authViewModel = Provider.of<AuthViewModel>(context);
-    final currentUser = authViewModel.currentUser;
     final administradorViewModel = Provider.of<AdministradorViewModel>(context);
     final administrador = administradorViewModel.administrador;
-
-    // Atualiza os controllers com os dados corretos
-    if (!isEditing) {
-      if (authViewModel.isAdmin && administrador != null) {
-        nomeController.text = administrador.nome;
-        emailController.text = administrador.email;
-        telefoneController.text = administrador.telefone;
-        cnpjController.text = administrador.cnpj;
-      } else {
-        nomeController.text = currentUser?.nome ?? '';
-        emailController.text = currentUser?.email ?? '';
-        telefoneController.text = currentUser?.telefone ?? '';
-        cnpjController.text = '';
-      }
-    }
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
@@ -313,6 +232,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                   setState(() => isEditing = !isEditing);
                   break;
                 case 'logout':
+                  final authViewModel = Provider.of<AuthViewModel>(
+                    context,
+                    listen: false,
+                  );
                   await authViewModel.logout();
                   if (!mounted) return;
                   Navigator.of(context).pushNamedAndRemoveUntil(
@@ -361,60 +284,44 @@ class _ProfileScreenState extends State<ProfileScreen>
                       ],
                     ),
                   ),
-                  if (authViewModel.isAdmin)
-                    PopupMenuItem(
-                      value: 'delete',
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.delete_rounded,
-                            size: 20,
-                            color: Colors.red,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Excluir Conta',
-                            style: TextStyle(color: Colors.red),
-                          ),
-                        ],
-                      ),
+                  PopupMenuItem(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete_rounded, size: 20, color: Colors.red),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Excluir Conta',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ],
                     ),
+                  ),
                 ],
           ),
         ],
       ),
       body: FadeTransition(
         opacity: _fadeAnimation,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              _buildProfileHeader(
-                currentUser,
-                authViewModel,
-                theme,
-                administrador,
-              ),
-              const SizedBox(height: 24),
-              _buildProfileForm(theme, authViewModel.isAdmin),
-            ],
-          ),
-        ),
+        child:
+            administrador == null
+                ? const Center(child: CircularProgressIndicator())
+                : SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      _buildProfileHeader(theme, administrador),
+                      const SizedBox(height: 24),
+                      _buildProfileForm(theme),
+                    ],
+                  ),
+                ),
       ),
     );
   }
 
-  Widget _buildProfileHeader(
-    User? currentUser,
-    AuthViewModel authViewModel,
-    ThemeData theme,
-    Administrador? administrador,
-  ) {
-    final displayName =
-        authViewModel.isAdmin && administrador != null
-            ? administrador.nome
-            : currentUser?.nome ?? 'Nome do Usuário';
-
+  Widget _buildProfileHeader(ThemeData theme, Administrador? administrador) {
+    final displayName = administrador?.nome ?? 'Administrador';
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -438,7 +345,6 @@ class _ProfileScreenState extends State<ProfileScreen>
       ),
       child: Column(
         children: [
-          // Avatar
           Stack(
             alignment: Alignment.bottomRight,
             children: [
@@ -518,8 +424,6 @@ class _ProfileScreenState extends State<ProfileScreen>
             ],
           ),
           const SizedBox(height: 20),
-
-          // Nome do usuário
           Text(
             displayName,
             style: theme.textTheme.headlineSmall?.copyWith(
@@ -529,8 +433,6 @@ class _ProfileScreenState extends State<ProfileScreen>
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
-
-          // Tipo do usuário
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
@@ -538,7 +440,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              authViewModel.isAdmin ? 'Administrador' : 'Recrutador',
+              'Administrador',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onPrimary,
                 fontWeight: FontWeight.w600,
@@ -550,7 +452,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildProfileForm(ThemeData theme, bool isAdmin) {
+  Widget _buildProfileForm(ThemeData theme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -613,23 +515,20 @@ class _ProfileScreenState extends State<ProfileScreen>
                     theme: theme,
                     keyboardType: TextInputType.phone,
                   ),
-                  if (isAdmin) ...[
-                    const SizedBox(height: 20),
-                    _buildProfileField(
-                      label: 'CNPJ',
-                      controller: cnpjController,
-                      icon: Icons.business_rounded,
-                      enabled: isEditing,
-                      theme: theme,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor, insira o CNPJ';
-                        }
-                        return null;
-                      },
-                    ),
-                  ],
-
+                  const SizedBox(height: 20),
+                  _buildProfileField(
+                    label: 'CNPJ',
+                    controller: cnpjController,
+                    icon: Icons.business_rounded,
+                    enabled: isEditing,
+                    theme: theme,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Por favor, insira o CNPJ';
+                      }
+                      return null;
+                    },
+                  ),
                   if (isEditing) ...[
                     const SizedBox(height: 32),
                     _buildActionButtons(theme),

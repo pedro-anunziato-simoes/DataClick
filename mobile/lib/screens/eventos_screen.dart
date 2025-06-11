@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:mobile/api/repository/viewmodel/auth_viewmodel.dart';
 import 'package:mobile/api/repository/viewmodel/event_viewmodel.dart';
 import 'package:mobile/api/models/evento.dart';
+import 'package:mobile/api/models/user.dart';
 import 'package:mobile/api/services/formulario_service.dart';
 import 'package:mobile/api/services/campo_service.dart';
 import 'package:mobile/api/services/event_service.dart';
@@ -29,7 +30,7 @@ class _EventosScreenState extends State<EventosScreen> {
   Widget build(BuildContext context) {
     final authViewModel = Provider.of<AuthViewModel>(context);
     final eventViewModel = Provider.of<EventViewModel>(context);
-    final bool isAdmin = authViewModel.currentUser?.tipo == 'admin';
+    final bool isAdmin = authViewModel.currentUser?.role == UserRole.admin;
 
     return Scaffold(
       backgroundColor: Colors.grey[50],

@@ -62,7 +62,8 @@ class AdministradorService {
       );
 
       if (response.statusCode == 200) {
-        return Administrador.fromJson(json.decode(response.body));
+        final jsonData = json.decode(response.body);
+        return Administrador.fromJson(jsonData);
       } else {
         throw ApiException(
           _getErrorMessage(response, 'buscar informações do administrador'),

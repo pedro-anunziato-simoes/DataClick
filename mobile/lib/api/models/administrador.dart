@@ -30,27 +30,69 @@ class Administrador {
   });
 
   factory Administrador.fromJson(Map<String, dynamic> json) {
+    // Mapeia os campos principais
+    final usuarioId = json['usuarioId'] ?? json['id'] ?? '';
+    final nome = json['nome'] ?? '';
+    final telefone = json['telefone'] ?? '';
+    final email = json['email'] ?? '';
+    final cnpj = json['cnpj'] ?? '';
+    final senha = json['senha'] ?? json['password'];
+    final token = json['token'];
+
+    // Mapeia as listas
+    List<Recrutador>? adminRecrutadores;
+    if (json['adminRecrutadores'] != null) {
+      try {
+        adminRecrutadores =
+            (json['adminRecrutadores'] as List<dynamic>)
+                .map((e) => Recrutador.fromJson(e as Map<String, dynamic>))
+                .toList();
+      } catch (e) {
+        adminRecrutadores = null;
+      }
+    }
+
+    List<Formulario>? adminFormularios;
+    if (json['adminFormularios'] != null) {
+      try {
+        adminFormularios =
+            (json['adminFormularios'] as List<dynamic>)
+                .map((e) => Formulario.fromJson(e as Map<String, dynamic>))
+                .toList();
+      } catch (e) {
+        adminFormularios = null;
+      }
+    }
+
+    List<Evento>? adminEventos;
+    if (json['adminEventos'] != null) {
+      try {
+        adminEventos =
+            (json['adminEventos'] as List<dynamic>)
+                .map((e) => Evento.fromJson(e as Map<String, dynamic>))
+                .toList();
+      } catch (e) {
+        adminEventos = null;
+      }
+    }
+
+    List<dynamic>? adminFormsPreenchidos;
+    if (json['adminFormsPreenchidos'] != null) {
+      adminFormsPreenchidos = json['adminFormsPreenchidos'] as List<dynamic>;
+    }
+
     return Administrador(
-      usuarioId: json['usuarioId'] ?? json['id'] ?? '',
-      nome: json['nome'] ?? '',
-      telefone: json['telefone'] ?? '',
-      email: json['email'] ?? '',
-      cnpj: json['cnpj'] ?? '',
-      senha: json['senha'],
-      token: json['token'],
-      adminRecrutadores:
-          (json['adminRecrutadores'] as List<dynamic>?)
-              ?.map((e) => Recrutador.fromJson(e as Map<String, dynamic>))
-              .toList(),
-      adminFormularios:
-          (json['adminFormularios'] as List<dynamic>?)
-              ?.map((e) => Formulario.fromJson(e as Map<String, dynamic>))
-              .toList(),
-      adminEventos:
-          (json['adminEventos'] as List<dynamic>?)
-              ?.map((e) => Evento.fromJson(e as Map<String, dynamic>))
-              .toList(),
-      adminFormsPreenchidos: json['adminFormsPreenchidos'] as List<dynamic>?,
+      usuarioId: usuarioId,
+      nome: nome,
+      telefone: telefone,
+      email: email,
+      cnpj: cnpj,
+      senha: senha,
+      token: token,
+      adminRecrutadores: adminRecrutadores,
+      adminFormularios: adminFormularios,
+      adminEventos: adminEventos,
+      adminFormsPreenchidos: adminFormsPreenchidos,
     );
   }
 

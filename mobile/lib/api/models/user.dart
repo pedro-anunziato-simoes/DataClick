@@ -133,7 +133,6 @@ class User {
     );
   }
 
-  // Getters para compatibilidade com código existente
   String get tipo {
     switch (role) {
       case UserRole.admin:

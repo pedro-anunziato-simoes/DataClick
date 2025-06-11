@@ -28,6 +28,7 @@ import 'screens/form_create_screen.dart';
 import 'screens/recrutadorregisterscreen.dart';
 import 'screens/settings_screen.dart';
 import 'package:provider/single_child_widget.dart';
+import 'package:mobile/api/models/user.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -142,7 +143,7 @@ class MyApp extends StatelessWidget {
           return FormsScreen(
             formularioService: context.read<FormularioService>(),
             campoService: context.read<CampoService>(),
-            isAdmin: authViewModel.currentUser?.tipo == 'admin',
+            isAdmin: authViewModel.currentUser?.role == UserRole.admin,
             eventoId: '',
             adminId: authViewModel.currentUser?.usuarioId ?? '',
           );
