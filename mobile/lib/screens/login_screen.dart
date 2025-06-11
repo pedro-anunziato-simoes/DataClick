@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/api/repository/viewmodel/auth_viewmodel.dart';
-import 'recrutadorLogin.dart';
-import 'registerScreen.dart';
+import 'package:mobile/screens/recrutadorlogin.dart';
+import 'package:mobile/screens/registerscreen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -69,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void _navigateToRecruiterLogin() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const RecruiterLoginScreen()),
+      MaterialPageRoute(builder: (context) => const RecrutadorLoginScreen()),
     );
   }
 

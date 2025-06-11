@@ -5,7 +5,7 @@ import Sidebar from "../../components/sideBar/Sidebar";
 const EditarFormPage = () => {  
     return (
       <div>
-        <h1>Editando formulário</h1>
+        <h1></h1>
         < EditarFormulario/>
         <Footer />
         <Sidebar />

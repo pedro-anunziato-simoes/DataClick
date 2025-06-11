@@ -16,7 +16,7 @@ import ListaEventosPage from "./pages/evento/ListaEventosPage";
 import CriarEventoPage from "./pages/evento/CriarEventoPage";
 import FormulariosPreenchidosPage from "./pages/formulariosPreechidos/FormulariosPreenchidosPage";
 import RegistrarPage from "./pages/registrar/RegistrarPage";
-import LoginPage from "./pages/login/loginPage";
+import LoginPage from "./pages/login/LoginPage";
 
 const App = () => {
   return (

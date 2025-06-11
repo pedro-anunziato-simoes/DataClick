@@ -15,20 +15,17 @@ class _CriarEventoScreenState extends State<CriarEventoScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nomeController = TextEditingController();
   final _descricaoController = TextEditingController();
-  final _localController = TextEditingController();
-  DateTime? _dataInicio;
-  DateTime? _dataFim;
+  DateTime? _data;
   String _status = 'agendado';
 
   @override
   void dispose() {
     _nomeController.dispose();
     _descricaoController.dispose();
-    _localController.dispose();
     super.dispose();
   }
 
-  Future<void> _selectData(BuildContext context, bool isDataInicio) async {
+  Future<void> _selectData(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -37,30 +34,22 @@ class _CriarEventoScreenState extends State<CriarEventoScreen> {
     );
     if (picked != null) {
       setState(() {
-        if (isDataInicio) {
-          _dataInicio = picked;
-        } else {
-          _dataFim = picked;
-        }
+        _data = picked;
       });
     }
   }
 
   Future<void> _submitForm() async {
-    if (_formKey.currentState!.validate() &&
-        _dataInicio != null &&
-        _dataFim != null) {
+    if (_formKey.currentState!.validate() && _data != null) {
       final eventViewModel = Provider.of<EventViewModel>(
         context,
         listen: false,
       );
 
       final novoEvento = Evento(
-        id: '', // Será gerado pelo servidor
+        id: '', 
         nome: _nomeController.text,
-        dataInicio: _dataInicio!,
-        dataFim: _dataFim!,
-        local: _localController.text,
+        data: _data!,
         descricao: _descricaoController.text,
         formulariosAssociados: [],
         recrutadoresEnvolvidos: [],
@@ -141,48 +130,14 @@ class _CriarEventoScreenState extends State<CriarEventoScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                controller: _localController,
-                decoration: const InputDecoration(
-                  labelText: 'Local',
-                  border: OutlineInputBorder(),
-                  filled: true,
-                  fillColor: Colors.white,
+              ListTile(
+                title: Text(
+                  _data == null
+                      ? 'Selecione a data do evento'
+                      : 'Data: ${DateFormat('dd/MM/yyyy').format(_data!)}',
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, insira um local';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: ListTile(
-                      title: Text(
-                        _dataInicio == null
-                            ? 'Selecione a data de início'
-                            : 'Início: ${DateFormat('dd/MM/yyyy').format(_dataInicio!)}',
-                      ),
-                      trailing: const Icon(Icons.calendar_today),
-                      onTap: () => _selectData(context, true),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ListTile(
-                      title: Text(
-                        _dataFim == null
-                            ? 'Selecione a data de término'
-                            : 'Término: ${DateFormat('dd/MM/yyyy').format(_dataFim!)}',
-                      ),
-                      trailing: const Icon(Icons.calendar_today),
-                      onTap: () => _selectData(context, false),
-                    ),
-                  ),
-                ],
+                trailing: const Icon(Icons.calendar_today),
+                onTap: () => _selectData(context),
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
@@ -193,17 +148,14 @@ class _CriarEventoScreenState extends State<CriarEventoScreen> {
                   filled: true,
                   fillColor: Colors.white,
                 ),
-                items:
-                    ['agendado', 'em andamento', 'finalizado']
-                        .map(
-                          (status) => DropdownMenuItem(
-                            value: status,
-                            child: Text(
-                              status[0].toUpperCase() + status.substring(1),
-                            ),
-                          ),
-                        )
-                        .toList(),
+                items: ['agendado', 'em andamento', 'finalizado']
+                    .map(
+                      (status) => DropdownMenuItem(
+                        value: status,
+                        child: Text(status),
+                      ),
+                    )
+                    .toList(),
                 onChanged: (value) {
                   if (value != null) {
                     setState(() {
@@ -221,7 +173,11 @@ class _CriarEventoScreenState extends State<CriarEventoScreen> {
                 ),
                 child: const Text(
                   'Criar Evento',
-                  style: TextStyle(color: Color(0xFF26A69A), fontSize: 16),
+                  style: TextStyle(
+                    color: Color(0xFF26A69A),
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],

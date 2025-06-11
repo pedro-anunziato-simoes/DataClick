@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile/api/repository/viewmodel/auth_viewmodel.dart';
-import 'package:mobile/api/models/recrutador.dart';
 
-class RecruiterRegisterScreen extends StatefulWidget {
-  const RecruiterRegisterScreen({super.key});
+class RecrutadorRegisterScreen extends StatefulWidget {
+  const RecrutadorRegisterScreen({super.key});
 
   @override
-  State<RecruiterRegisterScreen> createState() =>
-      _RecruiterRegisterScreenState();
+  State<RecrutadorRegisterScreen> createState() =>
+      _RecrutadorRegisterScreenState();
 }
 
-class _RecruiterRegisterScreenState extends State<RecruiterRegisterScreen> {
+class _RecrutadorRegisterScreenState extends State<RecrutadorRegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nomeController = TextEditingController();
   final _emailController = TextEditingController();
@@ -31,7 +30,7 @@ class _RecruiterRegisterScreenState extends State<RecruiterRegisterScreen> {
     _confirmarSenhaController.dispose();
     super.dispose();
   }
-
+  /*
   Future<void> _registerRecruiter() async {
     FocusManager.instance.primaryFocus?.unfocus();
 
@@ -47,6 +46,16 @@ class _RecruiterRegisterScreenState extends State<RecruiterRegisterScreen> {
       return;
     }
 
+    if (_senhaController.text != _confirmarSenhaController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('As senhas não coincidem'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
 
     try {
@@ -55,6 +64,8 @@ class _RecruiterRegisterScreenState extends State<RecruiterRegisterScreen> {
         email: _emailController.text.trim(),
         telefone: _telefoneController.text.trim(),
         senha: _senhaController.text.trim(),
+        adminId:
+            'admin-id-placeholder', // Você precisará obter o ID do admin de alguma forma
       );
 
       if (success && mounted) {
@@ -67,7 +78,9 @@ class _RecruiterRegisterScreenState extends State<RecruiterRegisterScreen> {
           ),
         );
         Navigator.pop(context);
-      } else if (mounted) {
+      }
+    } catch (e) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -77,23 +90,13 @@ class _RecruiterRegisterScreenState extends State<RecruiterRegisterScreen> {
           ),
         );
       }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Erro ao tentar cadastrar como recrutador'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
     }
   }
-
+  */
   @override
   Widget build(BuildContext context) {
     final authViewModel = Provider.of<AuthViewModel>(context);
     final isLoading = authViewModel.isLoading;
-    final errorMessage = authViewModel.errorMessage;
 
     return Scaffold(
       backgroundColor: const Color(0xFF26A69A),
@@ -133,7 +136,7 @@ class _RecruiterRegisterScreenState extends State<RecruiterRegisterScreen> {
                     borderRadius: BorderRadius.circular(20.0),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(),
                         blurRadius: 10,
                         spreadRadius: 2,
                       ),
@@ -160,6 +163,7 @@ class _RecruiterRegisterScreenState extends State<RecruiterRegisterScreen> {
                         ),
                         const SizedBox(height: 20),
 
+                        // Seção Dados Pessoais
                         const Text(
                           'Dados Pessoais',
                           style: TextStyle(
@@ -239,6 +243,7 @@ class _RecruiterRegisterScreenState extends State<RecruiterRegisterScreen> {
 
                         const SizedBox(height: 20),
 
+                        // Seção Dados de Acesso
                         const Text(
                           'Dados de Acesso',
                           style: TextStyle(
@@ -325,6 +330,7 @@ class _RecruiterRegisterScreenState extends State<RecruiterRegisterScreen> {
 
                         const SizedBox(height: 20),
 
+                        // Termos de uso
                         Row(
                           children: [
                             Checkbox(
@@ -353,10 +359,10 @@ class _RecruiterRegisterScreenState extends State<RecruiterRegisterScreen> {
                           ],
                         ),
 
-                        if (errorMessage != null) ...[
+                        if (authViewModel.errorMessage != null) ...[
                           const SizedBox(height: 16),
                           Text(
-                            errorMessage,
+                            authViewModel.errorMessage!,
                             style: const TextStyle(
                               color: Colors.red,
                               fontSize: 14,
@@ -367,10 +373,11 @@ class _RecruiterRegisterScreenState extends State<RecruiterRegisterScreen> {
 
                         const SizedBox(height: 24),
 
+                        // Botão de cadastro
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: isLoading ? null : _registerRecruiter,
+                            onPressed: isLoading ? null : () => Navigator.pop(context),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF26A69A),
                               minimumSize: const Size(0, 45),

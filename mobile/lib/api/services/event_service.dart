@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:mobile/api/api_client.dart';
 import 'package:mobile/api/models/evento.dart';
-
 import 'package:mobile/api/services/api_exception.dart';
 
 class EventService {
@@ -28,7 +27,7 @@ class EventService {
 
   Future<List<Evento>> listarEventos() async {
     try {
-      final response = await _apiClient.get('$_eventosBasePath');
+      final response = await _apiClient.get(_eventosBasePath);
       if (response.statusCode == 200) {
         final List<dynamic> responseData = json.decode(response.body);
         return responseData
@@ -70,7 +69,8 @@ class EventService {
     try {
       final response = await _apiClient.post(
         '$_eventosBasePath/criar',
-        body: evento.toJson(),
+        body: json.encode(evento.toJson()),
+        includeAuth: true,
       );
       if (response.statusCode == 201) {
         final Map<String, dynamic> responseData = json.decode(response.body);
@@ -91,8 +91,9 @@ class EventService {
   Future<Evento> atualizarEvento(String id, Evento evento) async {
     try {
       final response = await _apiClient.post(
-        '$_eventosBasePath/alterar/{eventoId}',
-        body: evento.toJson(),
+        '$_eventosBasePath/alterar/$id',
+        body: json.encode(evento.toJson()),
+        includeAuth: true,
       );
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
@@ -112,7 +113,10 @@ class EventService {
 
   Future<void> removerEvento(String id) async {
     try {
-      final response = await _apiClient.delete('$_eventosBasePath/remove/$id');
+      final response = await _apiClient.delete(
+        '$_eventosBasePath/remove/$id',
+        includeAuth: true,
+      );
       if (response.statusCode == 204 || response.statusCode == 200) {
         return;
       } else {

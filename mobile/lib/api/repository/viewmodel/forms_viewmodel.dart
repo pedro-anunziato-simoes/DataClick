@@ -97,6 +97,7 @@ class FormViewModel extends ChangeNotifier {
   Future<void> criarFormulario({
     required String titulo,
     required String eventoId,
+    required List<Campo> campos,
     String? descricao,
   }) async {
     try {
@@ -110,6 +111,7 @@ class FormViewModel extends ChangeNotifier {
       final result = await _repository.criarFormulario(
         titulo: titulo,
         eventoId: eventoId,
+        campos: campos,
         descricao: descricao,
       );
 
@@ -126,6 +128,7 @@ class FormViewModel extends ChangeNotifier {
   Future<void> atualizarFormulario({
     required String formId,
     required String titulo,
+    required List<Campo> campos,
     String? descricao,
   }) async {
     try {
@@ -139,6 +142,7 @@ class FormViewModel extends ChangeNotifier {
       final result = await _repository.atualizarFormulario(
         formId: formId,
         titulo: titulo,
+        campos: campos,
         descricao: descricao,
       );
 
@@ -148,7 +152,7 @@ class FormViewModel extends ChangeNotifier {
         final currentList =
             (_formularios as SuccessState<List<Formulario>>).data;
         if (currentList.isNotEmpty) {
-          await carregarFormulariosPorEvento(currentList.first.eventoId ?? '');
+          await carregarFormulariosPorEvento(currentList.first.formularioEventoId ?? '');
         }
       }
 
@@ -172,9 +176,9 @@ class FormViewModel extends ChangeNotifier {
             .firstWhere(
               (f) => f.id == id,
               orElse:
-                  () => Formulario(id: '', titulo: '', adminId: '', campos: []),
+                  () => Formulario(id: '', formularioTitulo: '', formAdminId: '', campos: []),
             );
-        eventoId = formulario.eventoId;
+        eventoId = formulario.formularioEventoId;
       }
 
       await _repository.removerFormulario(id);

@@ -9,11 +9,13 @@ abstract class IFormularioRepository {
   Future<Formulario> criarFormulario({
     required String titulo,
     required String eventoId,
+    required List<Campo> campos,
     String? descricao,
   });
   Future<Formulario> atualizarFormulario({
     required String formId,
     required String titulo,
+    required List<Campo> campos,
     String? descricao,
   });
   Future<void> removerFormulario(String id);
@@ -55,12 +57,14 @@ class FormularioRepository implements IFormularioRepository {
   Future<Formulario> criarFormulario({
     required String titulo,
     required String eventoId,
+    required List<Campo> campos,
     String? descricao,
   }) async {
     try {
       return await _formularioService.criarFormulario(
         titulo: titulo,
         eventoId: eventoId,
+        campos: campos,
       );
     } catch (e) {
       rethrow;
@@ -71,12 +75,14 @@ class FormularioRepository implements IFormularioRepository {
   Future<Formulario> atualizarFormulario({
     required String formId,
     required String titulo,
+    required List<Campo> campos,
     String? descricao,
   }) async {
     try {
-      return await _formularioService.atualizarFormulario(
+      return await _formularioService.alterarFormulario(
         formId: formId,
         titulo: titulo,
+        campos: campos,
       );
     } catch (e) {
       rethrow;

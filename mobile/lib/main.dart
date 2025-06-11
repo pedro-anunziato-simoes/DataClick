@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/screens/criarEventos.dart';
+import 'package:mobile/screens/criareventos.dart';
 import 'package:mobile/screens/eventos_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
@@ -15,6 +15,7 @@ import 'api/services/event_service.dart';
 
 import 'api/repository/viewmodel/forms_viewmodel.dart';
 import 'api/repository/viewmodel/auth_viewmodel.dart';
+import 'api/repository/viewmodel/recrutador_viewmodel.dart';
 import 'api/repository/viewmodel/event_viewmodel.dart';
 import 'api/repository/forms_repository.dart';
 
@@ -23,6 +24,7 @@ import 'screens/home_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/forms_screen.dart';
 import 'screens/form_create_screen.dart';
+import 'screens/recrutadorregisterscreen.dart';
 import 'screens/settings_screen.dart';
 import 'package:provider/single_child_widget.dart';
 
@@ -48,7 +50,7 @@ List<SingleChildWidget> _buildProviders(
     Provider<SharedPreferences>.value(value: sharedPreferences),
     Provider<http.Client>.value(value: httpClient),
     Provider<ApiClient>(
-      create: (context) => ApiClient(httpClient, sharedPreferences),
+      create: (context) => ApiClient(httpClient, sharedPreferences, baseUrl: 'http://localhost:8080', prefs: sharedPreferences),
     ),
     ProxyProvider<ApiClient, AuthService>(
       update: (_, apiClient, __) => AuthService(apiClient, sharedPreferences),
@@ -85,6 +87,11 @@ List<SingleChildWidget> _buildProviders(
                 recrutadorService: recrutadorService,
               ),
     ),
+    ChangeNotifierProxyProvider<RecrutadorService, RecrutadorViewModel>(
+      create:
+          (context) => RecrutadorViewModel(context.read<RecrutadorService>()),
+      update: (_, service, __) => RecrutadorViewModel(service),
+    ),
     ChangeNotifierProxyProvider<FormularioRepository, FormViewModel>(
       create: (context) => FormViewModel(context.read<FormularioRepository>()),
       update: (_, repo, __) => FormViewModel(repo),
@@ -119,6 +126,7 @@ class MyApp extends StatelessWidget {
         '/criar-evento': (context) => const CriarEventoScreen(),
         '/profile': (context) => const ProfileScreen(),
         '/settings': (context) => const SettingsScreen(),
+        '/recrutador/register': (context) => const RecrutadorRegisterScreen(),
         '/forms':
             (context) => FormsScreen(
               formularioService: context.read<FormularioService>(),
@@ -209,7 +217,7 @@ class MyApp extends StatelessWidget {
           color: Colors.white,
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(8),
@@ -217,7 +225,9 @@ class MyApp extends StatelessWidget {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Color.lerp(Colors.white, Colors.transparent, 0.1),
+        fillColor: Colors.white.withAlpha(
+          229,
+        ), // Equivalent to withOpacity(0.9)
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide.none,

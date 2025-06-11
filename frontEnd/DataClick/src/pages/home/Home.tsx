@@ -1,4 +1,4 @@
-import { Box, Typography, useMediaQuery } from "@mui/material";
+import { Box, Typography, useMediaQuery, Paper, Stack } from "@mui/material";
 import Sidebar from "../../components/sideBar/Sidebar";
 import Footer from "../../components/footer/Footer";
 
@@ -11,7 +11,7 @@ const Home = () => {
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
-        background: "linear-gradient(to bottom, #b2dfdb, #4db6ac)", // background ajustado
+        background: "linear-gradient(to bottom, #b2dfdb, #4db6ac)",
         overflow: "hidden",
       }}
     >
@@ -41,9 +41,29 @@ const Home = () => {
             p: 3,
           }}
         >
-          <Typography variant="h4" fontWeight="bold">
-            Bem vindo!
-          </Typography>
+          <Paper elevation={4} sx={{ p: 5, borderRadius: 4, maxWidth: 700, backgroundColor: "#ffffffdd" }}>
+            <Stack spacing={2}>
+              <Typography variant="h4" fontWeight="bold">
+                Bem vindo ao DataClick!
+              </Typography>
+
+              <Typography variant="body1">
+                <strong>DataClick</strong> é uma plataforma desenvolvida para facilitar a coleta de informações em campo, mesmo sem conexão com a internet.
+              </Typography>
+
+              <Typography variant="body1">
+                Com ela, recrutadores podem baixar formulários personalizados antes dos eventos, preenchê-los offline e sincronizar os dados automaticamente assim que houver acesso à internet.
+              </Typography>
+
+              <Typography variant="body1">
+                Administradores têm acesso a uma visão completa dos dados coletados, podendo acompanhar a performance por evento, gerenciar recrutadores e criar formulários com total flexibilidade.
+              </Typography>
+
+              <Typography variant="body1">
+                Tudo isso de forma simples, segura e eficiente.
+              </Typography>
+            </Stack>
+          </Paper>
         </Box>
       </Box>
 

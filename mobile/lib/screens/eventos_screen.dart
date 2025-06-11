@@ -31,29 +31,46 @@ class _EventosScreenState extends State<EventosScreen> {
     final bool isAdmin = authViewModel.currentUser?.tipo == 'admin';
 
     return Scaffold(
-      backgroundColor: const Color(0xFF26A69A),
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         backgroundColor: const Color(0xFF26A69A),
         elevation: 0,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF26A69A), Color(0xFF00796B)],
+            ),
+          ),
+        ),
         title: const Text(
           'Eventos',
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 22,
             fontWeight: FontWeight.bold,
             color: Colors.white,
+            letterSpacing: 0.5,
           ),
         ),
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
-            onPressed: () {
-              eventViewModel.carregarEventos();
-            },
+          Container(
+            margin: const EdgeInsets.only(right: 8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.refresh, color: Colors.white),
+              onPressed: () {
+                eventViewModel.carregarEventos();
+              },
+            ),
           ),
         ],
       ),
@@ -65,17 +82,31 @@ class _EventosScreenState extends State<EventosScreen> {
       ),
       floatingActionButton:
           isAdmin
-              ? FloatingActionButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const CriarEventoScreen(),
+              ? Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF26A69A).withOpacity(0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 6),
                     ),
-                  );
-                },
-                backgroundColor: Colors.white,
-                child: const Icon(Icons.add, color: Color(0xFF26A69A)),
+                  ],
+                ),
+                child: FloatingActionButton.extended(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CriarEventoScreen(),
+                      ),
+                    );
+                  },
+                  backgroundColor: const Color(0xFF26A69A),
+                  foregroundColor: Colors.white,
+                  icon: const Icon(Icons.add),
+                  label: const Text('Novo Evento'),
+                ),
               )
               : null,
     );
@@ -83,8 +114,39 @@ class _EventosScreenState extends State<EventosScreen> {
 
   Widget _buildBody(EventViewModel eventViewModel, bool isAdmin) {
     if (eventViewModel.eventos is LoadingState) {
-      return const Center(
-        child: CircularProgressIndicator(color: Colors.white),
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: const CircularProgressIndicator(
+                color: Color(0xFF26A69A),
+                strokeWidth: 3,
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Carregando eventos...',
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
       );
     }
 
@@ -108,123 +170,71 @@ class _EventosScreenState extends State<EventosScreen> {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, color: Colors.white, size: 48),
-            const SizedBox(height: 16),
-            const Text(
-              'Erro ao carregar eventos',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+        child: Container(
+          padding: const EdgeInsets.all(32),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.red.withOpacity(0.1),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              (eventViewModel.eventos as ErrorState).error,
-              style: const TextStyle(fontSize: 14, color: Colors.white70),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () => eventViewModel.carregarEventos(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
-              ),
-              child: const Text(
-                'Tentar Novamente',
-                style: TextStyle(color: Color(0xFF26A69A)),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEventsList(List<Evento> events, bool isAdmin) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(24.0),
-      itemCount: events.length,
-      itemBuilder: (context, index) {
-        return _buildEventCard(events[index], isAdmin, context);
-      },
-    );
-  }
-
-  Widget _buildEventCard(Evento event, bool isAdmin, BuildContext context) {
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(15.0),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder:
-                  (context) => FormsScreen(
-                    isAdmin: isAdmin,
-                    formularioService: Provider.of<FormularioService>(
-                      context,
-                      listen: false,
-                    ),
-                    campoService: Provider.of<CampoService>(
-                      context,
-                      listen: false,
-                    ),
-                    eventoId: event.id,
-                  ),
-            ),
-          );
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
+            ],
+          ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      event.nome,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF26A69A),
-                      ),
-                    ),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                child: const Icon(
+                  Icons.error_outline,
+                  color: Colors.red,
+                  size: 48,
+                ),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'Ops! Algo deu errado',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                (eventViewModel.eventos as ErrorState).error,
+                style: const TextStyle(fontSize: 14, color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              ElevatedButton.icon(
+                onPressed: () => eventViewModel.carregarEventos(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF26A69A),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  if (isAdmin)
-                    IconButton(
-                      icon: const Icon(Icons.edit, color: Color(0xFF26A69A)),
-                      onPressed: () {
-                        _showNotImplementedSnackbar(context, 'Editar evento');
-                      },
-                    ),
-                ],
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 16,
+                  ),
+                  elevation: 0,
+                ),
+                icon: const Icon(Icons.refresh),
+                label: const Text(
+                  'Tentar Novamente',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
               ),
-              const SizedBox(height: 8),
-              _buildEventInfoRow(
-                Icons.calendar_today,
-                '${_formatDate(event.dataInicio)} - ${_formatDate(event.dataFim)}',
-              ),
-              const SizedBox(height: 4),
-              _buildEventInfoRow(Icons.location_on, event.local),
-              const SizedBox(height: 8),
-              _buildStatusIndicator(event.status),
             ],
           ),
         ),
@@ -232,51 +242,251 @@ class _EventosScreenState extends State<EventosScreen> {
     );
   }
 
-  Widget _buildEventInfoRow(IconData icon, String text) {
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: Colors.grey[600]),
-        const SizedBox(width: 8),
-        Text(text, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+  Widget _buildEventsList(List<Evento> events, bool isAdmin) {
+    return CustomScrollView(
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.all(20),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate((context, index) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: _buildEventCard(events[index], isAdmin, context),
+              );
+            }, childCount: events.length),
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildStatusIndicator(String status) {
-    Color statusColor;
-    IconData statusIcon;
+  Widget _buildEventCard(Evento event, bool isAdmin, BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(20),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (context) => FormsScreen(
+                        isAdmin: isAdmin,
+                        formularioService: Provider.of<FormularioService>(
+                          context,
+                          listen: false,
+                        ),
+                        campoService: Provider.of<CampoService>(
+                          context,
+                          listen: false,
+                        ),
+                        eventoId: event.id,
+                      ),
+                ),
+              );
+            },
+            child: Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        const Color(0xFF26A69A).withOpacity(0.8),
+                        const Color(0xFF00796B).withOpacity(0.9),
+                      ],
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              event.nome,
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            _buildStatusIndicator(event.status, isHeader: true),
+                          ],
+                        ),
+                      ),
+                      if (isAdmin)
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.white),
+                            onPressed: () {
+                              _showNotImplementedSnackbar(
+                                context,
+                                'Editar evento',
+                              );
+                            },
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
 
-    switch (status.toLowerCase()) {
-      case 'agendado':
-        statusColor = Colors.blue;
-        statusIcon = Icons.event_available;
-        break;
-      case 'em andamento':
-        statusColor = Colors.green;
-        statusIcon = Icons.directions_run;
-        break;
-      case 'finalizado':
-        statusColor = Colors.grey;
-        statusIcon = Icons.event_busy;
-        break;
-      default:
-        statusColor = Colors.grey;
-        statusIcon = Icons.event;
-    }
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      _buildEventInfoRow(
+                        Icons.calendar_today,
+                        _formatDate(event.data),
+                        const Color(0xFF26A69A),
+                      ),
+                      const SizedBox(height: 12),
+                      _buildEventInfoRow(
+                        Icons.description,
+                        event.descricao,
+                        Colors.orange,
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF26A69A).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.touch_app,
+                              color: Color(0xFF26A69A),
+                              size: 18,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Toque para ver formulários',
+                              style: TextStyle(
+                                color: const Color(0xFF26A69A).withOpacity(0.8),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
+  Widget _buildEventInfoRow(IconData icon, String text, Color iconColor) {
     return Row(
       children: [
-        Icon(statusIcon, size: 16, color: statusColor),
-        const SizedBox(width: 8),
-        Text(
-          status,
-          style: TextStyle(
-            fontSize: 14,
-            color: statusColor,
-            fontWeight: FontWeight.w500,
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: iconColor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, size: 18, color: iconColor),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontSize: 15,
+              color: Colors.black87,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildStatusIndicator(String status, {bool isHeader = false}) {
+    Color statusColor;
+    IconData statusIcon;
+    String statusText;
+
+    switch (status.toLowerCase()) {
+      case 'agendado':
+        statusColor = isHeader ? Colors.white : Colors.blue;
+        statusIcon = Icons.event_available;
+        statusText = 'Agendado';
+        break;
+      case 'em andamento':
+        statusColor = isHeader ? Colors.white : Colors.green;
+        statusIcon = Icons.directions_run;
+        statusText = 'Em Andamento';
+        break;
+      case 'finalizado':
+        statusColor = isHeader ? Colors.white70 : Colors.grey;
+        statusIcon = Icons.event_busy;
+        statusText = 'Finalizado';
+        break;
+      default:
+        statusColor = isHeader ? Colors.white70 : Colors.grey;
+        statusIcon = Icons.event;
+        statusText = status;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color:
+            isHeader
+                ? Colors.white.withOpacity(0.2)
+                : statusColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+        border:
+            isHeader ? null : Border.all(color: statusColor.withOpacity(0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(statusIcon, size: 16, color: statusColor),
+          const SizedBox(width: 6),
+          Text(
+            statusText,
+            style: TextStyle(
+              fontSize: 13,
+              color: statusColor,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -284,43 +494,122 @@ class _EventosScreenState extends State<EventosScreen> {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.event_note, size: 48, color: Colors.white),
-            const SizedBox(height: 16),
-            const Text(
-              'Nenhum evento encontrado',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+        child: Container(
+          padding: const EdgeInsets.all(40),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              isAdmin
-                  ? 'Clique no botão + para criar um novo evento'
-                  : 'Ainda não há eventos disponíveis',
-              style: const TextStyle(fontSize: 14, color: Colors.white70),
-              textAlign: TextAlign.center,
-            ),
-          ],
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF26A69A).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                child: const Icon(
+                  Icons.event_note,
+                  size: 64,
+                  color: Color(0xFF26A69A),
+                ),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'Nenhum evento encontrado',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                isAdmin
+                    ? 'Clique no botão "Novo Evento" para criar o primeiro evento'
+                    : 'Ainda não há eventos disponíveis no momento',
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+              if (isAdmin) ...[
+                const SizedBox(height: 32),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CriarEventoScreen(),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF26A69A),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 16,
+                    ),
+                    elevation: 0,
+                  ),
+                  icon: const Icon(Icons.add),
+                  label: const Text(
+                    'Criar Primeiro Evento',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ],
+          ),
         ),
       ),
     );
   }
 
   String _formatDate(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+    const meses = [
+      'Jan',
+      'Fev',
+      'Mar',
+      'Abr',
+      'Mai',
+      'Jun',
+      'Jul',
+      'Ago',
+      'Set',
+      'Out',
+      'Nov',
+      'Dez',
+    ];
+
+    return '${date.day} ${meses[date.month - 1]} ${date.year}';
   }
 
   void _showNotImplementedSnackbar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('$message (A Implementar)'),
+        content: Row(
+          children: [
+            const Icon(Icons.info, color: Colors.white),
+            const SizedBox(width: 12),
+            Text('$message (A Implementar)'),
+          ],
+        ),
         backgroundColor: const Color(0xFF26A69A),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(16),
       ),
     );
   }

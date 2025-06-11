@@ -5,6 +5,9 @@
       <excludeFolder url="file://$MODULE_DIR$/mobile/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/mobile/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/mobile/build" />
+      <excludeFolder url="file://$MODULE_DIR$/mobile/test/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/mobile/test/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/mobile/test/build" />
     </content>
   </component>
 </module>

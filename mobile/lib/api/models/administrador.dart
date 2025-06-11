@@ -8,6 +8,7 @@ class Administrador {
   final String telefone;
   final String email;
   final String? senha;
+  final String? token;
   final List<Recrutador>? recrutadores;
   final List<Formulario>? formularios;
   final List<Evento>? eventos;
@@ -18,6 +19,7 @@ class Administrador {
     required this.telefone,
     required this.email,
     this.senha,
+    this.token,
     this.recrutadores,
     this.formularios,
     this.eventos,
@@ -30,21 +32,19 @@ class Administrador {
       telefone: json['telefone'] ?? '',
       email: json['email'] ?? '',
       senha: json['senha'],
+      token: json['token'],
       recrutadores:
           (json['recrutadores'] as List<dynamic>?)
               ?.map((e) => Recrutador.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
+              .toList(),
       formularios:
           (json['formularios'] as List<dynamic>?)
               ?.map((e) => Formulario.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
+              .toList(),
       eventos:
           (json['eventos'] as List<dynamic>?)
               ?.map((e) => Evento.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
+              .toList(),
     );
   }
 
@@ -55,9 +55,12 @@ class Administrador {
       'telefone': telefone,
       'email': email,
       'senha': senha,
-      'recrutadores': recrutadores?.map((e) => e.toJson()).toList(),
-      'formularios': formularios?.map((e) => e.toJson()).toList(),
-      'eventos': eventos?.map((e) => e.toJson()).toList(),
+      'token': token,
+      if (recrutadores != null)
+        'recrutadores': recrutadores!.map((e) => e.toJson()).toList(),
+      if (formularios != null)
+        'formularios': formularios!.map((e) => e.toJson()).toList(),
+      if (eventos != null) 'eventos': eventos!.map((e) => e.toJson()).toList(),
     };
   }
 
@@ -67,6 +70,7 @@ class Administrador {
     String? telefone,
     String? email,
     String? senha,
+    String? token,
     List<Recrutador>? recrutadores,
     List<Formulario>? formularios,
     List<Evento>? eventos,
@@ -77,6 +81,7 @@ class Administrador {
       telefone: telefone ?? this.telefone,
       email: email ?? this.email,
       senha: senha ?? this.senha,
+      token: token ?? this.token,
       recrutadores: recrutadores ?? this.recrutadores,
       formularios: formularios ?? this.formularios,
       eventos: eventos ?? this.eventos,

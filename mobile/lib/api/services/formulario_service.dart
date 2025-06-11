@@ -1,6 +1,7 @@
 import 'dart:convert';
 import '../api_client.dart';
 import '../models/formulario.dart';
+import '../models/campo.dart';
 import 'package:mobile/api/services/api_exception.dart';
 
 class FormularioService {
@@ -59,11 +60,21 @@ class FormularioService {
   Future<Formulario> criarFormulario({
     required String titulo,
     required String eventoId,
+    required List<Campo> campos,
   }) async {
     try {
+      // Verifica se o evento existe antes de criar o formulário
+      await _apiClient.get('/eventos/$eventoId');
+
+      final formData = {
+        'titulo': titulo,
+        'eventoId': eventoId,
+        'campos': campos.map((campo) => campo.toJson()).toList(),
+      };
+
       final response = await _apiClient.post(
         '/formularios/add/$eventoId',
-        body: json.encode({'formularioTituloDto': titulo}),
+        body: json.encode(formData),
         includeAuth: true,
       );
 
@@ -82,14 +93,20 @@ class FormularioService {
     }
   }
 
-  Future<Formulario> atualizarFormulario({
+  Future<Formulario> alterarFormulario({
     required String formId,
     required String titulo,
+    required List<Campo> campos,
   }) async {
     try {
-      final response = await _apiClient.post(
+      final formData = {
+        'titulo': titulo,
+        'campos': campos.map((campo) => campo.toJson()).toList(),
+      };
+
+      final response = await _apiClient.put(
         '/formularios/alterar/$formId',
-        body: json.encode({'formularioTituloDto': titulo}),
+        body: json.encode(formData),
         includeAuth: true,
       );
 
@@ -97,25 +114,25 @@ class FormularioService {
         return Formulario.fromJson(json.decode(response.body));
       } else {
         throw ApiException(
-          _getErrorMessage(response, 'atualizar formulário'),
+          _getErrorMessage(response, 'alterar formulário'),
           response.statusCode,
         );
       }
     } on ApiException {
       rethrow;
     } catch (e) {
-      throw ApiException('Erro ao atualizar formulário: ${e.toString()}', 0);
+      throw ApiException('Erro ao alterar formulário: ${e.toString()}', 0);
     }
   }
 
-  Future<void> removerFormulario(String formId) async {
+  Future<void> removerFormulario(String id) async {
     try {
       final response = await _apiClient.delete(
-        '/formularios/remove/$formId',
+        '/formularios/remove/$id',
         includeAuth: true,
       );
 
-      if (response.statusCode != 200) {
+      if (response.statusCode != 200 && response.statusCode != 204) {
         throw ApiException(
           _getErrorMessage(response, 'remover formulário'),
           response.statusCode,
@@ -182,7 +199,9 @@ class FormularioService {
       case 403:
         return 'Acesso negado. Permissões insuficientes para $operation';
       case 404:
-        return 'Formulário não encontrado';
+        return 'Recurso não encontrado (Evento ou Formulário)';
+      case 409:
+        return 'Conflito ao tentar $operation';
       case 500:
         return 'Erro interno do servidor ao $operation';
       default:
