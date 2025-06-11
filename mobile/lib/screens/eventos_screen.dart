@@ -360,13 +360,13 @@ class _EventosScreenState extends State<EventosScreen> {
                     children: [
                       _buildEventInfoRow(
                         Icons.calendar_today,
-                        '${_formatDate(event.dataInicio)} - ${_formatDate(event.dataFim)}',
+                        _formatDate(event.data),
                         const Color(0xFF26A69A),
                       ),
                       const SizedBox(height: 12),
                       _buildEventInfoRow(
-                        Icons.location_on,
-                        event.local,
+                        Icons.description,
+                        event.descricao,
                         Colors.orange,
                       ),
                       const SizedBox(height: 16),

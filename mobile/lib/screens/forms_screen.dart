@@ -3,6 +3,7 @@ import '../api/models/formulario.dart';
 import '../api/services/formulario_service.dart';
 import '../api/services/campo_service.dart';
 import 'form_create_screen.dart';
+import 'fill_form_screen.dart';
 
 class FormsScreen extends StatefulWidget {
   static const String routeName = '/forms';
@@ -149,7 +150,7 @@ class _FormsScreenState extends State<FormsScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      formulario.titulo,
+                      formulario.formularioTitulo,
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -260,7 +261,7 @@ class _FormsScreenState extends State<FormsScreen> {
       builder:
           (context) => AlertDialog(
             title: const Text('Confirmar exclusão'),
-            content: Text('Excluir "${formulario.titulo}" permanentemente?'),
+            content: Text('Excluir "${formulario.formularioTitulo}" permanentemente?'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
@@ -304,7 +305,19 @@ class _FormsScreenState extends State<FormsScreen> {
     }
   }
 
-  void _mostrarDetalhesFormulario(Formulario formulario) {
+ void _mostrarDetalhesFormulario(Formulario formulario) {
+  if (!widget.isAdmin) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FillFormScreen(
+          formulario: formulario,
+          formularioService: widget.formularioService,
+          campoService: widget.campoService,
+        ),
+      ),
+    );
+  } else {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -332,7 +345,99 @@ class _FormsScreenState extends State<FormsScreen> {
                     ),
                   ),
                   Text(
-                    formulario.titulo,
+                    formulario.formularioTitulo,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  if (formulario.descricao != null &&
+                      formulario.descricao!.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8, bottom: 16),
+                      child: Text(
+                        formulario.descricao!,
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ),
+                  if (formulario.dataCriacao != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Text(
+                        'Criado em: ${_formatarData(formulario.dataCriacao!)}',
+                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                      ),
+                    ),
+                  const Text(
+                    'Campos:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Expanded(
+                    child: ListView.builder(
+                      controller: scrollController,
+                      itemCount: formulario.campos.length,
+                      itemBuilder: (context, index) {
+                        final campo = formulario.campos[index];
+                        return Card(
+                          margin: const EdgeInsets.symmetric(vertical: 4),
+                          child: ListTile(
+                            title: Text(campo.titulo),
+                            subtitle: Text('Tipo: ${campo.tipo}'),
+                            dense: true,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  if (widget.isAdmin)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.add),
+                        label: const Text('Adicionar Campo'),
+                        onPressed: () => _adicionarNovoCampo(formulario),
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 48),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.5,
+          maxChildSize: 0.9,
+          minChildSize: 0.25,
+          builder: (context, scrollController) {
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  Text(
+                    formulario.formularioTitulo,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   if (formulario.descricao != null &&
