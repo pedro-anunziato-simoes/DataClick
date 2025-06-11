@@ -84,8 +84,15 @@ class ApiClient {
       'Accept': 'application/json',
     };
 
-    if (includeAuth && _authToken != null) {
-      headers['Authorization'] = 'Bearer $_authToken';
+    if (includeAuth) {
+      if (_authToken == null) {
+        _authToken = _prefs.getString('auth_token');
+      }
+      if (_authToken != null) {
+        headers['Authorization'] = 'Bearer $_authToken';
+      } else {
+        print('Debug - Token não encontrado ao construir headers');
+      }
     }
 
     return headers;

@@ -11,6 +11,10 @@ class FormularioService {
 
   Future<List<Formulario>> getFormulariosByEvento(String eventoId) async {
     try {
+      if (eventoId.isEmpty) {
+        throw ApiException('ID do evento é obrigatório', 400);
+      }
+
       final response = await _apiClient.get(
         '/formularios/formulario/evento/$eventoId',
         includeAuth: true,
@@ -19,6 +23,8 @@ class FormularioService {
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         return data.map((json) => Formulario.fromJson(json)).toList();
+      } else if (response.statusCode == 403) {
+        throw ApiException('Acesso negado. Verifique suas permissões.', 403);
       } else {
         throw ApiException(
           _getErrorMessage(response, 'buscar formulários do evento'),
@@ -205,6 +211,30 @@ class FormularioService {
       rethrow;
     } catch (e) {
       throw ApiException('Erro ao remover formulário: ${e.toString()}', 0);
+    }
+  }
+
+  Future<void> enviarRespostasFormulario({
+    required String formId,
+    required Map<String, dynamic> respostas,
+  }) async {
+    try {
+      final response = await _apiClient.post(
+        '/formulariosPreenchidos/add/$formId',
+        body: json.encode(respostas),
+        includeAuth: true,
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        throw ApiException(
+          _getErrorMessage(response, 'enviar respostas do formulário'),
+          response.statusCode,
+        );
+      }
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException('Erro ao enviar respostas: ${e.toString()}', 0);
     }
   }
 

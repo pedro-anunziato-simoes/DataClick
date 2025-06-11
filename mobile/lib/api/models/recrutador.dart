@@ -25,6 +25,18 @@ class Recrutador {
   });
 
   factory Recrutador.fromJson(Map<String, dynamic> json) {
+    print('Debug - JSON recebido no Recrutador.fromJson: $json'); // Debug log
+    final eventos = (json['eventos'] as List<dynamic>?)
+        ?.map((e) {
+          print('Debug - Mapeando evento: $e'); // Debug log
+          return Evento.fromJson(e as Map<String, dynamic>);
+        })
+        .toList();
+    print('Debug - Eventos mapeados: ${eventos?.length}'); // Debug log
+    if (eventos != null) {
+      print('Debug - Nomes dos eventos mapeados: ${eventos.map((e) => e.eventoTitulo).join(', ')}'); // Debug log
+    }
+
     return Recrutador(
       usuarioId: json['usuarioId'] as String? ?? json['id'] as String?,
       adminId: json['adminId'] as String?,
@@ -37,10 +49,7 @@ class Recrutador {
           (json['formularios'] as List<dynamic>?)
               ?.map((e) => Formulario.fromJson(e as Map<String, dynamic>))
               .toList(),
-      eventos:
-          (json['eventos'] as List<dynamic>?)
-              ?.map((e) => Evento.fromJson(e as Map<String, dynamic>))
-              .toList(),
+      eventos: eventos,
     );
   }
 

@@ -72,9 +72,9 @@ class _CriarEventoScreenState extends State<CriarEventoScreen>
         listen: false,
       );
 
-      final novoEvento = Evento(
-        id: '', // Será gerado pelo servidor
-        nome: _nomeController.text,
+      final evento = Evento(
+        eventoId: '', // Será gerado pelo servidor
+        eventoTitulo: _nomeController.text,
         dataInicio: _dataInicio!,
         dataFim: _dataFim!,
         local: _localController.text,
@@ -85,7 +85,7 @@ class _CriarEventoScreenState extends State<CriarEventoScreen>
         status: _status,
       );
 
-      final sucesso = await eventViewModel.criarEvento(novoEvento);
+      final sucesso = await eventViewModel.criarEvento(evento);
 
       if (sucesso && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

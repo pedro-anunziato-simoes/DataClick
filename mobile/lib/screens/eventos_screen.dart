@@ -308,11 +308,8 @@ class _EventosScreenState extends State<EventosScreen> {
                           context,
                           listen: false,
                         ),
-                        eventoId: event.id,
-                        // CORREÇÃO: Removendo o acesso ao .id que não existe em User
-                        // Substituindo por uma string vazia ou implementando o getter correto
-                        adminId:
-                            '', // ou você pode usar outro identificador disponível
+                        eventoId: event.eventoId,
+                        adminId: event.eventoAdminId ?? '',
                       ),
                 ),
               );
@@ -332,42 +329,52 @@ class _EventosScreenState extends State<EventosScreen> {
                       ],
                     ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              event.nome,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              event.eventoTitulo,
                               style: const TextStyle(
-                                fontSize: 20,
+                                fontSize: 24,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),
                             ),
-                            const SizedBox(height: 8),
-                            _buildStatusIndicator(event.status, isHeader: true),
-                          ],
-                        ),
+                          ),
+                          if (isAdmin)
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white.withAlpha(51),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: IconButton(
+                                icon: const Icon(Icons.edit, color: Colors.white),
+                                onPressed: () {
+                                  _showNotImplementedSnackbar(
+                                    context,
+                                    'Editar evento',
+                                  );
+                                },
+                              ),
+                            ),
+                        ],
                       ),
-                      if (isAdmin)
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white.withAlpha(51),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.white),
-                            onPressed: () {
-                              _showNotImplementedSnackbar(
-                                context,
-                                'Editar evento',
-                              );
-                            },
-                          ),
+                      const SizedBox(height: 8),
+                      Text(
+                        event.descricao,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
                         ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 12),
+                      _buildStatusIndicator(event.status, isHeader: true),
                     ],
                   ),
                 ),
@@ -377,7 +384,13 @@ class _EventosScreenState extends State<EventosScreen> {
                     children: [
                       _buildEventInfoRow(
                         Icons.calendar_today,
-                        '${_formatDate(event.dataInicio)} - ${_formatDate(event.dataFim)}',
+                        'Data de Início: ${_formatDate(event.dataInicio)}',
+                        const Color(0xFF26A69A),
+                      ),
+                      const SizedBox(height: 8),
+                      _buildEventInfoRow(
+                        Icons.calendar_today,
+                        'Data de Término: ${_formatDate(event.dataFim)}',
                         const Color(0xFF26A69A),
                       ),
                       const SizedBox(height: 12),
@@ -398,13 +411,13 @@ class _EventosScreenState extends State<EventosScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const Icon(
-                              Icons.touch_app,
+                              Icons.assignment_rounded,
                               color: Color(0xFF26A69A),
                               size: 18,
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              'Toque para ver formulários',
+                              '${event.formulariosAssociados.length} formulário${event.formulariosAssociados.length != 1 ? 's' : ''} associado${event.formulariosAssociados.length != 1 ? 's' : ''}',
                               style: TextStyle(
                                 color: const Color(0xFF26A69A).withAlpha(204),
                                 fontWeight: FontWeight.w600,

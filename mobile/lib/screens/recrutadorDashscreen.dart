@@ -7,6 +7,7 @@ import 'package:mobile/api/repository/viewmodel/recrutador_viewmodel.dart'
     as recruiter_vm;
 import 'package:mobile/api/models/formulario.dart';
 import 'package:mobile/api/models/evento.dart' as evento_model;
+import 'preencher_formulario_screen.dart';
 
 class RecruiterDashboardScreen extends StatefulWidget {
   const RecruiterDashboardScreen({super.key});
@@ -62,17 +63,67 @@ class _RecruiterDashboardScreenState extends State<RecruiterDashboardScreen>
       final email =
           Provider.of<AuthViewModel>(context, listen: false).currentUser?.email;
       if (email != null) {
-        await recruiterViewModel.carregarRecrutadorPorEmail(email);
+        print('Debug - Carregando dados para o email: $email');
+        
+        // Carregar recrutador
+        await recruiterViewModel.carregarRecrutadorLogado();
+        print('Debug - Recrutador carregado: ${recruiterViewModel.recrutador?.nome}');
+        print('Debug - Estado do recrutador: ${recruiterViewModel.state}');
+        
+        if (recruiterViewModel.recrutador == null) {
+          throw Exception('Não foi possível carregar os dados do recrutador');
+        }
 
-        if (recruiterViewModel.recrutador?.eventos != null) {
-          for (var evento in recruiterViewModel.recrutador!.eventos!) {
-            await formViewModel.carregarFormulariosPorEvento(evento.id!);
+        final eventos = recruiterViewModel.recrutador?.eventos ?? [];
+        print('Debug - Número de eventos do recrutador: ${eventos.length}');
+        if (eventos.isNotEmpty) {
+          print('Debug - Detalhes dos eventos:');
+          eventos.forEach((evento) {
+            print('Debug - Evento: ${evento.eventoTitulo} (ID: ${evento.eventoId})');
+            print('Debug - Descrição: ${evento.descricao}');
+            print('Debug - Data Início: ${evento.dataInicio}');
+            print('Debug - Data Fim: ${evento.dataFim}');
+            print('Debug - Formulários associados: ${evento.formulariosAssociados.length}');
+            evento.formulariosAssociados.forEach((form) {
+              print('Debug - Formulário: ${form.formularioTitulo} (ID: ${form.formId})');
+            });
+          });
+        }
+
+        for (var evento in eventos) {
+          if (evento.eventoId == null || evento.eventoId.isEmpty) {
+            print('Debug - Evento sem ID válido: ${evento.eventoTitulo}');
+            continue;
+          }
+          
+          print('Debug - Carregando formulários para o evento: ${evento.eventoTitulo} (ID: ${evento.eventoId})');
+          try {
+            await formViewModel.carregarFormulariosPorEvento(evento.eventoId);
+            print('Debug - Estado dos formulários: ${formViewModel.formulariosState}');
+            
+            if (formViewModel.formulariosState is forms_vm.SuccessState) {
+              final formularios = (formViewModel.formulariosState as forms_vm.SuccessState<List<Formulario>>).data;
+              print('Debug - Formulários carregados para o evento ${evento.eventoTitulo}: ${formularios.length}');
+            } else if (formViewModel.formulariosState is forms_vm.ErrorState) {
+              final error = (formViewModel.formulariosState as forms_vm.ErrorState).message;
+              print('Debug - Erro ao carregar formulários para o evento ${evento.eventoTitulo}: $error');
+            }
+          } catch (e) {
+            print('Debug - Erro ao carregar formulários para o evento ${evento.eventoTitulo}: $e');
           }
         }
+
+        if (eventos.isEmpty) {
+          print('Debug - Nenhum evento encontrado para o recrutador');
+        }
+      } else {
+        print('Debug - Email do usuário é null');
+        throw Exception('Email do usuário não encontrado');
       }
 
       _animationController.forward();
     } catch (e) {
+      print('Debug - Erro ao carregar dados: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -225,6 +276,11 @@ class _RecruiterDashboardScreenState extends State<RecruiterDashboardScreen>
         return _OverviewTab(
           recruiterViewModel: recruiterViewModel,
           formViewModel: formViewModel,
+          onTabChange: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
         );
       case 1:
         return _FormsTab(formViewModel: formViewModel);
@@ -278,10 +334,12 @@ class _RecruiterDashboardScreenState extends State<RecruiterDashboardScreen>
 class _OverviewTab extends StatelessWidget {
   final recruiter_vm.RecrutadorViewModel recruiterViewModel;
   final forms_vm.FormViewModel formViewModel;
+  final Function(int) onTabChange;
 
   const _OverviewTab({
     required this.recruiterViewModel,
     required this.formViewModel,
+    required this.onTabChange,
   });
 
   @override
@@ -295,6 +353,15 @@ class _OverviewTab extends StatelessWidget {
                     as forms_vm.SuccessState<List<Formulario>>)
                 .data
             : <Formulario>[];
+
+    print('Debug - Número de formulários: ${forms.length}');
+    print('Debug - Número de eventos: ${recruiter?.eventos?.length ?? 0}');
+    if (recruiter?.eventos != null) {
+      print('Debug - Eventos disponíveis:');
+      recruiter!.eventos!.forEach((evento) {
+        print('Debug - Evento: ${evento.eventoTitulo} (ID: ${evento.eventoId})');
+      });
+    }
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -370,6 +437,9 @@ class _OverviewTab extends StatelessWidget {
     int eventsCount,
     ThemeData theme,
   ) {
+    // Calcular total de formulários
+    final totalForms = forms.length;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -385,7 +455,7 @@ class _OverviewTab extends StatelessWidget {
             Expanded(
               child: _StatCard(
                 icon: Icons.assignment_rounded,
-                value: forms.length,
+                value: totalForms,
                 label: 'Formulários',
                 color: Colors.blue,
               ),
@@ -397,15 +467,6 @@ class _OverviewTab extends StatelessWidget {
                 value: eventsCount,
                 label: 'Eventos',
                 color: Colors.green,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _StatCard(
-                icon: Icons.people_rounded,
-                value: 0,
-                label: 'Candidatos',
-                color: Colors.orange,
               ),
             ),
           ],
@@ -443,83 +504,102 @@ class _OverviewTab extends StatelessWidget {
       );
     }
 
-    return SizedBox(
-      height: 200,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: forms.length,
-        itemBuilder: (context, index) {
-          final form = forms[index];
-          return Container(
-            width: 280,
-            margin: EdgeInsets.only(right: index == forms.length - 1 ? 0 : 16),
-            child: Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(12),
-                onTap: () {}, // Adicionar navegação aqui
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+    // Ordenar formulários por data de criação (mais recentes primeiro)
+    final sortedForms = List<Formulario>.from(forms)
+      ..sort((a, b) => (b.id ?? '').compareTo(a.id ?? ''));
+    
+    // Pegar apenas os 3 formulários mais recentes
+    final recentForms = sortedForms.take(3).toList();
+
+    return Column(
+      children: [
+        SizedBox(
+          height: 200,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: recentForms.length,
+            itemBuilder: (context, index) {
+              final form = recentForms[index];
+              return Container(
+                width: 280,
+                margin: EdgeInsets.only(right: index == recentForms.length - 1 ? 0 : 16),
+                child: Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () => onTabChange(1),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(
+                                  Icons.assignment_rounded,
+                                  color: Colors.blue,
+                                  size: 20,
+                                ),
+                              ),
+                              const Spacer(),
+                              Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                size: 16,
+                                color: theme.colorScheme.onSurface.withOpacity(0.6),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            form.titulo ?? 'Formulário sem título',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
                             ),
-                            child: Icon(
-                              Icons.assignment_rounded,
-                              color: Colors.blue,
-                              size: 20,
-                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                           const Spacer(),
-                          Icon(
-                            Icons.arrow_forward_ios_rounded,
-                            size: 16,
-                            color: theme.colorScheme.onSurface.withOpacity(0.6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.surfaceContainerHighest,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              '${form.campos?.length ?? 0} campos',
+                              style: theme.textTheme.bodySmall,
+                            ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
-                      Text(
-                        form.titulo ?? 'Formulário sem título',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const Spacer(),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          '${form.campos?.length ?? 0} campos',
-                          style: theme.textTheme.bodySmall,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ),
-          );
-        },
-      ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 16),
+        Center(
+          child: FilledButton.icon(
+            onPressed: () => onTabChange(1),
+            icon: const Icon(Icons.assignment_rounded),
+            label: const Text('Ver todos os formulários'),
+          ),
+        ),
+      ],
     );
   }
 
@@ -532,86 +612,138 @@ class _OverviewTab extends StatelessWidget {
       );
     }
 
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: eventos.length,
-      itemBuilder: (context, index) {
-        final evento = eventos[index];
-        return Card(
-          elevation: 1,
-          margin: const EdgeInsets.only(bottom: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: () {}, // Adicionar navegação aqui
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(
-                      Icons.event_rounded,
-                      color: Colors.green,
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          evento.nome,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          evento.descricao,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurface.withOpacity(0.7),
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.surfaceContainerHighest,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            '${evento.formulariosAssociados.length} formulários',
-                            style: theme.textTheme.bodySmall,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    size: 16,
-                    color: theme.colorScheme.onSurface.withOpacity(0.6),
-                  ),
-                ],
+    // Remover eventos duplicados baseado no ID
+    final eventosUnicos = eventos.toSet().toList();
+    print('Debug - Número de eventos únicos: ${eventosUnicos.length}');
+
+    return Column(
+      children: [
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: eventosUnicos.length,
+          itemBuilder: (context, index) {
+            final evento = eventosUnicos[index];
+            print('Debug - Construindo card para evento: ${evento.eventoTitulo} (ID: ${evento.eventoId})');
+            print('Debug - Número de formulários associados: ${evento.formulariosAssociados.length}');
+            
+            return Card(
+              elevation: 1,
+              margin: const EdgeInsets.only(bottom: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
-            ),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () => onTabChange(2),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(
+                          Icons.event_rounded,
+                          color: Colors.green,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              evento.eventoTitulo,
+                              style: theme.textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: theme.colorScheme.primary,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              evento.descricao,
+                              style: theme.textTheme.bodyLarge?.copyWith(
+                                color: theme.colorScheme.onSurface,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.calendar_today,
+                                  size: 16,
+                                  color: theme.colorScheme.primary,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '${_formatDate(evento.dataInicio)} - ${_formatDate(evento.dataFim)}',
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: theme.colorScheme.primary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.surfaceContainerHighest,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.assignment_rounded,
+                                    size: 16,
+                                    color: theme.colorScheme.primary,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '${evento.formulariosAssociados.length} formulário${evento.formulariosAssociados.length != 1 ? 's' : ''}',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: theme.colorScheme.primary,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 16,
+                        color: theme.colorScheme.onSurface.withOpacity(0.6),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+        const SizedBox(height: 16),
+        Center(
+          child: FilledButton.icon(
+            onPressed: () => onTabChange(2),
+            icon: const Icon(Icons.event_rounded),
+            label: const Text('Ver todos os eventos'),
           ),
-        );
-      },
+        ),
+      ],
     );
   }
 
@@ -646,6 +778,25 @@ class _OverviewTab extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    const meses = [
+      'Jan',
+      'Fev',
+      'Mar',
+      'Abr',
+      'Mai',
+      'Jun',
+      'Jul',
+      'Ago',
+      'Set',
+      'Out',
+      'Nov',
+      'Dez',
+    ];
+
+    return '${date.day} ${meses[date.month - 1]} ${date.year}';
   }
 }
 
@@ -731,107 +882,113 @@ class _FormsTab extends StatelessWidget {
       children: [
         Container(
           padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Meus Formulários',
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              FilledButton.icon(
-                onPressed: () {}, // Adicionar funcionalidade
-                icon: const Icon(Icons.add_rounded),
-                label: const Text('Novo'),
-              ),
-            ],
+          child: Text(
+            'Meus Formulários',
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
         Expanded(
-          child:
-              forms.isEmpty
-                  ? _buildEmptyFormsState(theme)
-                  : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: forms.length,
-                    itemBuilder: (context, index) {
-                      final form = forms[index];
-                      return Card(
-                        elevation: 1,
-                        margin: const EdgeInsets.only(bottom: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(12),
-                          onTap: () {}, // Adicionar navegação
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Icon(
-                                    Icons.assignment_rounded,
-                                    color: Colors.blue,
-                                    size: 24,
-                                  ),
+          child: forms.isEmpty
+              ? _buildEmptyFormsState(theme)
+              : ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: forms.length,
+                  itemBuilder: (context, index) {
+                    final form = forms[index];
+                    return Card(
+                      elevation: 1,
+                      margin: const EdgeInsets.only(bottom: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () async {
+                          final formViewModel = Provider.of<forms_vm.FormViewModel>(context, listen: false);
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (context) => const Center(child: CircularProgressIndicator()),
+                          );
+                          await formViewModel.obterFormularioPorId(form.id);
+                          Navigator.of(context).pop(); // fecha o loading
+
+                          if (formViewModel.formularioAtualState is forms_vm.SuccessState<Formulario?>) {
+                            final formularioCompleto = (formViewModel.formularioAtualState as forms_vm.SuccessState<Formulario?>).data;
+                            if (formularioCompleto != null) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PreencherFormularioScreen(formulario: formularioCompleto),
                                 ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        form.titulo ?? 'Formulário sem título',
-                                        style: theme.textTheme.titleMedium
-                                            ?.copyWith(
-                                              fontWeight: FontWeight.w600,
-                                            ),
+                              );
+                            }
+                          } else if (formViewModel.formularioAtualState is forms_vm.ErrorState) {
+                            final error = (formViewModel.formularioAtualState as forms_vm.ErrorState).message;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Erro ao carregar formulário: $error')),
+                            );
+                          }
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Icon(
+                                  Icons.assignment_rounded,
+                                  color: Colors.blue,
+                                  size: 24,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      form.titulo ?? 'Formulário sem título',
+                                      style: theme.textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w600,
                                       ),
-                                      const SizedBox(height: 4),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 4,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color:
-                                              theme
-                                                  .colorScheme
-                                                  .surfaceContainerHighest,
-                                          borderRadius: BorderRadius.circular(
-                                            6,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          '${form.campos?.length ?? 0} campos',
-                                          style: theme.textTheme.bodySmall,
-                                        ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
                                       ),
-                                    ],
-                                  ),
+                                      decoration: BoxDecoration(
+                                        color: theme.colorScheme.surfaceContainerHighest,
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        '${form.campos?.length ?? 0} campos',
+                                        style: theme.textTheme.bodySmall,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                Icon(
-                                  Icons.arrow_forward_ios_rounded,
-                                  size: 16,
-                                  color: theme.colorScheme.onSurface
-                                      .withOpacity(0.6),
-                                ),
-                              ],
-                            ),
+                              ),
+                              Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                size: 16,
+                                color: theme.colorScheme.onSurface.withOpacity(0.6),
+                              ),
+                            ],
                           ),
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
+                ),
         ),
       ],
     );
@@ -920,122 +1077,161 @@ class _EventsTab extends StatelessWidget {
       return _buildErrorState(theme);
     }
 
+    // Remover eventos duplicados baseado no ID
+    final eventosUnicos = eventos.toSet().toList();
+    print('Debug - Número de eventos únicos na aba Eventos: ${eventosUnicos.length}');
+
     return Column(
       children: [
         Container(
           padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Meus Eventos',
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              FilledButton.icon(
-                onPressed: () {}, // Adicionar funcionalidade
-                icon: const Icon(Icons.add_rounded),
-                label: const Text('Novo'),
-              ),
-            ],
+          child: Text(
+            'Meus Eventos',
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
         Expanded(
-          child:
-              eventos.isEmpty
-                  ? _buildEmptyEventsState(theme)
-                  : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: eventos.length,
-                    itemBuilder: (context, index) {
-                      final evento = eventos[index];
-                      return Card(
-                        elevation: 1,
-                        margin: const EdgeInsets.only(bottom: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(12),
-                          onTap: () {}, // Adicionar navegação
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: Colors.green.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Icon(
-                                    Icons.event_rounded,
-                                    color: Colors.green,
-                                    size: 24,
-                                  ),
+          child: eventosUnicos.isEmpty
+              ? _buildEmptyEventsState(theme)
+              : ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: eventosUnicos.length,
+                  itemBuilder: (context, index) {
+                    final evento = eventosUnicos[index];
+                    print('Debug - Construindo card para evento na aba Eventos: ${evento.eventoTitulo} (ID: ${evento.eventoId})');
+                    return Card(
+                      elevation: 1,
+                      margin: const EdgeInsets.only(bottom: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () async {
+                          // Navegar para a aba de formulários
+                          final formViewModel = Provider.of<forms_vm.FormViewModel>(context, listen: false);
+                          
+                          // Mostrar loading
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (context) => const Center(child: CircularProgressIndicator()),
+                          );
+
+                          try {
+                            // Carregar formulários do evento
+                            await formViewModel.carregarFormulariosPorEvento(evento.eventoId);
+                            Navigator.of(context).pop(); // Fecha o loading
+
+                            // Navegar para a aba de formulários
+                            if (context.mounted) {
+                              // Encontrar o widget pai RecruiterDashboardScreen
+                              final recruiterDashboard = context.findAncestorStateOfType<_RecruiterDashboardScreenState>();
+                              if (recruiterDashboard != null) {
+                                recruiterDashboard.setState(() {
+                                  recruiterDashboard._currentIndex = 1; // Muda para a aba de formulários
+                                });
+                              }
+                            }
+                          } catch (e) {
+                            Navigator.of(context).pop(); // Fecha o loading
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Erro ao carregar formulários: $e'),
+                                  backgroundColor: Colors.red,
                                 ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        evento.nome,
-                                        style: theme.textTheme.titleMedium
-                                            ?.copyWith(
-                                              fontWeight: FontWeight.w600,
-                                            ),
+                              );
+                            }
+                          }
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Icon(
+                                  Icons.event_rounded,
+                                  color: Colors.green,
+                                  size: 24,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      evento.eventoTitulo,
+                                      style: theme.textTheme.titleLarge?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: theme.colorScheme.primary,
                                       ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        evento.descricao,
-                                        style: theme.textTheme.bodyMedium
-                                            ?.copyWith(
-                                              color: theme.colorScheme.onSurface
-                                                  .withOpacity(0.7),
-                                            ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      evento.descricao,
+                                      style: theme.textTheme.bodyLarge?.copyWith(
+                                        color: theme.colorScheme.onSurface,
                                       ),
-                                      const SizedBox(height: 8),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 4,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.calendar_today,
+                                          size: 16,
+                                          color: theme.colorScheme.primary,
                                         ),
-                                        decoration: BoxDecoration(
-                                          color:
-                                              theme
-                                                  .colorScheme
-                                                  .surfaceContainerHighest,
-                                          borderRadius: BorderRadius.circular(
-                                            6,
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          '${_formatDate(evento.dataInicio)} - ${_formatDate(evento.dataFim)}',
+                                          style: theme.textTheme.bodyMedium?.copyWith(
+                                            color: theme.colorScheme.primary,
+                                            fontWeight: FontWeight.w500,
                                           ),
                                         ),
-                                        child: Text(
-                                          '${evento.formulariosAssociados.length} formulários',
-                                          style: theme.textTheme.bodySmall,
-                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
                                       ),
-                                    ],
-                                  ),
+                                      decoration: BoxDecoration(
+                                        color: theme.colorScheme.surfaceContainerHighest,
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        '${evento.formulariosAssociados.length} formulário${evento.formulariosAssociados.length != 1 ? 's' : ''}',
+                                        style: theme.textTheme.bodySmall,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                Icon(
-                                  Icons.arrow_forward_ios_rounded,
-                                  size: 16,
-                                  color: theme.colorScheme.onSurface
-                                      .withOpacity(0.6),
-                                ),
-                              ],
-                            ),
+                              ),
+                              Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                size: 16,
+                                color: theme.colorScheme.onSurface.withOpacity(0.6),
+                              ),
+                            ],
                           ),
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
+                ),
         ),
       ],
     );
@@ -1103,5 +1299,24 @@ class _EventsTab extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    const meses = [
+      'Jan',
+      'Fev',
+      'Mar',
+      'Abr',
+      'Mai',
+      'Jun',
+      'Jul',
+      'Ago',
+      'Set',
+      'Out',
+      'Nov',
+      'Dez',
+    ];
+
+    return '${date.day} ${meses[date.month - 1]} ${date.year}';
   }
 }
