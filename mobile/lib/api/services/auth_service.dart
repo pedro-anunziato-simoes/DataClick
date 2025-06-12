@@ -82,6 +82,7 @@ class AuthService {
       for (var authority in authorities) {
         final role = authority.toString();
         if (role == 'ROLE_ADMIN' || role == 'ADMIN') return 'admin';
+        if (role == 'ROLE_USER' || role == 'USER') return 'user';
       }
     }
     return 'usuario'; //

@@ -35,7 +35,7 @@ class _EventosScreenState extends State<EventosScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF6FAF9),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF26A69A),
+        backgroundColor: Colors.transparent,
         elevation: 0,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
@@ -57,7 +57,7 @@ class _EventosScreenState extends State<EventosScreen> {
         ),
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
@@ -79,7 +79,14 @@ class _EventosScreenState extends State<EventosScreen> {
       body: SafeArea(
         child: GestureDetector(
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-          child: _buildBody(eventViewModel, isAdmin),
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
+              _buildEventosHeaderModern(),
+              const SizedBox(height: 20),
+              Expanded(child: _buildBody(eventViewModel, isAdmin)),
+            ],
+          ),
         ),
       ),
       floatingActionButton: Container(
@@ -110,7 +117,54 @@ class _EventosScreenState extends State<EventosScreen> {
           foregroundColor: Colors.white,
           icon: const Icon(Icons.add),
           label: const Text('Novo Evento'),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildEventosHeaderModern() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF26A69A), Color(0xFF00796B)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF26A69A).withOpacity(0.2),
+            blurRadius: 15,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: const [
+          Icon(Icons.event, size: 40, color: Colors.white),
+          SizedBox(height: 8),
+          Text(
+            'Gerencie seus eventos',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              letterSpacing: 0.5,
+            ),
+          ),
+          SizedBox(height: 4),
+          Text(
+            'Crie, edite e visualize eventos cadastrados',
+            style: TextStyle(fontSize: 15, color: Colors.white70),
+          ),
+        ],
       ),
     );
   }

@@ -127,6 +127,7 @@ class _FormsScreenState extends State<FormsScreen> {
   }
 
   Widget _buildFormularioCard(Formulario formulario) {
+    print('DEBUG: Título do formulário no card: ${formulario.titulo}');
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 2,

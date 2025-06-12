@@ -21,6 +21,7 @@ class Formulario {
   });
 
   factory Formulario.fromJson(Map<String, dynamic> json) {
+    debugPrint('DEBUG: JSON recebido em Formulario.fromJson: $json');
     try {
       List<Campo> campos = [];
       if (json['campos'] != null && json['campos'] is List) {

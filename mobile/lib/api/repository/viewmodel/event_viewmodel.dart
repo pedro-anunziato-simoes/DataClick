@@ -162,23 +162,33 @@ class EventViewModel extends ChangeNotifier {
   }
 
   Future<bool> criarEvento(Evento evento) async {
-    if (!isAdmin) return false;
+    print('DEBUG: [EventViewModel] criarEvento chamado');
+    if (!isAdmin) {
+      print('DEBUG: [EventViewModel] Usuário não é admin, abortando');
+      return false;
+    }
 
     try {
+      print('DEBUG: [EventViewModel] Chamando _eventService.criarEvento...');
       _eventoAtual = LoadingState();
       notifyListeners();
 
       final result = await _eventService.criarEvento(evento);
+      print(
+        'DEBUG: [EventViewModel] Evento criado com sucesso: ${result.eventoId}',
+      );
       _eventoAtual = SuccessState(result);
       await _salvarEventoNoCache(result);
       await carregarEventos();
 
       return true;
     } on ApiException catch (e) {
+      print('DEBUG: [EventViewModel] ApiException: ${e.message}');
       _eventoAtual = ErrorState(e.message);
       notifyListeners();
       return false;
     } catch (e) {
+      print('DEBUG: [EventViewModel] Erro inesperado: ${e.toString()}');
       _eventoAtual = ErrorState(
         'Ocorreu um erro inesperado ao criar evento: ${e.toString()}',
       );

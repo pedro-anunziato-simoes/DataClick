@@ -130,10 +130,12 @@ class FormularioService {
       };
 
       final response = await _apiClient.post(
-        '/formularios/add/{eventoId}',
+        '/formularios/add/$eventoId',
         body: json.encode(formData),
         includeAuth: true,
       );
+
+      print('DEBUG: Resposta do backend ao criar formulário: ${response.body}');
 
       if (response.statusCode == 201 || response.statusCode == 200) {
         return Formulario.fromJson(json.decode(response.body));

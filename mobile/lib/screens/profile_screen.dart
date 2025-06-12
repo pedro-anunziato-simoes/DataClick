@@ -231,22 +231,30 @@ class _ProfileScreenState extends State<ProfileScreen>
     }
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
+      backgroundColor: const Color(0xFFF6FAF9),
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: theme.colorScheme.primary,
-        foregroundColor: theme.colorScheme.onPrimary,
+        backgroundColor: Colors.transparent,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF26A69A), Color(0xFF00796B)],
+            ),
+          ),
+        ),
         title: const Text(
           'Meu Perfil',
-          style: TextStyle(fontWeight: FontWeight.w600),
+          style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
+          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
           PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert_rounded),
+            icon: const Icon(Icons.more_vert_rounded, color: Colors.white),
             onSelected: (value) async {
               switch (value) {
                 case 'edit':
@@ -278,12 +286,12 @@ class _ProfileScreenState extends State<ProfileScreen>
                         Icon(
                           isEditing ? Icons.save_rounded : Icons.edit_rounded,
                           size: 20,
-                          color: theme.colorScheme.onSurface,
+                          color: Colors.black87,
                         ),
                         const SizedBox(width: 8),
                         Text(
                           isEditing ? 'Salvar' : 'Editar',
-                          style: TextStyle(color: theme.colorScheme.onSurface),
+                          style: const TextStyle(color: Colors.black87),
                         ),
                       ],
                     ),
@@ -295,12 +303,12 @@ class _ProfileScreenState extends State<ProfileScreen>
                         Icon(
                           Icons.logout_rounded,
                           size: 20,
-                          color: theme.colorScheme.onSurface,
+                          color: Colors.black87,
                         ),
                         const SizedBox(width: 8),
-                        Text(
+                        const Text(
                           'Sair',
-                          style: TextStyle(color: theme.colorScheme.onSurface),
+                          style: TextStyle(color: Colors.black87),
                         ),
                       ],
                     ),
@@ -311,7 +319,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                       children: [
                         Icon(Icons.delete_rounded, size: 20, color: Colors.red),
                         const SizedBox(width: 8),
-                        Text(
+                        const Text(
                           'Excluir Conta',
                           style: TextStyle(color: Colors.red),
                         ),
@@ -342,9 +350,9 @@ class _ProfileScreenState extends State<ProfileScreen>
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  _buildProfileHeader(theme, administrador),
+                  _buildProfileHeaderModern(administrador),
                   const SizedBox(height: 24),
-                  _buildProfileForm(theme),
+                  _buildProfileFormModern(),
                 ],
               ),
             );
@@ -354,26 +362,23 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildProfileHeader(ThemeData theme, Administrador? administrador) {
+  Widget _buildProfileHeaderModern(Administrador? administrador) {
     final displayName = administrador?.nome ?? 'Administrador';
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            theme.colorScheme.primary,
-            theme.colorScheme.primaryContainer,
-          ],
+        gradient: const LinearGradient(
+          colors: [Color(0xFF26A69A), Color(0xFF00796B)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: theme.colorScheme.primary.withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: const Color(0xFF26A69A).withOpacity(0.2),
+            blurRadius: 15,
+            spreadRadius: 2,
           ),
         ],
       ),
@@ -387,7 +392,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: theme.colorScheme.onPrimary.withOpacity(0.2),
+                      color: Colors.white.withOpacity(0.2),
                       blurRadius: 15,
                       spreadRadius: 2,
                     ),
@@ -397,88 +402,40 @@ class _ProfileScreenState extends State<ProfileScreen>
                   borderRadius: BorderRadius.circular(60),
                   child: Image.asset(
                     'assets/images/Logo DataClick.jpg',
-                    width: 120,
-                    height: 120,
+                    width: 110,
+                    height: 110,
                     fit: BoxFit.cover,
                   ),
                 ),
               ),
-              if (isEditing)
-                Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () {
-                      if (!mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Row(
-                            children: [
-                              const Icon(
-                                Icons.info_outline,
-                                color: Colors.white,
-                              ),
-                              const SizedBox(width: 8),
-                              const Expanded(
-                                child: Text(
-                                  'Funcionalidade em desenvolvimento',
-                                ),
-                              ),
-                            ],
-                          ),
-                          backgroundColor: Colors.orange.shade600,
-                          behavior: SnackBarBehavior.floating,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      );
-                    },
-                    customBorder: const CircleBorder(),
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.onPrimary,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 8,
-                            spreadRadius: 1,
-                          ),
-                        ],
+              Positioned(
+                bottom: 8,
+                right: 8,
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 6,
                       ),
-                      child: Icon(
-                        Icons.camera_alt_rounded,
-                        size: 20,
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
+                    ],
                   ),
+                  child: const Icon(Icons.person, color: Color(0xFF26A69A)),
                 ),
+              ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           Text(
             displayName,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              color: theme.colorScheme.onPrimary,
+            style: const TextStyle(
+              fontSize: 22,
               fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.onPrimary.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              'Administrador',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onPrimary,
-                fontWeight: FontWeight.w600,
-              ),
+              color: Colors.white,
+              letterSpacing: 0.5,
             ),
           ),
         ],
@@ -486,249 +443,118 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildProfileForm(ThemeData theme) {
-    final administrador =
-        Provider.of<AdministradorViewModel>(context).administrador;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Informações Pessoais',
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w600,
+  Widget _buildProfileFormModern() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
           ),
-        ),
-        const SizedBox(height: 16),
-        Card(
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Form(
-              key: formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildProfileField(
-                    label: 'Nome Completo',
-                    controller: isEditing ? nomeController : null,
-                    initialValue:
-                        !isEditing ? (administrador?.nome ?? '') : null,
-                    icon: Icons.person_rounded,
-                    enabled: isEditing,
-                    theme: theme,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor, insira seu nome';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  _buildProfileField(
-                    label: 'E-mail',
-                    controller: isEditing ? emailController : null,
-                    initialValue:
-                        !isEditing ? (administrador?.email ?? '') : null,
-                    icon: Icons.email_rounded,
-                    enabled: isEditing,
-                    theme: theme,
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor, insira seu e-mail';
-                      }
-                      if (!value.contains('@') || !value.contains('.')) {
-                        return 'Insira um e-mail válido';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  _buildProfileField(
-                    label: 'Telefone',
-                    controller: isEditing ? telefoneController : null,
-                    initialValue:
-                        !isEditing ? (administrador?.telefone ?? '') : null,
-                    icon: Icons.phone_rounded,
-                    enabled: isEditing,
-                    theme: theme,
-                    keyboardType: TextInputType.phone,
-                  ),
-                  const SizedBox(height: 20),
-                  _buildProfileField(
-                    label: 'CNPJ',
-                    controller: isEditing ? cnpjController : null,
-                    initialValue:
-                        !isEditing ? (administrador?.cnpj ?? '') : null,
-                    icon: Icons.business_rounded,
-                    enabled: isEditing,
-                    theme: theme,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor, insira o CNPJ';
-                      }
-                      return null;
-                    },
-                  ),
-                  if (isEditing) ...[
-                    const SizedBox(height: 32),
-                    _buildActionButtons(theme),
-                  ],
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildProfileField({
-    required String label,
-    TextEditingController? controller,
-    String? initialValue,
-    required IconData icon,
-    required bool enabled,
-    required ThemeData theme,
-    TextInputType keyboardType = TextInputType.text,
-    String? Function(String?)? validator,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
+        ],
+      ),
+      child: Form(
+        key: formKey,
+        child: Column(
           children: [
-            Icon(icon, size: 20, color: theme.colorScheme.primary),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+            _buildProfileTextField(
+              controller: nomeController,
+              label: 'Nome',
+              icon: Icons.person,
+              enabled: isEditing,
             ),
+            const SizedBox(height: 16),
+            _buildProfileTextField(
+              controller: emailController,
+              label: 'E-mail',
+              icon: Icons.email,
+              enabled: false,
+            ),
+            const SizedBox(height: 16),
+            _buildProfileTextField(
+              controller: telefoneController,
+              label: 'Telefone',
+              icon: Icons.phone,
+              enabled: isEditing,
+            ),
+            const SizedBox(height: 16),
+            _buildProfileTextField(
+              controller: cnpjController,
+              label: 'CNPJ',
+              icon: Icons.badge,
+              enabled: isEditing,
+            ),
+            const SizedBox(height: 24),
+            if (isEditing)
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: saveProfile,
+                  icon: const Icon(Icons.save_rounded),
+                  label: const Text('Salvar Alterações'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF26A69A),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: controller,
-          initialValue: controller == null ? initialValue : null,
-          enabled: enabled,
-          keyboardType: keyboardType,
-          validator: validator,
-          textInputAction: TextInputAction.next,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color:
-                enabled
-                    ? theme.colorScheme.onSurface
-                    : theme.colorScheme.onSurface.withOpacity(0.6),
-          ),
-          decoration: InputDecoration(
-            hintText: 'Digite $label',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: theme.colorScheme.outline.withOpacity(0.3),
-              ),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: theme.colorScheme.outline.withOpacity(0.3),
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: theme.colorScheme.primary,
-                width: 2,
-              ),
-            ),
-            disabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: theme.colorScheme.outline.withOpacity(0.2),
-              ),
-            ),
-            filled: true,
-            fillColor:
-                enabled
-                    ? theme.colorScheme.surface
-                    : theme.colorScheme.surface.withOpacity(0.5),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 
-  Widget _buildActionButtons(ThemeData theme) {
-    return Column(
-      children: [
-        SizedBox(
-          width: double.infinity,
-          height: 56,
-          child: ElevatedButton(
-            onPressed: saveProfile,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: theme.colorScheme.primary,
-              foregroundColor: theme.colorScheme.onPrimary,
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.save_rounded, size: 24),
-                const SizedBox(width: 8),
-                Text(
-                  'Salvar Alterações',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: theme.colorScheme.onPrimary,
-                  ),
-                ),
-              ],
-            ),
-          ),
+  Widget _buildProfileTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    bool enabled = true,
+  }) {
+    return TextFormField(
+      controller: controller,
+      enabled: enabled,
+      style: TextStyle(
+        color: enabled ? Colors.black87 : Colors.grey[600],
+        fontWeight: FontWeight.w500,
+      ),
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, color: const Color(0xFF26A69A)),
+        filled: true,
+        fillColor: enabled ? Colors.grey[50] : Colors.grey[100],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
         ),
-        const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          height: 56,
-          child: OutlinedButton(
-            onPressed: () => setState(() => isEditing = false),
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(
-                color: theme.colorScheme.outline.withOpacity(0.5),
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.cancel_rounded, size: 24),
-                const SizedBox(width: 8),
-                Text(
-                  'Cancelar',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
         ),
-      ],
+        disabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+      ),
+      validator: (value) {
+        if (label == 'Nome' && (value == null || value.isEmpty)) {
+          return 'Informe seu nome';
+        }
+        if (label == 'Telefone' && (value == null || value.isEmpty)) {
+          return 'Informe seu telefone';
+        }
+        if (label == 'CNPJ' && (value == null || value.isEmpty)) {
+          return 'Informe seu CNPJ';
+        }
+        return null;
+      },
     );
   }
 }
