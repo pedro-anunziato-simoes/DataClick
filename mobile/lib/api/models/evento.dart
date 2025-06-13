@@ -1,3 +1,6 @@
+import 'package:mobile/api/models/formulario.dart';
+import 'package:mobile/api/models/campo.dart';
+
 class FormularioSimplificado {
   final String formId;
   final String formularioTitulo;
@@ -103,9 +106,10 @@ class Evento {
     // Mapear formulários do evento
     List<FormularioSimplificado> formularios = [];
     if (json['eventoFormularios'] != null) {
-      formularios = (json['eventoFormularios'] as List<dynamic>)
+      formularios = (json['eventoFormularios'] as List<dynamic>?)
+          ?.where((e) => e != null)
           .map((e) => FormularioSimplificado.fromJson(e as Map<String, dynamic>))
-          .toList();
+          .toList() ?? [];
     }
 
     return Evento(
@@ -311,4 +315,43 @@ class ListaEventosSimplificados {
   bool get isEmpty => eventos.isEmpty;
   bool get isNotEmpty => eventos.isNotEmpty;
   int get length => eventos.length;
+}
+
+class Formulario {
+  final String formId;
+  final String formularioTitulo;
+  final String formAdminId;
+  final String formularioEventoId;
+  final List<Campo> campos;
+
+  Formulario({
+    required this.formId,
+    required this.formularioTitulo,
+    required this.formAdminId,
+    required this.formularioEventoId,
+    required this.campos,
+  });
+
+  factory Formulario.fromJson(Map<String, dynamic> json) {
+    return Formulario(
+      formId: json['formId'] ?? '',
+      formularioTitulo: json['formularioTitulo'] ?? '',
+      formAdminId: json['formAdminId'] ?? '',
+      formularioEventoId: json['formularioEventoId'] ?? '',
+      campos: (json['campos'] as List<dynamic>? ?? [])
+          .where((e) => e != null)
+          .map((e) => Campo.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'formId': formId,
+      'formularioTitulo': formularioTitulo,
+      'formAdminId': formAdminId,
+      'formularioEventoId': formularioEventoId,
+      'campos': campos.map((e) => e.toJson()).toList(),
+    };
+  }
 }

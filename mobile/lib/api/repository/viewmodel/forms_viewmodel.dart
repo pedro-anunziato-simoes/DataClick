@@ -240,4 +240,29 @@ class FormViewModel extends ChangeNotifier {
     if (error is Exception) return error.toString();
     return 'Ocorreu um erro inesperado';
   }
+  
+
+   Future<void> adicionarFormulariosPreenchidos(
+    String eventoId,
+    List<Formulario> formularios,
+  ) async {
+    try {
+      _formulariosPreenchidosState = const LoadingState();
+      notifyListeners();
+
+      await _repository.adicionarFormulariosPreenchidos(
+        eventoId: eventoId,
+        formularios: formularios,
+      );
+
+      _formulariosPreenchidosState = SuccessState(formularios);
+    } catch (e) {
+      _formulariosPreenchidosState = ErrorState(_tratarMensagemErro(e));
+      rethrow;
+    } finally {
+      notifyListeners();
+    }
+  }
+
+
 }

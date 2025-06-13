@@ -1,4 +1,4 @@
-import 'evento.dart';
+import 'evento.dart' as evento;
 import 'formulario.dart';
 import 'recrutador.dart';
 
@@ -12,7 +12,7 @@ class Administrador {
   final String? token;
   final List<Recrutador>? adminRecrutadores;
   final List<Formulario>? adminFormularios;
-  final List<Evento>? adminEventos;
+  final List<evento.Evento>? adminEventos;
   final List<dynamic>? adminFormsPreenchidos;
 
   Administrador({
@@ -64,12 +64,12 @@ class Administrador {
       }
     }
 
-    List<Evento>? adminEventos;
+    List<evento.Evento>? adminEventos;
     if (json['adminEventos'] != null) {
       try {
         adminEventos =
             (json['adminEventos'] as List<dynamic>)
-                .map((e) => Evento.fromJson(e as Map<String, dynamic>))
+                .map((e) => evento.Evento.fromJson(e as Map<String, dynamic>))
                 .toList();
       } catch (e) {
         adminEventos = null;
@@ -126,7 +126,7 @@ class Administrador {
     String? token,
     List<Recrutador>? adminRecrutadores,
     List<Formulario>? adminFormularios,
-    List<Evento>? adminEventos,
+    List<evento.Evento>? adminEventos,
     List<dynamic>? adminFormsPreenchidos,
   }) {
     return Administrador(

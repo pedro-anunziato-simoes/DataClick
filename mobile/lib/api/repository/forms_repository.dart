@@ -24,6 +24,10 @@ abstract class IFormularioRepository {
     required String formId,
     required Map<String, dynamic> respostas,
   });
+   Future<void> adicionarFormulariosPreenchidos({
+    required String eventoId,
+    required List<Formulario> formularios,
+  });
 }
 
 class FormularioRepository implements IFormularioRepository {
@@ -102,6 +106,20 @@ class FormularioRepository implements IFormularioRepository {
   Future<void> removerFormulario(String id) async {
     try {
       await _formularioService.removerFormulario(id);
+    } catch (e) {
+      rethrow;
+    }
+  }
+    @override
+  Future<void> adicionarFormulariosPreenchidos({
+    required String eventoId,
+    required List<Formulario> formularios,
+  }) async {
+    try {
+      await _formularioService.adicionarFormulariosPreenchidos(
+        eventoId: eventoId,
+        formularios: formularios,
+      );
     } catch (e) {
       rethrow;
     }

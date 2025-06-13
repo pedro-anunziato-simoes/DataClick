@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:mobile/api/repository/viewmodel/forms_viewmodel.dart' as forms_vm;
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile/api/models/campo.dart';
 
 class PreencherFormularioScreen extends StatefulWidget {
   final Formulario formulario;
@@ -397,13 +398,48 @@ class _PreencherFormularioScreenState extends State<PreencherFormularioScreen> {
     );
   }
 
-  void _salvarFormulario() {
-    if (_formKey.currentState?.validate() ?? false) {
-      _formKey.currentState?.save();
+void _salvarFormulario() async {
+  if (_formKey.currentState?.validate() ?? false) {
+    _formKey.currentState?.save();
+
+  
+    final formViewModel = Provider.of<forms_vm.FormViewModel>(
+      context,
+      listen: false,
+    );
+
+  
+    List<Campo> camposPreenchidos = [];
+    for (var campoOriginal in widget.formulario.campos ?? []) {
+      final resposta = _respostas[campoOriginal.campoId];
+      if (resposta != null) {
       
-      // TODO: Implementar a lógica de salvamento das respostas
-      print('Debug - Respostas do formulário: $_respostas');
-      
+        camposPreenchidos.add(Campo(
+          campoId: campoOriginal.campoId,
+          campoFormId: widget.formulario.id, 
+          titulo: campoOriginal.titulo,
+          tipo: campoOriginal.tipo,
+          resposta: resposta, 
+        ));
+      }
+    }
+
+  
+    final formularioPreenchido = Formulario(
+      id: widget.formulario.id, 
+      titulo: widget.formulario.titulo,
+      adminId: widget.formulario.adminId,
+      descricao: widget.formulario.descricao,
+      campos: camposPreenchidos,
+      eventoId: widget.formulario.eventoId, 
+    );
+
+    try {
+      await formViewModel.adicionarFormulariosPreenchidos(
+        widget.formulario.eventoId!,
+        [formularioPreenchido],
+      );
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Row(
@@ -421,8 +457,29 @@ class _PreencherFormularioScreenState extends State<PreencherFormularioScreen> {
           margin: EdgeInsets.all(16),
         ),
       );
-      
+
       Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error_outline, color: Colors.white),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text('Erro ao salvar formulário: ${e.toString()}'),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.red.shade600,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      );
     }
   }
+}
+
 } 

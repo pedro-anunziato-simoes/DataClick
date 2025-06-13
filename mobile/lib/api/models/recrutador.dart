@@ -1,4 +1,4 @@
-import 'evento.dart';
+import 'evento.dart' as evento;
 import 'formulario.dart';
 
 class Recrutador {
@@ -10,7 +10,7 @@ class Recrutador {
   final String senha;
   final String? token;
   final List<Formulario>? formularios;
-  final List<Evento>? eventos;
+  final List<evento.Evento>? eventos;
 
   Recrutador({
     this.usuarioId,
@@ -29,7 +29,7 @@ class Recrutador {
     final eventos = (json['eventos'] as List<dynamic>?)
         ?.map((e) {
           print('Debug - Mapeando evento: $e'); // Debug log
-          return Evento.fromJson(e as Map<String, dynamic>);
+          return evento.Evento.fromJson(e as Map<String, dynamic>);
         })
         .toList();
     print('Debug - Eventos mapeados: ${eventos?.length}'); // Debug log
@@ -83,7 +83,7 @@ class Recrutador {
     String? senha,
     String? token,
     List<Formulario>? formularios,
-    List<Evento>? eventos,
+    List<evento.Evento>? eventos,
   }) {
     return Recrutador(
       usuarioId: usuarioId ?? this.usuarioId,

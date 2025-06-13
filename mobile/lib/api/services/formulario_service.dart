@@ -301,4 +301,37 @@ class FormularioService {
         return 'Falha ao $operation: Status $statusCode';
     }
   }
+    Future<void> adicionarFormulariosPreenchidos({
+    required String eventoId,
+    required List<Formulario> formularios,
+  }) async {
+    try {
+
+      final body = {
+        'formulariosPreenchidosDtoListForms':
+            formularios.map((f) => f.toJson()).toList(),
+      };
+
+      final response = await _apiClient.post(
+        '/formualriosPreenchidos/add',
+        body: json.encode(body),
+        includeAuth: true,
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        throw ApiException(
+          _getErrorMessage(response, 'adicionar formulários preenchidos'),
+          response.statusCode,
+        );
+      }
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(
+        'Erro ao adicionar formulários preenchidos: ${e.toString()}',
+        0,
+      );
+    }
+  }
+
 }
