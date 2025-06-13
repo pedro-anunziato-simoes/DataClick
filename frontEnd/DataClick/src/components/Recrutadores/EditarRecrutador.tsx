@@ -11,7 +11,6 @@ import {
 import { EntityRecrutador } from "../../types/entityes/EntityRecrutador";
 import { RecrutadorService } from "../../api/RecrutadorService";
 import { RecrutadorUpdateDTO } from "../../types/entityes/DTO/RecrutadorUpdateDTO";
-import "@fontsource/roboto"; // Importa a fonte Roboto
 
 const EditarRecrutador = () => {
   const { id } = useParams<{ id: string }>();

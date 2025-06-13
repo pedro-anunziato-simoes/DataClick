@@ -10,7 +10,6 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { RecrutadorService } from "../../api/RecrutadorService";
-import "@fontsource/roboto"; // Importa a fonte Roboto
 
 const CriarRecrutador = () => {
   const [nome, setNome] = useState("");
