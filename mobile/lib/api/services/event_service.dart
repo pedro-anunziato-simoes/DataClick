@@ -101,7 +101,10 @@ class EventService {
     }
   }
 
-  Future<Evento> obterEventoPorId(String eventoId, {bool setAsAtual = true}) async {
+  Future<Evento> obterEventoPorId(
+    String eventoId, {
+    bool setAsAtual = true,
+  }) async {
     try {
       final response = await _apiClient.get(
         '$_eventosBasePath/$eventoId',
@@ -149,9 +152,14 @@ class EventService {
 
   Future<Evento> criarEvento(Evento evento) async {
     try {
+      final body = {
+        'eventoTituloDto': evento.eventoTitulo,
+        'eventoDescricaoDto': evento.descricao,
+        'eventoDataDto': evento.dataInicio.toIso8601String(),
+      };
       final response = await _apiClient.post(
         '$_eventosBasePath/criar',
-        body: json.encode(evento.toJson()),
+        body: json.encode(body),
         includeAuth: true,
       );
 

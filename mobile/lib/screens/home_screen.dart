@@ -79,12 +79,26 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         index: _currentIndex,
         children: [
           _buildHomeContent(isDarkMode, authViewModel),
-          const Placeholder(),
-          const Placeholder(),
-          const Placeholder(),
+          Center(
+            child: Text(
+              'Aqui você verá seus eventos!',
+              style: TextStyle(fontSize: 18, color: Colors.grey[700]),
+            ),
+          ),
+          Center(
+            child: Text(
+              'Configurações do app',
+              style: TextStyle(fontSize: 18, color: Colors.grey[700]),
+            ),
+          ),
+          Center(
+            child: Text(
+              'Seu perfil',
+              style: TextStyle(fontSize: 18, color: Colors.grey[700]),
+            ),
+          ),
         ],
       ),
-      bottomNavigationBar: _buildBottomNavBar(isDarkMode),
     );
   }
 
@@ -132,34 +146,45 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildHomeContent(bool isDarkMode, AuthViewModel authViewModel) {
+    final mediaQuery = MediaQuery.of(context);
+    final screenWidth = mediaQuery.size.width;
+    final screenHeight = mediaQuery.size.height;
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Color(0xFFF6FAF9), Color(0xFFE8F5F3), Color(0xFFD4EDE8)],
+          colors: [Color(0xFFE8F5E9), Color(0xFFFFFFFF), Color(0xFFB2DFDB)],
         ),
       ),
       child: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Column(
-            children: [
-              const SizedBox(height: 20),
-              _buildLogoSection(),
-              const SizedBox(height: 30),
-              _buildWelcomeSection(isDarkMode),
-              const SizedBox(height: 40),
-              _buildMenuSection(isDarkMode, authViewModel),
-              const SizedBox(height: 30),
-            ],
-          ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: IntrinsicHeight(
+                  child: Column(
+                    children: [
+                      SizedBox(height: screenHeight * 0.025),
+                      _buildLogoSectionProportional(screenWidth),
+                      SizedBox(height: screenHeight * 0.04),
+                      _buildWelcomeSection(isDarkMode, screenWidth),
+                      SizedBox(height: screenHeight * 0.05),
+                      _buildMenuSection(isDarkMode, authViewModel, screenWidth),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _buildLogoSection() {
+  Widget _buildLogoSectionProportional(double screenWidth) {
     return AnimatedBuilder(
       animation: _logoScaleAnimation,
       builder: (context, child) {
@@ -197,8 +222,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ),
                 child: Image.asset(
                   'assets/images/Logo DataClick.jpg',
-                  height: 140,
-                  width: 140,
+                  height: screenWidth * 0.32,
+                  width: screenWidth * 0.32,
                   fit: BoxFit.cover,
                 ),
               ),
@@ -209,7 +234,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildWelcomeSection(bool isDarkMode) {
+  Widget _buildWelcomeSection(bool isDarkMode, double screenWidth) {
     return AnimatedBuilder(
       animation: _fadeAnimation,
       builder: (context, child) {
@@ -218,8 +243,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           child: Transform.translate(
             offset: Offset(0, _contentSlideAnimation.value),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-              margin: const EdgeInsets.symmetric(horizontal: 20),
+              padding: EdgeInsets.symmetric(
+                horizontal: screenWidth * 0.06,
+                vertical: screenWidth * 0.045,
+              ),
+              margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [Color(0xFF26A69A), Color(0xFF00796B)],
@@ -237,23 +265,27 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
               child: Column(
                 children: [
-                  const Icon(Icons.waving_hand, color: Colors.white, size: 32),
-                  const SizedBox(height: 12),
-                  const Text(
+                  Icon(
+                    Icons.waving_hand,
+                    color: Colors.white,
+                    size: screenWidth * 0.09,
+                  ),
+                  SizedBox(height: screenWidth * 0.03),
+                  Text(
                     'Bem-vindo ao DataClick',
                     style: TextStyle(
-                      fontSize: 22,
+                      fontSize: screenWidth * 0.055,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                       letterSpacing: 0.5,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 8),
-                  const Text(
+                  SizedBox(height: screenWidth * 0.02),
+                  Text(
                     'O que você deseja fazer hoje?',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: screenWidth * 0.04,
                       color: Colors.white,
                       fontWeight: FontWeight.w400,
                     ),
@@ -268,7 +300,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildMenuSection(bool isDarkMode, AuthViewModel authViewModel) {
+  Widget _buildMenuSection(
+    bool isDarkMode,
+    AuthViewModel authViewModel,
+    double screenWidth,
+  ) {
     return AnimatedBuilder(
       animation: _fadeAnimation,
       builder: (context, child) {
@@ -277,8 +313,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           child: Transform.translate(
             offset: Offset(0, _contentSlideAnimation.value),
             child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              padding: const EdgeInsets.all(24.0),
+              margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+              padding: EdgeInsets.all(screenWidth * 0.05),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(25.0),
@@ -301,32 +337,32 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(8),
+                        padding: EdgeInsets.all(screenWidth * 0.02),
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
                             colors: [Color(0xFF26A69A), Color(0xFF00796B)],
                           ),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.dashboard,
                           color: Colors.white,
-                          size: 20,
+                          size: screenWidth * 0.05,
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      const Text(
+                      SizedBox(width: screenWidth * 0.03),
+                      Text(
                         'Menu Principal',
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: screenWidth * 0.05,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF26A69A),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),
-                  _buildMenuGrid(authViewModel),
+                  SizedBox(height: screenWidth * 0.06),
+                  _buildMenuGrid(authViewModel, screenWidth),
                 ],
               ),
             ),
@@ -336,61 +372,79 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildMenuGrid(AuthViewModel authViewModel) {
+  Widget _buildMenuGrid(AuthViewModel authViewModel, double screenWidth) {
+    final cardWidth = screenWidth * 0.28;
+    final cardHeight = screenWidth * 0.28;
     final menuCards = [
       _buildEnhancedMenuCard(
         title: 'Eventos',
         subtitle: 'Gerenciar eventos',
         icon: Icons.event_available,
         gradient: const LinearGradient(
-          colors: [Color(0xFF4FC3F7), Color(0xFF29B6F6)],
+          colors: [Color(0xFF43CEA2), Color(0xFF185A9D)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         onTap: () => Navigator.pushNamed(context, '/eventos'),
+        width: cardWidth,
+        height: cardHeight,
       ),
       _buildEnhancedMenuCard(
         title: 'Perfil',
         subtitle: 'Gerencie suas informações',
         icon: Icons.person_outline,
         gradient: const LinearGradient(
-          colors: [Color(0xFFAB47BC), Color(0xFF9C27B0)],
+          colors: [Color(0xFF11998E), Color(0xFF38EF7D)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         onTap: () => Navigator.pushNamed(context, '/profile'),
+        width: cardWidth,
+        height: cardHeight,
       ),
       _buildEnhancedMenuCard(
         title: 'Configurações',
         subtitle: 'Personalize o app',
         icon: Icons.settings_outlined,
         gradient: const LinearGradient(
-          colors: [Color(0xFFFF9800), Color(0xFFF57C00)],
+          colors: [Color(0xFF56AB2F), Color(0xFFA8E063)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         onTap: () => Navigator.pushNamed(context, '/settings'),
+        width: cardWidth,
+        height: cardHeight,
       ),
       _buildEnhancedMenuCard(
         title: 'Sair',
         subtitle: 'Encerrar sessão',
         icon: Icons.logout,
         gradient: const LinearGradient(
-          colors: [Color(0xFFEF5350), Color(0xFFE53935)],
+          colors: [Color(0xFFBDBDBD), Color(0xFFE0E0E0)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         onTap: () => _showLogoutDialog(context, authViewModel),
+        width: cardWidth,
+        height: cardHeight,
       ),
     ];
-    return Wrap(
-      spacing: 16.0,
-      runSpacing: 16.0,
-      alignment: WrapAlignment.center,
-      children:
-          menuCards
-              .map((card) => SizedBox(width: 140, height: 140, child: card))
-              .toList(),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children:
+            menuCards
+                .map(
+                  (card) => Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: screenWidth * 0.012,
+                    ),
+                    child: card,
+                  ),
+                )
+                .toList(),
+      ),
     );
   }
 
@@ -400,57 +454,66 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     required IconData icon,
     required Gradient gradient,
     required VoidCallback onTap,
+    required double width,
+    required double height,
   }) {
     return Container(
+      width: width,
+      height: height,
       decoration: BoxDecoration(
         gradient: gradient,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
           onTap: onTap,
           child: Container(
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(width * 0.08),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: EdgeInsets.all(width * 0.13),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(icon, color: Colors.white, size: 28),
+                  child: Icon(icon, color: Colors.white, size: width * 0.22),
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                SizedBox(height: width * 0.06),
+                Flexible(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: width * 0.13,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.white.withOpacity(0.9),
+                SizedBox(height: width * 0.01),
+                Flexible(
+                  child: Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: width * 0.09,
+                      color: Colors.white.withOpacity(0.9),
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -461,62 +524,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildBottomNavBar(bool isDarkMode) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 15,
-            spreadRadius: 0,
-            offset: const Offset(0, -3),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavBarItem(
-                Icons.home_rounded,
-                'Home',
-                _currentIndex == 0,
-                onTap: () => setState(() => _currentIndex = 0),
-              ),
-              _buildNavBarItem(
-                Icons.event_available_rounded,
-                'Eventos',
-                _currentIndex == 1,
-                onTap: () {
-                  setState(() => _currentIndex = 1);
-                  Navigator.pushNamed(context, '/eventos');
-                },
-              ),
-              _buildNavBarItem(
-                Icons.settings_rounded,
-                'Configurações',
-                _currentIndex == 2,
-                onTap: () {
-                  setState(() => _currentIndex = 2);
-                  Navigator.pushNamed(context, '/settings');
-                },
-              ),
-              _buildNavBarItem(
-                Icons.person_rounded,
-                'Perfil',
-                _currentIndex == 3,
-                onTap: () {
-                  setState(() => _currentIndex = 3);
-                  Navigator.pushNamed(context, '/profile');
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    return const SizedBox.shrink();
   }
 
   Widget _buildNavBarItem(
@@ -531,12 +539,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          gradient:
-              isSelected
-                  ? const LinearGradient(
-                    colors: [Color(0xFF26A69A), Color(0xFF00796B)],
-                  )
-                  : null,
+          color: Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -544,7 +547,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           children: [
             Icon(
               icon,
-              color: isSelected ? Colors.white : Colors.grey[600],
+              color: isSelected ? const Color(0xFF26A69A) : Colors.grey[600],
               size: 24,
             ),
             const SizedBox(height: 4),
@@ -552,7 +555,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               label,
               style: TextStyle(
                 fontSize: 12,
-                color: isSelected ? Colors.white : Colors.grey[600],
+                color: isSelected ? const Color(0xFF26A69A) : Colors.grey[600],
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
               ),
             ),
@@ -720,7 +723,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(15),
                   ),
                   child: Icon(icon, color: Colors.white, size: 24),
                 ),

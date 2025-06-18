@@ -122,12 +122,15 @@ class FormularioService {
       await _apiClient.get('/eventos');
 
       final formData = {
-        'titulo': titulo.trim(),
+        'formularioTituloDto': titulo.trim(),
         'eventoId': eventoId,
         'adminId': adminId,
         'campos': campos.map((campo) => campo.toJson()).toList(),
         if (descricao != null) 'descricao': descricao,
       };
+
+      // print('DEBUG: Título do formulário enviado: $titulo');
+      // print('DEBUG: Dados enviados para o backend: $formData');
 
       final response = await _apiClient.post(
         '/formularios/add/$eventoId',
@@ -135,7 +138,7 @@ class FormularioService {
         includeAuth: true,
       );
 
-      print('DEBUG: Resposta do backend ao criar formulário: ${response.body}');
+      // print('DEBUG: Resposta do backend ao criar formulário: [32m${response.body}\u001b[0m');
 
       if (response.statusCode == 201 || response.statusCode == 200) {
         return Formulario.fromJson(json.decode(response.body));
@@ -148,7 +151,10 @@ class FormularioService {
     } on ApiException {
       rethrow;
     } catch (e) {
-      throw ApiException('Erro ao criar formulário: ${e.toString()}', 0);
+      throw ApiException(
+        'Erro ao criar formulário: [31m${e.toString()}\u001b[0m',
+        0,
+      );
     }
   }
 
@@ -169,6 +175,7 @@ class FormularioService {
 
       final formData = {
         'titulo': titulo.trim(),
+        'formularioTitulo': titulo.trim(),
         'campos': campos.map((campo) => campo.toJson()).toList(),
         if (descricao != null) 'descricao': descricao,
       };
@@ -241,7 +248,7 @@ class FormularioService {
   Future<List<Formulario>> getFormulariosPreenchidos(String eventoId) async {
     try {
       final response = await _apiClient.get(
-        '/formulariosPreenchidos/$eventoId',
+        '/formualriosPreenchidos/$eventoId',
         includeAuth: true,
       );
 
@@ -301,12 +308,12 @@ class FormularioService {
         return 'Falha ao $operation: Status $statusCode';
     }
   }
-    Future<void> adicionarFormulariosPreenchidos({
+
+  Future<void> adicionarFormulariosPreenchidos({
     required String eventoId,
     required List<Formulario> formularios,
   }) async {
     try {
-
       final body = {
         'formulariosPreenchidosDtoListForms':
             formularios.map((f) => f.toJson()).toList(),
@@ -333,5 +340,4 @@ class FormularioService {
       );
     }
   }
-
 }

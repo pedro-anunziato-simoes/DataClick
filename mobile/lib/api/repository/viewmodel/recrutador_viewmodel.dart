@@ -71,10 +71,10 @@ class RecrutadorViewModel extends ChangeNotifier {
   Future<void> carregarRecrutadorLogado() async {
     try {
       state = LoadingState();
-      
+
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token');
-      
+
       if (token == null) {
         throw Exception('Token não encontrado');
       }
@@ -94,7 +94,9 @@ class RecrutadorViewModel extends ChangeNotifier {
         recrutador = Recrutador.fromJson(jsonResponse);
         print('Debug - Eventos carregados: ${recrutador?.eventos?.length}');
         if (recrutador?.eventos != null) {
-          print('Debug - Nomes dos eventos: ${recrutador?.eventos?.map((e) => e.eventoTitulo).join(', ')}');
+          print(
+            'Debug - Nomes dos eventos: ${recrutador?.eventos?.map((e) => e.eventoTitulo).join(', ')}',
+          );
         }
         state = SuccessState(recrutador);
       } else if (response.statusCode == 401) {

@@ -210,7 +210,6 @@ class _FormularioScreenState extends State<FormularioScreen> {
         adminId: widget.adminId,
         campos: [], // Cria vazio
       );
-      print('DEBUG: Título do formulário enviado: ${_tituloController.text}');
       // 2. Adiciona cada campo usando o endpoint de campos
       for (final campo in _campos) {
         await widget.campoService.adicionarCampo(

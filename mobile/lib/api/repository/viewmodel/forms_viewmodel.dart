@@ -240,9 +240,8 @@ class FormViewModel extends ChangeNotifier {
     if (error is Exception) return error.toString();
     return 'Ocorreu um erro inesperado';
   }
-  
 
-   Future<void> adicionarFormulariosPreenchidos(
+  Future<void> adicionarFormulariosPreenchidos(
     String eventoId,
     List<Formulario> formularios,
   ) async {
@@ -263,6 +262,4 @@ class FormViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
-
-
 }

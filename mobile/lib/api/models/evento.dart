@@ -106,36 +106,56 @@ class Evento {
     // Mapear formulários do evento
     List<FormularioSimplificado> formularios = [];
     if (json['eventoFormularios'] != null) {
-      formularios = (json['eventoFormularios'] as List<dynamic>?)
-          ?.where((e) => e != null)
-          .map((e) => FormularioSimplificado.fromJson(e as Map<String, dynamic>))
-          .toList() ?? [];
+      formularios =
+          (json['eventoFormularios'] as List<dynamic>?)
+              ?.where((e) => e != null)
+              .map(
+                (e) =>
+                    FormularioSimplificado.fromJson(e as Map<String, dynamic>),
+              )
+              .toList() ??
+          [];
     }
 
     return Evento(
       eventoId: json['eventoId'] as String? ?? json['id'] as String? ?? '',
-      eventoTitulo: json['eventoTitulo'] as String? ?? json['nome'] as String? ?? '',
-      dataInicio: json['dataInicio'] is String
-          ? DateTime.parse(json['dataInicio'] as String)
-          : json['eventoData'] is String
+      eventoTitulo:
+          json['eventoTitulo'] as String? ?? json['nome'] as String? ?? '',
+      dataInicio:
+          json['dataInicio'] is String
+              ? DateTime.parse(json['dataInicio'] as String)
+              : json['eventoData'] is String
               ? DateTime.parse(json['eventoData'] as String)
               : DateTime.now(),
-      dataFim: json['dataFim'] is String
-          ? DateTime.parse(json['dataFim'] as String)
-          : json['eventoData'] is String
-              ? DateTime.parse(json['eventoData'] as String).add(const Duration(days: 1))
+      dataFim:
+          json['dataFim'] is String
+              ? DateTime.parse(json['dataFim'] as String)
+              : json['eventoData'] is String
+              ? DateTime.parse(
+                json['eventoData'] as String,
+              ).add(const Duration(days: 1))
               : DateTime.now().add(const Duration(days: 1)),
       local: json['local'] as String? ?? '',
-      descricao: json['descricao'] as String? ?? json['eventoDescricao'] as String? ?? '',
+      descricao:
+          json['descricao'] as String? ??
+          json['eventoDescricao'] as String? ??
+          '',
       formulariosAssociados: formularios,
-      recrutadoresEnvolvidos: (json['recrutadoresEnvolvidos'] as List<dynamic>? ?? [])
-          .map((e) => UsuarioSimplificado.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      administradoresEnvolvidos: (json['administradoresEnvolvidos'] as List<dynamic>? ?? [])
-          .map((e) => UsuarioSimplificado.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      recrutadoresEnvolvidos:
+          (json['recrutadoresEnvolvidos'] as List<dynamic>? ?? [])
+              .map(
+                (e) => UsuarioSimplificado.fromJson(e as Map<String, dynamic>),
+              )
+              .toList(),
+      administradoresEnvolvidos:
+          (json['administradoresEnvolvidos'] as List<dynamic>? ?? [])
+              .map(
+                (e) => UsuarioSimplificado.fromJson(e as Map<String, dynamic>),
+              )
+              .toList(),
       status: json['status'] as String? ?? 'ATIVO',
-      eventoAdminId: json['eventoAdminId'] as String? ?? json['adminId'] as String?,
+      eventoAdminId:
+          json['eventoAdminId'] as String? ?? json['adminId'] as String?,
     );
   }
 
@@ -192,7 +212,9 @@ class Evento {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is Evento && runtimeType == other.runtimeType && eventoId == other.eventoId;
+      other is Evento &&
+          runtimeType == other.runtimeType &&
+          eventoId == other.eventoId;
 
   @override
   int get hashCode => eventoId.hashCode;
@@ -338,10 +360,11 @@ class Formulario {
       formularioTitulo: json['formularioTitulo'] ?? '',
       formAdminId: json['formAdminId'] ?? '',
       formularioEventoId: json['formularioEventoId'] ?? '',
-      campos: (json['campos'] as List<dynamic>? ?? [])
-          .where((e) => e != null)
-          .map((e) => Campo.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      campos:
+          (json['campos'] as List<dynamic>? ?? [])
+              .where((e) => e != null)
+              .map((e) => Campo.fromJson(e as Map<String, dynamic>))
+              .toList(),
     );
   }
 

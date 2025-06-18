@@ -57,7 +57,7 @@ class _FormsScreenState extends State<FormsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao carregar formulários: ${e.toString()}'),
+            content: Text('Erro ao carregar formulários: [${e.toString()}'),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 3),
           ),
@@ -127,7 +127,7 @@ class _FormsScreenState extends State<FormsScreen> {
   }
 
   Widget _buildFormularioCard(Formulario formulario) {
-    print('DEBUG: Título do formulário no card: ${formulario.titulo}');
+    // print('DEBUG: Título do formulário no card: [31m${formulario.titulo}[0m');
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 2,
@@ -150,7 +150,11 @@ class _FormsScreenState extends State<FormsScreen> {
                       ),
                     ),
                   ),
-                  if (widget.isAdmin) _buildAdminActions(formulario),
+                  IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    tooltip: 'Remover formulário',
+                    onPressed: () => _confirmarExclusao(formulario),
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
@@ -368,7 +372,7 @@ class _FormsScreenState extends State<FormsScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erro ao excluir: ${e.toString()}'),
+          content: Text('Erro ao excluir: [${e.toString()}'),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 3),
         ),

@@ -25,7 +25,8 @@ import 'screens/home_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/forms_screen.dart';
 import 'screens/form_create_screen.dart';
-import 'screens/recrutadorregisterscreen.dart';
+import 'screens/recrutadorLogin.dart';
+import 'screens/recrutadordashscreen.dart';
 import 'screens/settings_screen.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:mobile/api/models/user.dart';
@@ -134,7 +135,6 @@ class MyApp extends StatelessWidget {
         '/criar-evento': (context) => const CriarEventoScreen(),
         '/profile': (context) => const ProfileScreen(),
         '/settings': (context) => const SettingsScreen(),
-        '/recrutador/register': (context) => const RecrutadorRegisterScreen(),
         '/forms': (context) {
           final authViewModel = Provider.of<AuthViewModel>(
             context,

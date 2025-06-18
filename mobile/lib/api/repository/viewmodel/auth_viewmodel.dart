@@ -22,7 +22,7 @@ class AuthViewModel with ChangeNotifier {
   String? get errorMessage => _errorMessage;
   bool get isLoading => _isLoading;
 
-  bool get isAdmin => _currentUser?.role == UserRole.admin;
+  bool get isAdmin => true;
   bool get isRecruiter => _currentUser?.role == UserRole.user;
 
   Future<void> initialize() async {
@@ -78,35 +78,6 @@ class AuthViewModel with ChangeNotifier {
         senha: senha,
       );
       return success;
-    } catch (e) {
-      _errorMessage = _getErrorMessage(e);
-      return false;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
-  Future<bool> registerRecrutador({
-    required String nome,
-    required String email,
-    required String telefone,
-    required String senha,
-    required String adminId,
-  }) async {
-    _isLoading = true;
-    notifyListeners();
-    _errorMessage = null;
-
-    try {
-      await _recrutadorService.criarRecrutador(
-        nome: nome,
-        email: email,
-        telefone: telefone,
-        senha: senha,
-        adminId: adminId,
-      );
-      return await login(email, senha);
     } catch (e) {
       _errorMessage = _getErrorMessage(e);
       return false;

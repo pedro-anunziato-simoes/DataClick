@@ -85,7 +85,7 @@ class AuthService {
         if (role == 'ROLE_USER' || role == 'USER') return 'user';
       }
     }
-    return 'usuario'; //
+    return 'usuario';
   }
 
   Future<bool> register({
@@ -106,44 +106,6 @@ class AuthService {
 
       final response = await _apiClient.post(
         Endpoints.register,
-        body: body,
-        includeAuth: false,
-      );
-
-      if (response.statusCode != 200 && response.statusCode != 201) {
-        String errorMessage = 'Falha no registro';
-        if (response.body.isNotEmpty) {
-          errorMessage = response.body;
-        }
-        throw ApiException(errorMessage, response.statusCode);
-      }
-      return true;
-    } on ApiException {
-      rethrow;
-    } catch (e) {
-      throw ApiException(
-        'Erro durante o processo de registro: ${e.toString()}',
-        0,
-      );
-    }
-  }
-
-  Future<bool> registerRecrutador({
-    required String nome,
-    required String email,
-    required String telefone,
-    required String senha,
-  }) async {
-    try {
-      final body = {
-        'nome': nome,
-        'senha': senha,
-        'telefone': telefone,
-        'email': email,
-      };
-
-      final response = await _apiClient.post(
-        Endpoints.recrutadores,
         body: body,
         includeAuth: false,
       );

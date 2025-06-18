@@ -28,9 +28,7 @@ class AdministradorViewModel extends ChangeNotifier {
         _administrador = Administrador.fromJson(jsonDecode(jsonString));
         _state = SuccessState(_administrador!);
         notifyListeners();
-      } catch (e) {
-       
-      }
+      } catch (e) {}
     }
   }
 

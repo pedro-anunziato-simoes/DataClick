@@ -162,33 +162,36 @@ class EventViewModel extends ChangeNotifier {
   }
 
   Future<bool> criarEvento(Evento evento) async {
-    print('DEBUG: [EventViewModel] criarEvento chamado');
+    // print('DEBUG: [EventViewModel] criarEvento chamado');
+    // print('DEBUG: [EventViewModel] Usuário não é admin, abortando');
+    // print('DEBUG: [EventViewModel] Chamando _eventService.criarEvento...');
+    // print('DEBUG: [EventViewModel] Evento criado com sucesso: [32m${result.eventoId}\u001b[0m');
+    // print('DEBUG: [EventViewModel] ApiException: ${e.message}');
+    // print('DEBUG: [EventViewModel] Erro inesperado: ${e.toString()}');
     if (!isAdmin) {
-      print('DEBUG: [EventViewModel] Usuário não é admin, abortando');
+      // print('DEBUG: [EventViewModel] Usuário não é admin, abortando');
       return false;
     }
 
     try {
-      print('DEBUG: [EventViewModel] Chamando _eventService.criarEvento...');
+      // print('DEBUG: [EventViewModel] Chamando _eventService.criarEvento...');
       _eventoAtual = LoadingState();
       notifyListeners();
 
       final result = await _eventService.criarEvento(evento);
-      print(
-        'DEBUG: [EventViewModel] Evento criado com sucesso: ${result.eventoId}',
-      );
+      // print('DEBUG: [EventViewModel] Evento criado com sucesso: [32m${result.eventoId}\u001b[0m');
       _eventoAtual = SuccessState(result);
       await _salvarEventoNoCache(result);
       await carregarEventos();
 
       return true;
     } on ApiException catch (e) {
-      print('DEBUG: [EventViewModel] ApiException: ${e.message}');
+      // print('DEBUG: [EventViewModel] ApiException: ${e.message}');
       _eventoAtual = ErrorState(e.message);
       notifyListeners();
       return false;
     } catch (e) {
-      print('DEBUG: [EventViewModel] Erro inesperado: ${e.toString()}');
+      // print('DEBUG: [EventViewModel] Erro inesperado: ${e.toString()}');
       _eventoAtual = ErrorState(
         'Ocorreu um erro inesperado ao criar evento: ${e.toString()}',
       );

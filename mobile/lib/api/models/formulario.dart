@@ -21,7 +21,10 @@ class Formulario {
   });
 
   factory Formulario.fromJson(Map<String, dynamic> json) {
-    debugPrint('DEBUG: JSON recebido em Formulario.fromJson: $json');
+    // debugPrint('DEBUG: JSON recebido em Formulario.fromJson: $json');
+    // debugPrint('DEBUG: Título do formulário enviado: ${json['titulo']}');
+    // debugPrint('DEBUG: FormularioTitulo do backend: ${json['formularioTitulo']}');
+
     try {
       List<Campo> campos = [];
       if (json['campos'] != null && json['campos'] is List) {
@@ -31,12 +34,16 @@ class Formulario {
                 .toList();
       }
 
+      // Try multiple possible title field names
+      String titulo =
+          json['titulo']?.toString() ??
+          json['formularioTitulo']?.toString() ??
+          json['formTitulo']?.toString() ??
+          'Sem título';
+
       return Formulario(
         id: json['id']?.toString() ?? json['formId']?.toString() ?? '',
-        titulo:
-            json['titulo']?.toString() ??
-            json['formularioTitulo']?.toString() ??
-            'Sem título',
+        titulo: titulo,
         adminId:
             json['adminId']?.toString() ??
             json['formAdminId']?.toString() ??
@@ -52,7 +59,7 @@ class Formulario {
             json['formularioEventoId']?.toString(),
       );
     } catch (e) {
-      debugPrint('Erro ao parsear Formulario: $e');
+      // debugPrint('Erro ao parsear Formulario: $e');
       return Formulario(
         id: '',
         titulo: 'Erro ao carregar',

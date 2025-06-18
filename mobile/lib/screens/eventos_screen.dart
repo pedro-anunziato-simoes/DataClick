@@ -101,18 +101,7 @@ class _EventosScreenState extends State<EventosScreen> {
           ],
         ),
         child: FloatingActionButton.extended(
-          onPressed: () async {
-            final result = await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const CriarEventoScreen(),
-              ),
-            );
-            // Recarrega a lista ao voltar
-            if (result == null || result == true) {
-              eventViewModel.carregarEventos();
-            }
-          },
+          onPressed: _navegarParaCriarEvento,
           backgroundColor: const Color(0xFF26A69A),
           foregroundColor: Colors.white,
           icon: const Icon(Icons.add),
@@ -389,13 +378,11 @@ class _EventosScreenState extends State<EventosScreen> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    if (isAdmin)
-                      IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.white),
-                        onPressed: () {
-                          _showNotImplementedSnackbar(context, 'Editar evento');
-                        },
-                      ),
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      tooltip: 'Remover evento',
+                      onPressed: () => _confirmarRemocaoEvento(context, event),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -549,12 +536,7 @@ class _EventosScreenState extends State<EventosScreen> {
                 const SizedBox(height: 32),
                 ElevatedButton.icon(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const CriarEventoScreen(),
-                      ),
-                    );
+                    _navegarParaCriarEvento();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF26A69A),
@@ -602,5 +584,66 @@ class _EventosScreenState extends State<EventosScreen> {
         margin: const EdgeInsets.all(16),
       ),
     );
+  }
+
+  void _navegarParaCriarEvento() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const CriarEventoScreen()),
+    );
+    if (result == true || result == null) {
+      // Recarregar eventos do backend
+      Provider.of<EventViewModel>(context, listen: false).carregarEventos();
+    }
+  }
+
+  void _confirmarRemocaoEvento(BuildContext context, Evento evento) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Remover Evento'),
+            content: Text(
+              'Tem certeza que deseja remover o evento "${evento.eventoTitulo}"?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancelar'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await _removerEvento(evento);
+                },
+                child: const Text(
+                  'Remover',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
+          ),
+    );
+  }
+
+  Future<void> _removerEvento(Evento evento) async {
+    final eventService = Provider.of<EventService>(context, listen: false);
+    try {
+      await eventService.removerEvento(evento.eventoId);
+      Provider.of<EventViewModel>(context, listen: false).carregarEventos();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Evento removido com sucesso!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao remover evento: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 }

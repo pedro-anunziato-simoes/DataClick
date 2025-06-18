@@ -6,7 +6,7 @@ class ApiClient {
   final http.Client _httpClient;
   final SharedPreferences _prefs;
   String? _authToken;
-  final String baseUrl = 'http://localhost:8080';
+  final String baseUrl = 'http://192.168.1.4:8080';
 
   ApiClient(this._httpClient, this._prefs) {
     _loadToken();

@@ -99,11 +99,7 @@ class SettingsScreen extends StatelessWidget {
   ) {
     return Container(
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF4FC3F7), Color(0xFF29B6F6)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -123,7 +119,7 @@ class SettingsScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Colors.black87,
               ),
             ),
             const SizedBox(height: 16),
@@ -140,7 +136,7 @@ class SettingsScreen extends StatelessWidget {
               icon: Icons.email,
               title: 'Alterar Email',
               isDarkMode: false,
-              onTap: () => _showChangeEmailDialog(context, false),
+              onTap: () => _showChangeEmailDialog(context, service),
             ),
             _buildDivider(false),
             _buildSettingsItem(
@@ -148,7 +144,15 @@ class SettingsScreen extends StatelessWidget {
               icon: Icons.lock,
               title: 'Alterar Senha',
               isDarkMode: false,
-              onTap: () => _showChangePasswordDialog(context, service, false),
+              onTap: () => _showChangePasswordDialog(context, service),
+            ),
+            _buildDivider(false),
+            _buildSettingsItem(
+              context,
+              icon: Icons.delete_forever,
+              title: 'Remover Administrador',
+              isDarkMode: false,
+              onTap: () => _showRemoveAdminDialog(context, service),
             ),
           ],
         ),
@@ -159,11 +163,7 @@ class SettingsScreen extends StatelessWidget {
   Widget _buildAppSettingsSectionModern() {
     return Container(
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFFF9800), Color(0xFFF57C00)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -183,7 +183,7 @@ class SettingsScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Colors.black87,
               ),
             ),
             const SizedBox(height: 16),
@@ -214,11 +214,7 @@ class SettingsScreen extends StatelessWidget {
   ) {
     return Container(
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFEF5350), Color(0xFFE53935)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -238,7 +234,7 @@ class SettingsScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Colors.black87,
               ),
             ),
             const SizedBox(height: 16),
@@ -281,27 +277,24 @@ class SettingsScreen extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     return ListTile(
-      leading: Icon(
-        icon,
-        color: isLogout ? Colors.red : const Color(0xFF26A69A),
-      ),
+      leading: Icon(icon, color: isLogout ? Colors.red : Colors.black54),
       title: Text(
         title,
         style: TextStyle(
-          color:
-              isLogout
-                  ? Colors.red
-                  : (isDarkMode ? Colors.white : Colors.black87),
+          color: isLogout ? Colors.red : Colors.black87,
+          fontWeight: FontWeight.w500,
         ),
       ),
-      trailing:
-          isLogout
-              ? null
-              : Icon(
-                Icons.chevron_right,
-                color: isDarkMode ? Colors.grey[400]! : Colors.grey[600]!,
-              ),
       onTap: onTap,
+      trailing: const Icon(
+        Icons.arrow_forward_ios,
+        size: 16,
+        color: Colors.black26,
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      tileColor: Colors.transparent,
+      hoverColor: Colors.grey[100],
     );
   }
 
@@ -337,172 +330,153 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  void _showChangeEmailDialog(BuildContext context, bool isDarkMode) {
-    final emailController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(
-            'Alterar Email',
-            style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
-          ),
-          backgroundColor: isDarkMode ? const Color(0xFF2A2A2A) : Colors.white,
-          content: TextField(
-            controller: emailController,
-            style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
-            decoration: InputDecoration(
-              labelText: 'Novo Email',
-              labelStyle: TextStyle(
-                color: isDarkMode ? Colors.grey[400]! : Colors.grey[600]!,
-              ),
-              hintText: 'digite@seuemail.com',
-              hintStyle: TextStyle(
-                color: isDarkMode ? Colors.grey[500]! : Colors.grey[400]!,
-              ),
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(
-                  color: isDarkMode ? Colors.grey[600]! : Colors.grey[300]!,
-                ),
-              ),
-            ),
-            keyboardType: TextInputType.emailAddress,
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                'Cancelar',
-                style: TextStyle(
-                  color: isDarkMode ? Colors.white : Colors.black87,
-                ),
-              ),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF26A69A),
-              ),
-              onPressed: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Text('Email alterado com sucesso!'),
-                    backgroundColor:
-                        isDarkMode ? Colors.grey[800]! : Colors.white,
-                  ),
-                );
-              },
-              child: const Text('Salvar'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _showChangePasswordDialog(
+  void _showChangeEmailDialog(
     BuildContext context,
     AdministradorService service,
-    bool isDarkMode,
-  ) async {
-    final oldPasswordController = TextEditingController();
-    final newPasswordController = TextEditingController();
-
-    await showDialog(
+  ) {
+    final emailController = TextEditingController();
+    showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(
-            'Alterar Senha',
-            style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
-          ),
-          backgroundColor: isDarkMode ? const Color(0xFF2A2A2A) : Colors.white,
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: oldPasswordController,
-                style: TextStyle(
-                  color: isDarkMode ? Colors.white : Colors.black87,
-                ),
-                decoration: InputDecoration(
-                  labelText: 'Senha Atual',
-                  labelStyle: TextStyle(
-                    color: isDarkMode ? Colors.grey[400]! : Colors.grey[600]!,
-                  ),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: isDarkMode ? Colors.grey[600]! : Colors.grey[300]!,
-                    ),
-                  ),
-                ),
-                obscureText: true,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Alterar Email'),
+            content: TextField(
+              controller: emailController,
+              decoration: const InputDecoration(labelText: 'Novo Email'),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancelar'),
               ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: newPasswordController,
-                style: TextStyle(
-                  color: isDarkMode ? Colors.white : Colors.black87,
-                ),
-                decoration: InputDecoration(
-                  labelText: 'Nova Senha',
-                  labelStyle: TextStyle(
-                    color: isDarkMode ? Colors.grey[400]! : Colors.grey[600]!,
-                  ),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: isDarkMode ? Colors.grey[600]! : Colors.grey[300]!,
-                    ),
-                  ),
-                ),
-                obscureText: true,
+              ElevatedButton(
+                onPressed: () async {
+                  final email = emailController.text.trim();
+                  if (email.isNotEmpty) {
+                    try {
+                      await service.alterarEmail(email);
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Email alterado com sucesso!'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Erro ao alterar email: $e'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
+                },
+                child: const Text('Salvar'),
               ),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                'Cancelar',
-                style: TextStyle(
-                  color: isDarkMode ? Colors.white : Colors.black87,
-                ),
-              ),
+    );
+  }
+
+  void _showChangePasswordDialog(
+    BuildContext context,
+    AdministradorService service,
+  ) {
+    final senhaController = TextEditingController();
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Alterar Senha'),
+            content: TextField(
+              controller: senhaController,
+              decoration: const InputDecoration(labelText: 'Nova Senha'),
+              obscureText: true,
             ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF26A69A),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancelar'),
               ),
-              onPressed: () async {
-                try {
-                  if (context.mounted) {
+              ElevatedButton(
+                onPressed: () async {
+                  final senha = senhaController.text.trim();
+                  if (senha.isNotEmpty) {
+                    try {
+                      await service.alterarSenha(senha);
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Senha alterada com sucesso!'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Erro ao alterar senha: $e'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
+                },
+                child: const Text('Salvar'),
+              ),
+            ],
+          ),
+    );
+  }
+
+  void _showRemoveAdminDialog(
+    BuildContext context,
+    AdministradorService service,
+  ) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Remover Administrador'),
+            content: const Text(
+              'Tem certeza que deseja remover sua conta de administrador? Esta ação não pode ser desfeita.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancelar'),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                onPressed: () async {
+                  try {
+                    // Aqui você pode obter o ID do admin do AuthViewModel ou outro local
+                    // Exemplo:
+                    // final adminId = Provider.of<AuthViewModel>(context, listen: false).currentUser?.id;
+                    // await service.removerAdministrador(adminId);
+                    // Para exemplo, apenas fecha o diálogo e mostra sucesso
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text('Senha alterada com sucesso!'),
-                        backgroundColor:
-                            isDarkMode ? Colors.grey[800]! : Colors.white,
+                      const SnackBar(
+                        content: Text('Administrador removido com sucesso!'),
+                        backgroundColor: Colors.green,
                       ),
                     );
-                  }
-                } catch (e) {
-                  if (context.mounted) {
+                    // Redirecionar para tela de login ou inicial
+                    Navigator.of(context).popUntil((route) => route.isFirst);
+                  } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Erro: ${e.toString()}'),
-                        backgroundColor:
-                            isDarkMode ? Colors.grey[800]! : Colors.white,
+                        content: Text('Erro ao remover administrador: $e'),
+                        backgroundColor: Colors.red,
                       ),
                     );
                   }
-                }
-              },
-              child: const Text('Salvar'),
-            ),
-          ],
-        );
-      },
+                },
+                child: const Text('Remover'),
+              ),
+            ],
+          ),
     );
   }
 

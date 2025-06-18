@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/api/models/formulario.dart';
 import 'package:provider/provider.dart';
-import 'package:mobile/api/repository/viewmodel/forms_viewmodel.dart' as forms_vm;
+import 'package:mobile/api/repository/viewmodel/forms_viewmodel.dart'
+    as forms_vm;
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/api/models/campo.dart';
@@ -9,13 +10,11 @@ import 'package:mobile/api/models/campo.dart';
 class PreencherFormularioScreen extends StatefulWidget {
   final Formulario formulario;
 
-  const PreencherFormularioScreen({
-    super.key,
-    required this.formulario,
-  });
+  const PreencherFormularioScreen({super.key, required this.formulario});
 
   @override
-  State<PreencherFormularioScreen> createState() => _PreencherFormularioScreenState();
+  State<PreencherFormularioScreen> createState() =>
+      _PreencherFormularioScreenState();
 }
 
 class _PreencherFormularioScreenState extends State<PreencherFormularioScreen> {
@@ -109,11 +108,12 @@ class _PreencherFormularioScreenState extends State<PreencherFormularioScreen> {
                       const SizedBox(height: 16),
                     ],
                     ...widget.formulario.campos?.map((campo) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: _buildCampoFormulario(campo, theme),
-                      );
-                    }).toList() ?? [],
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: _buildCampoFormulario(campo, theme),
+                          );
+                        }).toList() ??
+                        [],
                   ],
                 ),
               ),
@@ -155,9 +155,10 @@ class _PreencherFormularioScreenState extends State<PreencherFormularioScreen> {
     final campoTipo = campo.tipo;
     final campoId = campo.campoId;
 
-    // Determine if the field should use a specific mask based on its title
     final lowerTitle = campoTitulo.toLowerCase();
-    if (lowerTitle.contains('telefone') || lowerTitle.contains('celular') || lowerTitle.contains('fone')) {
+    if (lowerTitle.contains('telefone') ||
+        lowerTitle.contains('celular') ||
+        lowerTitle.contains('fone')) {
       return _buildCampoTelefone(campoTitulo, campoId);
     } else if (lowerTitle.contains('cpf')) {
       return _buildCampoCPF(campoTitulo, campoId);
@@ -185,9 +186,7 @@ class _PreencherFormularioScreenState extends State<PreencherFormularioScreen> {
     return TextFormField(
       decoration: InputDecoration(
         labelText: titulo,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         filled: true,
         fillColor: Colors.white,
       ),
@@ -207,9 +206,7 @@ class _PreencherFormularioScreenState extends State<PreencherFormularioScreen> {
     return TextFormField(
       decoration: InputDecoration(
         labelText: titulo,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         filled: true,
         fillColor: Colors.white,
         prefixIcon: const Icon(Icons.phone),
@@ -235,9 +232,7 @@ class _PreencherFormularioScreenState extends State<PreencherFormularioScreen> {
     return TextFormField(
       decoration: InputDecoration(
         labelText: titulo,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         filled: true,
         fillColor: Colors.white,
         prefixIcon: const Icon(Icons.badge),
@@ -263,9 +258,7 @@ class _PreencherFormularioScreenState extends State<PreencherFormularioScreen> {
     return TextFormField(
       decoration: InputDecoration(
         labelText: titulo,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         filled: true,
         fillColor: Colors.white,
         prefixIcon: const Icon(Icons.business),
@@ -291,9 +284,7 @@ class _PreencherFormularioScreenState extends State<PreencherFormularioScreen> {
     return TextFormField(
       decoration: InputDecoration(
         labelText: titulo,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         filled: true,
         fillColor: Colors.white,
         prefixIcon: const Icon(Icons.numbers),
@@ -318,9 +309,7 @@ class _PreencherFormularioScreenState extends State<PreencherFormularioScreen> {
     return TextFormField(
       decoration: InputDecoration(
         labelText: titulo,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         filled: true,
         fillColor: Colors.white,
         prefixIcon: const Icon(Icons.email),
@@ -345,9 +334,7 @@ class _PreencherFormularioScreenState extends State<PreencherFormularioScreen> {
     return TextFormField(
       decoration: InputDecoration(
         labelText: titulo,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         filled: true,
         fillColor: Colors.white,
         prefixIcon: const Icon(Icons.calendar_today),
@@ -388,9 +375,7 @@ class _PreencherFormularioScreenState extends State<PreencherFormularioScreen> {
               _respostas[campoId] = value;
             });
           },
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           tileColor: Colors.white,
           activeColor: const Color(0xFF26A69A),
         );
@@ -398,88 +383,85 @@ class _PreencherFormularioScreenState extends State<PreencherFormularioScreen> {
     );
   }
 
-void _salvarFormulario() async {
-  if (_formKey.currentState?.validate() ?? false) {
-    _formKey.currentState?.save();
+  void _salvarFormulario() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      _formKey.currentState?.save();
 
-  
-    final formViewModel = Provider.of<forms_vm.FormViewModel>(
-      context,
-      listen: false,
-    );
+      final formViewModel = Provider.of<forms_vm.FormViewModel>(
+        context,
+        listen: false,
+      );
 
-  
-    List<Campo> camposPreenchidos = [];
-    for (var campoOriginal in widget.formulario.campos ?? []) {
-      final resposta = _respostas[campoOriginal.campoId];
-      if (resposta != null) {
-      
-        camposPreenchidos.add(Campo(
-          campoId: campoOriginal.campoId,
-          campoFormId: widget.formulario.id, 
-          titulo: campoOriginal.titulo,
-          tipo: campoOriginal.tipo,
-          resposta: resposta, 
-        ));
+      List<Campo> camposPreenchidos = [];
+      for (var campoOriginal in widget.formulario.campos ?? []) {
+        final resposta = _respostas[campoOriginal.campoId];
+        if (resposta != null) {
+          camposPreenchidos.add(
+            Campo(
+              campoId: campoOriginal.campoId,
+              campoFormId: widget.formulario.id,
+              titulo: campoOriginal.titulo,
+              tipo: campoOriginal.tipo,
+              resposta: resposta,
+            ),
+          );
+        }
       }
-    }
 
-  
-    final formularioPreenchido = Formulario(
-      id: widget.formulario.id, 
-      titulo: widget.formulario.titulo,
-      adminId: widget.formulario.adminId,
-      descricao: widget.formulario.descricao,
-      campos: camposPreenchidos,
-      eventoId: widget.formulario.eventoId, 
-    );
-
-    try {
-      await formViewModel.adicionarFormulariosPreenchidos(
-        widget.formulario.eventoId!,
-        [formularioPreenchido],
+      final formularioPreenchido = Formulario(
+        id: widget.formulario.id,
+        titulo: widget.formulario.titulo,
+        adminId: widget.formulario.adminId,
+        descricao: widget.formulario.descricao,
+        campos: camposPreenchidos,
+        eventoId: widget.formulario.eventoId,
       );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Row(
-            children: [
-              Icon(Icons.check_circle, color: Colors.white),
-              SizedBox(width: 8),
-              Text('Formulário salvo com sucesso!'),
-            ],
-          ),
-          backgroundColor: Color(0xFF26A69A),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-          ),
-          margin: EdgeInsets.all(16),
-        ),
-      );
+      try {
+        await formViewModel.adicionarFormulariosPreenchidos(
+          widget.formulario.eventoId!,
+          [formularioPreenchido],
+        );
 
-      Navigator.pop(context);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.error_outline, color: Colors.white),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text('Erro ao salvar formulário: ${e.toString()}'),
-              ),
-            ],
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.white),
+                SizedBox(width: 8),
+                Text('Formulário salvo com sucesso!'),
+              ],
+            ),
+            backgroundColor: Color(0xFF26A69A),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+            ),
+            margin: EdgeInsets.all(16),
           ),
-          backgroundColor: Colors.red.shade600,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+        );
+
+        Navigator.pop(context);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text('Erro ao salvar formulário: ${e.toString()}'),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red.shade600,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
-        ),
-      );
+        );
+      }
     }
   }
 }
-
-} 
