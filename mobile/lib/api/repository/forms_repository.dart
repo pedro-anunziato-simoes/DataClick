@@ -9,6 +9,7 @@ abstract class IFormularioRepository {
   Future<Formulario> criarFormulario({
     required String titulo,
     required String eventoId,
+    required String adminId,
     required List<Campo> campos,
     String? descricao,
   });
@@ -19,6 +20,14 @@ abstract class IFormularioRepository {
     String? descricao,
   });
   Future<void> removerFormulario(String id);
+  Future<void> enviarRespostasFormulario({
+    required String formId,
+    required Map<String, dynamic> respostas,
+  });
+  Future<void> adicionarFormulariosPreenchidos({
+    required String eventoId,
+    required List<Formulario> formularios,
+  });
 }
 
 class FormularioRepository implements IFormularioRepository {
@@ -28,47 +37,42 @@ class FormularioRepository implements IFormularioRepository {
 
   @override
   Future<List<Formulario>> listarFormulariosPorEvento(String eventoId) async {
-    try {
-      return await _formularioService.getFormulariosByEvento(eventoId);
-    } catch (e) {
-      rethrow;
-    }
+    final formularios = await _formularioService.getFormulariosByEvento(
+      eventoId,
+    );
+    return formularios;
   }
 
   @override
   Future<List<Formulario>> listarFormulariosPreenchidos(String eventoId) async {
-    try {
-      return await _formularioService.getFormulariosPreenchidos(eventoId);
-    } catch (e) {
-      rethrow;
-    }
+    final formularios = await _formularioService.getFormulariosPreenchidos(
+      eventoId,
+    );
+    return formularios;
   }
 
   @override
   Future<Formulario> obterFormularioPorId(String id) async {
-    try {
-      return await _formularioService.getFormularioById(id);
-    } catch (e) {
-      rethrow;
-    }
+    final formulario = await _formularioService.getFormularioById(id);
+    return formulario;
   }
 
   @override
   Future<Formulario> criarFormulario({
     required String titulo,
     required String eventoId,
+    required String adminId,
     required List<Campo> campos,
     String? descricao,
   }) async {
-    try {
-      return await _formularioService.criarFormulario(
-        titulo: titulo,
-        eventoId: eventoId,
-        campos: campos,
-      );
-    } catch (e) {
-      rethrow;
-    }
+    final novoFormulario = await _formularioService.criarFormulario(
+      titulo: titulo,
+      eventoId: eventoId,
+      adminId: adminId,
+      campos: campos,
+      descricao: descricao,
+    );
+    return novoFormulario;
   }
 
   @override
@@ -78,23 +82,39 @@ class FormularioRepository implements IFormularioRepository {
     required List<Campo> campos,
     String? descricao,
   }) async {
-    try {
-      return await _formularioService.alterarFormulario(
-        formId: formId,
-        titulo: titulo,
-        campos: campos,
-      );
-    } catch (e) {
-      rethrow;
-    }
+    final formularioAtualizado = await _formularioService.alterarFormulario(
+      formId: formId,
+      titulo: titulo,
+      campos: campos,
+      descricao: descricao,
+    );
+    return formularioAtualizado;
   }
 
   @override
   Future<void> removerFormulario(String id) async {
-    try {
-      await _formularioService.removerFormulario(id);
-    } catch (e) {
-      rethrow;
-    }
+    await _formularioService.removerFormulario(id);
+  }
+
+  @override
+  Future<void> adicionarFormulariosPreenchidos({
+    required String eventoId,
+    required List<Formulario> formularios,
+  }) async {
+    await _formularioService.adicionarFormulariosPreenchidos(
+      eventoId: eventoId,
+      formularios: formularios,
+    );
+  }
+
+  @override
+  Future<void> enviarRespostasFormulario({
+    required String formId,
+    required Map<String, dynamic> respostas,
+  }) async {
+    await _formularioService.enviarRespostasFormulario(
+      formId: formId,
+      respostas: respostas,
+    );
   }
 }

@@ -1,5 +1,4 @@
 import 'package:http/http.dart' as http;
-import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
@@ -7,12 +6,9 @@ class ApiClient {
   final http.Client _httpClient;
   final SharedPreferences _prefs;
   String? _authToken;
-  final String baseUrl;
+  final String baseUrl = 'http://192.168.1.4:8080';
 
-  ApiClient(http.Client httpClient, SharedPreferences sharedPreferences, {
-    required SharedPreferences prefs,
-    required this.baseUrl,
-  }) : _httpClient = httpClient, _prefs = prefs {
+  ApiClient(this._httpClient, this._prefs) {
     _loadToken();
   }
 
@@ -88,8 +84,15 @@ class ApiClient {
       'Accept': 'application/json',
     };
 
-    if (includeAuth && _authToken != null) {
-      headers['Authorization'] = 'Bearer $_authToken';
+    if (includeAuth) {
+      if (_authToken == null) {
+        _authToken = _prefs.getString('auth_token');
+      }
+      if (_authToken != null) {
+        headers['Authorization'] = 'Bearer $_authToken';
+      } else {
+        print('Debug - Token não encontrado ao construir headers');
+      }
     }
 
     return headers;

@@ -5,9 +5,10 @@ import Sidebar from "../../../components/sideBar/Sidebar";
 const CriarCampoPage = () => {  
     return (
       <div>
-        <h1></h1>
+        <h1>Criando campos</h1>
         <CriarCampo />
         <Sidebar />
+        <Footer />
       </div>
     );
   };

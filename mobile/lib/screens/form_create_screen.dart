@@ -12,7 +12,8 @@ class FormularioScreen extends StatefulWidget {
   final bool isEditingCampo;
   final Campo? campoToEdit;
   final String? formIdForAddCampo;
-  final String? eventoId;
+  final String eventoId;
+  final String adminId;
 
   const FormularioScreen({
     super.key,
@@ -22,7 +23,8 @@ class FormularioScreen extends StatefulWidget {
     this.isEditingCampo = false,
     this.campoToEdit,
     this.formIdForAddCampo,
-    this.eventoId,
+    required this.eventoId,
+    required this.adminId,
   });
 
   @override
@@ -61,16 +63,16 @@ class _FormularioScreenState extends State<FormularioScreen> {
     _isCampoMode = widget.isEditingCampo || widget.formIdForAddCampo != null;
 
     if (widget.formularioExistente != null) {
-      _tituloController.text = widget.formularioExistente!.formularioTitulo;
+      _tituloController.text = widget.formularioExistente!.titulo;
       _campos.addAll(widget.formularioExistente!.campos);
     }
 
     if (widget.campoToEdit != null) {
       _campoTituloController.text = widget.campoToEdit!.titulo;
       _tipoCampoSelecionado = widget.campoToEdit!.tipo;
-      if (widget.campoToEdit!.resposta != null && widget.campoToEdit!.resposta!['opcoes'] != null) {
+      if (widget.campoToEdit!.resposta['opcoes'] != null) {
         _opcoes.addAll(
-          List<String>.from(widget.campoToEdit!.resposta!['opcoes']),
+          List<String>.from(widget.campoToEdit!.resposta['opcoes']),
         );
       }
     }
@@ -104,7 +106,17 @@ class _FormularioScreenState extends State<FormularioScreen> {
     );
 
     setState(() {
-      _campos.add(campo);
+      if (widget.campoToEdit != null) {
+        // Se estiver editando, substitui o campo existente
+        final index = _campos.indexWhere(
+          (c) => c.campoId == widget.campoToEdit!.campoId,
+        );
+        if (index != -1) {
+          _campos[index] = campo;
+        }
+      } else {
+        _campos.add(campo);
+      }
       _resetCampoForm();
     });
   }
@@ -125,9 +137,11 @@ class _FormularioScreenState extends State<FormularioScreen> {
   }
 
   void _removerCampo(int index) {
+    final campoRemovido = _campos[index].titulo;
     setState(() {
       _campos.removeAt(index);
     });
+    _showSnackBar('Campo "$campoRemovido" removido!', isError: false);
   }
 
   Future<void> _salvarFormulario() async {
@@ -189,29 +203,42 @@ class _FormularioScreenState extends State<FormularioScreen> {
         campos: _campos,
       );
     } else {
-      final camposFormatados =
-          _campos.map((campo) {
-            return {
-              'campoTitulo': campo.titulo,
-              'campoTipo': campo.tipo,
-              'campoId': campo.campoId,
-              'resposta': campo.resposta,
-            };
-          }).toList();
-
-      await widget.formularioService.criarFormulario(
+      // 1. Cria o formulário sem campos
+      var formularioCriado = await widget.formularioService.criarFormulario(
         titulo: _tituloController.text,
-        eventoId: widget.eventoId!,
-        campos: _campos,
+        eventoId: widget.eventoId,
+        adminId: widget.adminId,
+        campos: [], // Cria vazio
       );
+      // 2. Adiciona cada campo usando o endpoint de campos
+      for (final campo in _campos) {
+        await widget.campoService.adicionarCampo(
+          formularioCriado.id,
+          campo.titulo,
+          campo.tipo,
+        );
+      }
     }
   }
 
   void _showSnackBar(String message, {required bool isError}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
-        backgroundColor: isError ? Colors.red : Colors.green,
+        content: Row(
+          children: [
+            Icon(
+              isError ? Icons.error_outline : Icons.check_circle_outline,
+              color: Colors.white,
+            ),
+            const SizedBox(width: 12),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: isError ? Colors.red[400] : const Color(0xFF26A69A),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -241,6 +268,115 @@ class _FormularioScreenState extends State<FormularioScreen> {
       icons[tipo] ?? Icons.help_outline,
       color: const Color(0xFF26A69A),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[100],
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF26A69A),
+        title: Text(
+          _isCampoMode
+              ? widget.campoToEdit != null
+                  ? 'Editar Campo'
+                  : 'Adicionar Campo'
+              : widget.formularioExistente != null
+              ? 'Editar Formulário'
+              : 'Criar Formulário',
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+        actions: [
+          if (!_isCampoMode)
+            IconButton(
+              icon: const Icon(Icons.save),
+              onPressed: _isLoading ? null : _salvarFormulario,
+            ),
+        ],
+      ),
+      body: _buildBody(),
+      floatingActionButton: _buildFloatingActionButton(),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return _isCampoMode
+        ? _buildCampoForm()
+        : Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              _buildFormHeader(),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      _buildAdicionarCampoCard(),
+                      const SizedBox(height: 16),
+                      if (_campos.isNotEmpty) _buildListaCampos(),
+                      const SizedBox(height: 72),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+  }
+
+  Widget _buildFormHeader() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      color: const Color(0xFF26A69A),
+      child: TextFormField(
+        controller: _tituloController,
+        style: const TextStyle(color: Colors.white, fontSize: 18),
+        decoration: InputDecoration(
+          labelText: 'Título do Formulário',
+          labelStyle: const TextStyle(color: Colors.white),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.white70),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.white),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.red),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.red),
+          ),
+          prefixIcon: const Icon(Icons.title, color: Colors.white),
+          errorStyle: const TextStyle(color: Colors.yellow),
+        ),
+        validator:
+            (value) =>
+                value?.isEmpty ?? true
+                    ? 'Informe o título do formulário'
+                    : null,
+      ),
+    );
+  }
+
+  Widget? _buildFloatingActionButton() {
+    return !_isLoading && !_isCampoMode
+        ? FloatingActionButton.extended(
+          onPressed: _salvarFormulario,
+          label: const Text('SALVAR FORMULÁRIO'),
+          icon: const Icon(Icons.save),
+        )
+        : null;
   }
 
   Widget _buildCampoForm() {
@@ -354,126 +490,21 @@ class _FormularioScreenState extends State<FormularioScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF26A69A),
-        title: Text(
-          _isCampoMode
-              ? widget.campoToEdit != null
-                  ? 'Editar Campo'
-                  : 'Adicionar Campo'
-              : widget.formularioExistente != null
-              ? 'Editar Formulário'
-              : 'Criar Formulário',
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          if (!_isCampoMode)
-            IconButton(
-              icon: const Icon(Icons.save),
-              onPressed: _isLoading ? null : _salvarFormulario,
-            ),
-        ],
-      ),
-      body: _buildBody(),
-      floatingActionButton: _buildFloatingActionButton(),
-    );
-  }
-
-  Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    return _isCampoMode
-        ? _buildCampoForm()
-        : Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              _buildFormHeader(),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      _buildAdicionarCampoCard(),
-                      const SizedBox(height: 16),
-                      if (_campos.isNotEmpty) _buildListaCampos(),
-                      const SizedBox(height: 72),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-  }
-
-  Widget _buildFormHeader() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      color: const Color(0xFF26A69A),
-      child: TextFormField(
-        controller: _tituloController,
-        style: const TextStyle(color: Colors.white, fontSize: 18),
-        decoration: InputDecoration(
-          labelText: 'Título do Formulário',
-          labelStyle: const TextStyle(color: Colors.white),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.white70),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.white),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.red),
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.red),
-          ),
-          prefixIcon: const Icon(Icons.title, color: Colors.white),
-          errorStyle: const TextStyle(color: Colors.yellow),
-        ),
-        validator:
-            (value) =>
-                value?.isEmpty ?? true
-                    ? 'Informe o título do formulário'
-                    : null,
-      ),
-    );
-  }
-
-  Widget? _buildFloatingActionButton() {
-    return !_isLoading && !_isCampoMode
-        ? FloatingActionButton.extended(
-          onPressed: _salvarFormulario,
-          label: const Text('SALVAR FORMULÁRIO'),
-          icon: const Icon(Icons.save),
-        )
-        : null;
-  }
-
   Widget _buildAdicionarCampoCard() {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        gradient: const LinearGradient(
+          colors: [Color(0xFF26A69A), Color(0xFF7DE2D1)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            spreadRadius: 1,
+            color: Colors.black.withOpacity(0.12),
+            blurRadius: 16,
+            spreadRadius: 2,
           ),
         ],
       ),
@@ -481,12 +512,13 @@ class _FormularioScreenState extends State<FormularioScreen> {
         children: [
           InkWell(
             onTap: () => setState(() => _isExpanded = !_isExpanded),
+            borderRadius: BorderRadius.circular(16),
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(18),
               child: Row(
                 children: [
                   CircleAvatar(
-                    backgroundColor: const Color(0xFF26A69A).withAlpha(50),
+                    backgroundColor: Colors.white.withAlpha(60),
                     child: const Icon(
                       Icons.add_circle_outline,
                       color: Color(0xFF26A69A),
@@ -497,9 +529,10 @@ class _FormularioScreenState extends State<FormularioScreen> {
                     child: Text(
                       'Adicionar Campo',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF26A69A),
+                        color: Colors.white,
+                        letterSpacing: 0.5,
                       ),
                     ),
                   ),
@@ -507,7 +540,7 @@ class _FormularioScreenState extends State<FormularioScreen> {
                     _isExpanded
                         ? Icons.keyboard_arrow_up
                         : Icons.keyboard_arrow_down,
-                    color: const Color(0xFF26A69A),
+                    color: Colors.white,
                   ),
                 ],
               ),
@@ -516,11 +549,11 @@ class _FormularioScreenState extends State<FormularioScreen> {
           AnimatedCrossFade(
             firstChild: const SizedBox.shrink(),
             secondChild: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              padding: const EdgeInsets.fromLTRB(18, 0, 18, 18),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Divider(),
+                  const Divider(color: Colors.white70),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _campoTituloController,
@@ -528,7 +561,7 @@ class _FormularioScreenState extends State<FormularioScreen> {
                       label: 'Título do Campo',
                       hintText: 'Ex: Nome, E-mail, Telefone...',
                       icon: Icons.short_text,
-                    ),
+                    ).copyWith(fillColor: Colors.white, filled: true),
                   ),
                   const SizedBox(height: 16),
                   _buildTipoCampoDropdown(),
@@ -655,31 +688,39 @@ class _FormularioScreenState extends State<FormularioScreen> {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
-        onPressed: _adicionarCampo,
+        onPressed: () {
+          _adicionarCampo();
+          if (_campoTituloController.text.isNotEmpty) {
+            _showSnackBar('Campo adicionado!', isError: false);
+          }
+        },
         icon: const Icon(Icons.add),
         label: const Text('Adicionar Campo'),
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF26A69A),
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          backgroundColor: Colors.white,
+          foregroundColor: const Color(0xFF26A69A),
+          textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(12),
           ),
+          elevation: 2,
         ),
       ),
     );
   }
 
   Widget _buildListaCampos() {
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            spreadRadius: 1,
+            color: Colors.black.withOpacity(0.12),
+            blurRadius: 16,
+            spreadRadius: 2,
           ),
         ],
       ),
@@ -760,21 +801,35 @@ class _FormularioScreenState extends State<FormularioScreen> {
       separatorBuilder: (_, __) => const Divider(),
       itemBuilder: (context, index) {
         final campo = _campos[index];
-        return ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: CircleAvatar(
-            backgroundColor: const Color(0xFF26A69A).withAlpha(50),
-            child: _getTipoIcon(campo.tipo),
+        return Dismissible(
+          key: ValueKey(campo.titulo + index.toString()),
+          direction: DismissDirection.endToStart,
+          background: Container(
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            decoration: BoxDecoration(
+              color: Colors.red[400],
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(Icons.delete, color: Colors.white),
           ),
-          title: Text(
-            campo.titulo,
-            style: const TextStyle(fontWeight: FontWeight.w500),
-          ),
-          subtitle: Text(_getTipoDescricao(campo.tipo)),
-          trailing: IconButton(
-            icon: const Icon(Icons.delete_outline, color: Colors.red),
-            onPressed: () => _removerCampo(index),
-            tooltip: 'Remover campo',
+          onDismissed: (_) => _removerCampo(index),
+          child: ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: CircleAvatar(
+              backgroundColor: const Color(0xFF26A69A).withAlpha(50),
+              child: _getTipoIcon(campo.tipo),
+            ),
+            title: Text(
+              campo.titulo,
+              style: const TextStyle(fontWeight: FontWeight.w500),
+            ),
+            subtitle: Text(_getTipoDescricao(campo.tipo)),
+            trailing: IconButton(
+              icon: const Icon(Icons.delete_outline, color: Colors.red),
+              onPressed: () => _removerCampo(index),
+              tooltip: 'Remover campo',
+            ),
           ),
         );
       },

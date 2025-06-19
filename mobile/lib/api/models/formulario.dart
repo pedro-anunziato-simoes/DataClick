@@ -3,24 +3,28 @@ import 'campo.dart';
 
 class Formulario {
   final String id;
-  final String formularioTitulo;
-  final String formAdminId;
+  final String titulo;
+  final String adminId;
   final List<Campo> campos;
   final String? descricao;
   final DateTime? dataCriacao;
-  final String? formularioEventoId;
+  final String? eventoId;
 
   Formulario({
     required this.id,
-    required this.formularioTitulo,
-    required this.formAdminId,
+    required this.titulo,
+    required this.adminId,
     required this.campos,
     this.descricao,
     this.dataCriacao,
-    this.formularioEventoId,
+    this.eventoId,
   });
 
   factory Formulario.fromJson(Map<String, dynamic> json) {
+    // debugPrint('DEBUG: JSON recebido em Formulario.fromJson: $json');
+    // debugPrint('DEBUG: Título do formulário enviado: ${json['titulo']}');
+    // debugPrint('DEBUG: FormularioTitulo do backend: ${json['formularioTitulo']}');
+
     try {
       List<Campo> campos = [];
       if (json['campos'] != null && json['campos'] is List) {
@@ -30,10 +34,17 @@ class Formulario {
                 .toList();
       }
 
+      // Try multiple possible title field names
+      String titulo =
+          json['titulo']?.toString() ??
+          json['formularioTitulo']?.toString() ??
+          json['formTitulo']?.toString() ??
+          'Sem título';
+
       return Formulario(
-        id: json['id']?.toString() ?? '',
-        formularioTitulo: json['formularioTitulo']?.toString() ?? 'Sem título',
-        formAdminId:
+        id: json['id']?.toString() ?? json['formId']?.toString() ?? '',
+        titulo: titulo,
+        adminId:
             json['adminId']?.toString() ??
             json['formAdminId']?.toString() ??
             '',
@@ -43,14 +54,16 @@ class Formulario {
             json['dataCriacao'] != null
                 ? DateTime.tryParse(json['dataCriacao'])
                 : null,
-        formularioEventoId: json['eventoId']?.toString(),
+        eventoId:
+            json['eventoId']?.toString() ??
+            json['formularioEventoId']?.toString(),
       );
     } catch (e) {
-      debugPrint('Erro ao parsear Formulario: $e');
+      // debugPrint('Erro ao parsear Formulario: $e');
       return Formulario(
         id: '',
-        formularioTitulo: 'Erro ao carregar',
-        formAdminId: '',
+        titulo: 'Erro ao carregar',
+        adminId: '',
         campos: [],
       );
     }
@@ -58,13 +71,16 @@ class Formulario {
 
   Map<String, dynamic> toJson() => {
     'id': id,
-    'formularioTitulo': formularioTitulo,
-    'formAdminId': formAdminId,
+    'titulo': titulo,
+    'adminId': adminId,
     'campos': campos.map((e) => e.toJson()).toList(),
     if (descricao != null) 'descricao': descricao,
     if (dataCriacao != null) 'dataCriacao': dataCriacao!.toIso8601String(),
-    if (formularioEventoId != null) 'eventoId': formularioEventoId,
+    if (eventoId != null) 'eventoId': eventoId,
   };
 
-  copyWith({required String id, required String titulo}) {}
+  @override
+  String toString() {
+    return 'Formulario{id: $id, titulo: $titulo, adminId: $adminId, campos: ${campos.length}, descricao: $descricao}';
+  }
 }

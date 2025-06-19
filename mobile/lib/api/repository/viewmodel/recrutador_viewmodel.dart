@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:mobile/api/models/recrutador.dart';
 import 'package:mobile/api/services/recrutador_service.dart';
 import 'package:logging/logging.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 abstract class ViewModelState {}
 
@@ -19,15 +22,13 @@ class ErrorState extends ViewModelState {
   ErrorState(this.message);
 }
 
-class RecrutadorViewModel with ChangeNotifier {
-  final RecrutadorService _recrutadorService;
+class RecrutadorViewModel extends ChangeNotifier {
+  final RecrutadorService _service;
   final Logger _logger = Logger('RecrutadorViewModel');
+  final http.Client _client;
 
   ViewModelState _state = InitialState();
-  ViewModelState get state => _state;
-
   Recrutador? _recrutador;
-  Recrutador? get recrutador => _recrutador;
 
   List<Recrutador> _recrutadores = [];
   List<Recrutador> get recrutadores => _recrutadores;
@@ -36,54 +37,90 @@ class RecrutadorViewModel with ChangeNotifier {
   String? get errorMessage =>
       _state is ErrorState ? (_state as ErrorState).message : null;
 
-  RecrutadorViewModel(this._recrutadorService);
+  RecrutadorViewModel(this._service) : _client = http.Client();
+
+  ViewModelState get state => _state;
+  Recrutador? get recrutador => _recrutador;
+
+  set state(ViewModelState newState) {
+    _state = newState;
+    notifyListeners();
+  }
+
+  set recrutador(Recrutador? newRecrutador) {
+    _recrutador = newRecrutador;
+    notifyListeners();
+  }
 
   Future<void> carregarRecrutadorPorId(String recrutadorId) async {
-    _state = LoadingState();
+    state = LoadingState();
     notifyListeners();
 
     try {
-      _recrutador = await _recrutadorService.getRecrutadorById(recrutadorId);
-      _state = SuccessState(_recrutador!);
-      _logger.fine('Recrutador carregado com sucesso: ${_recrutador?.nome}');
+      recrutador = await _service.getRecrutadorById(recrutadorId);
+      state = SuccessState(recrutador!);
+      _logger.fine('Recrutador carregado com sucesso: ${recrutador?.nome}');
     } catch (e) {
-      _state = ErrorState('Falha ao carregar recrutador: ${e.toString()}');
+      state = ErrorState('Falha ao carregar recrutador: ${e.toString()}');
       _logger.severe('Erro ao carregar recrutador: $e');
     } finally {
       notifyListeners();
     }
   }
 
-  Future<void> carregarRecrutadorPorEmail(String email) async {
-    _state = LoadingState();
-    notifyListeners();
-
+  Future<void> carregarRecrutadorLogado() async {
     try {
-      _recrutador = await _recrutadorService.getRecrutadorByEmail(email);
-      _state = SuccessState(_recrutador!);
-      _logger.fine(
-        'Recrutador carregado por email com sucesso: ${_recrutador?.nome}',
+      state = LoadingState();
+
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+
+      if (token == null) {
+        throw Exception('Token não encontrado');
+      }
+
+      final response = await _client.get(
+        Uri.parse('http://localhost:8080/recrutadores/info'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
       );
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        print('Debug - Resposta do servidor: $jsonResponse');
+        recrutador = Recrutador.fromJson(jsonResponse);
+        print('Debug - Eventos carregados: ${recrutador?.eventos?.length}');
+        if (recrutador?.eventos != null) {
+          print(
+            'Debug - Nomes dos eventos: ${recrutador?.eventos?.map((e) => e.eventoTitulo).join(', ')}',
+          );
+        }
+        state = SuccessState(recrutador);
+      } else if (response.statusCode == 401) {
+        throw Exception('Token inválido ou expirado');
+      } else {
+        throw Exception('Falha ao carregar recrutador: ${response.statusCode}');
+      }
     } catch (e) {
-      _state = ErrorState(
-        'Falha ao carregar recrutador por email: ${e.toString()}',
-      );
-      _logger.severe('Erro ao carregar recrutador por email: $e');
-    } finally {
-      notifyListeners();
+      print('Erro ao carregar recrutador: $e');
+      state = ErrorState(e.toString());
+      rethrow;
     }
   }
 
   Future<void> carregarTodosRecrutadores() async {
-    _state = LoadingState();
+    state = LoadingState();
     notifyListeners();
 
     try {
-      _recrutadores = await _recrutadorService.getRecrutadores();
-      _state = SuccessState(_recrutadores);
+      _recrutadores = await _service.getRecrutadores();
+      state = SuccessState(_recrutadores);
       _logger.fine('Recrutadores carregados com sucesso');
     } catch (e) {
-      _state = ErrorState('Falha ao carregar recrutadores: ${e.toString()}');
+      state = ErrorState('Falha ao carregar recrutadores: ${e.toString()}');
       _logger.severe('Erro ao carregar recrutadores: $e');
     } finally {
       notifyListeners();
@@ -96,20 +133,20 @@ class RecrutadorViewModel with ChangeNotifier {
     required String telefone,
     required String email,
   }) async {
-    _state = LoadingState();
+    state = LoadingState();
     notifyListeners();
 
     try {
-      _recrutador = await _recrutadorService.alterarRecrutador(
+      recrutador = await _service.alterarRecrutador(
         recrutadorId: recrutadorId,
         nome: nome,
         telefone: telefone,
         email: email,
       );
-      _state = SuccessState(_recrutador!);
-      _logger.fine('Recrutador atualizado com sucesso: ${_recrutador?.nome}');
+      state = SuccessState(recrutador!);
+      _logger.fine('Recrutador atualizado com sucesso: ${recrutador?.nome}');
     } catch (e) {
-      _state = ErrorState('Falha ao atualizar recrutador: ${e.toString()}');
+      state = ErrorState('Falha ao atualizar recrutador: ${e.toString()}');
       _logger.severe('Erro ao atualizar recrutador: $e');
     } finally {
       notifyListeners();
@@ -117,22 +154,21 @@ class RecrutadorViewModel with ChangeNotifier {
   }
 
   Future<void> alterarSenha(String recrutadorId, String novaSenha) async {
-    _state = LoadingState();
+    state = LoadingState();
     notifyListeners();
 
     try {
-      await _recrutadorService.alterarSenha(novaSenha, recrutadorId);
-      _state = SuccessState(true);
+      await _service.alterarSenha(novaSenha, recrutadorId);
+      state = SuccessState(true);
       _logger.fine('Senha alterada com sucesso');
     } catch (e) {
-      _state = ErrorState('Falha ao alterar senha: ${e.toString()}');
+      state = ErrorState('Falha ao alterar senha: ${e.toString()}');
       _logger.severe('Erro ao alterar senha: $e');
     } finally {
       notifyListeners();
     }
   }
 
-  /*
   Future<void> criarRecrutador({
     required String nome,
     required String senha,
@@ -140,30 +176,30 @@ class RecrutadorViewModel with ChangeNotifier {
     required String email,
     required String adminId,
   }) async {
-    _state = LoadingState();
+    state = LoadingState();
     notifyListeners();
 
     try {
-      _recrutador = await _recrutadorService.criarRecrutador(
+      recrutador = await _service.criarRecrutador(
         nome: nome,
         email: email,
         telefone: telefone,
         senha: senha,
         adminId: adminId,
       );
-      _state = SuccessState(_recrutador!);
-      _logger.fine('Recrutador criado com sucesso: ${_recrutador?.nome}');
+      state = SuccessState(recrutador!);
+      _logger.fine('Recrutador criado com sucesso: ${recrutador?.nome}');
     } catch (e) {
-      _state = ErrorState('Falha ao criar recrutador: ${e.toString()}');
+      state = ErrorState('Falha ao criar recrutador: ${e.toString()}');
       _logger.severe('Erro ao criar recrutador: $e');
     } finally {
       notifyListeners();
     }
   }
-  */
+
   void limparEstado() {
-    _state = InitialState();
-    _recrutador = null;
+    state = InitialState();
+    recrutador = null;
     notifyListeners();
   }
 }

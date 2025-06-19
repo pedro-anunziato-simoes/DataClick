@@ -1,7 +1,7 @@
 import EventosList from "../../components/eventos/EventoList";
 import Footer from "../../components/footer/Footer";
 import Sidebar from "../../components/sideBar/Sidebar";
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 
 const ListaEventosPage = () => {
   return (
@@ -9,27 +9,19 @@ const ListaEventosPage = () => {
       <Sidebar />
       <Box
         sx={{
+          marginLeft: { xs: "70px", sm: "250px" },
+          padding: 4,
           minHeight: "100vh",
-          background: "linear-gradient(to bottom, #b2dfdb, #4db6ac)",
+          backgroundColor: "#c0e9e7",
           display: "flex",
           flexDirection: "column",
+          alignItems: "center",
         }}
       >
-        <Box
-          sx={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            padding: 4,
-          }}
-        >
-          <EventosList />
-        </Box>
-
-        <Footer />
+        <h1>Eventos</h1>
+        <EventosList />
       </Box>
+      <Footer />
     </>
   );
 };

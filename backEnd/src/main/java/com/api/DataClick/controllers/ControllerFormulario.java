@@ -89,8 +89,8 @@ public class ControllerFormulario {
         Usuario usuario = (Usuario) userDetails;
         String usuarioId = usuario.getUsuarioId();
         if (userDetails.getAuthorities().stream()
-                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-                return ResponseEntity.ok(serviceFormulario.ListarFormPorEventoId(eventoId));
+                .noneMatch(a -> a.getAuthority().equals("ROLE_USER") || a.getAuthority().equals("ROLE_ADMIN"))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
             return ResponseEntity.ok(serviceFormulario.ListarFormPorEventoId(eventoId));
     }

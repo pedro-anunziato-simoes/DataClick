@@ -24,7 +24,7 @@ public class EntityEvento {
     private String eventoTitulo;
     private String eventoDescricao;
     private Date eventoData;
-    @DBRef
+    @DBRef(lazy = false)
     private List<EntityFormulario> eventoFormularios;
 
     public EntityEvento(String eventoAdminId, String eventoTitulo, String eventoDescricao, Date eventoData, List<EntityFormulario> eventoFormularios) {

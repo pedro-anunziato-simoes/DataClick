@@ -9,14 +9,13 @@ import {
   ListItemText,
   Container,
   CircularProgress,
-  Alert,
-  Box,
-  Stack
+  Alert
 } from "@mui/material";
 import { AdministradorService } from "../../api/AdminitradorService";
 import { EntityAdministrador } from "../../types/entityes/EntityAdministrador";
 import { EventoService } from "../../api/EventoService";
 import { EntityEvento } from "../../types/entityes/EntityEvento";
+
 
 const AdministradorPerfil: React.FC = () => {
   const [administrador, setAdministrador] = useState<EntityAdministrador | null>(null);
@@ -32,8 +31,9 @@ const AdministradorPerfil: React.FC = () => {
       try {
         const data = await adminitradorService.getInfosAdminitrador();
         const dataEventos = await eventosService.getEventos();
-        setEventos(dataEventos);
+        setEventos(dataEventos)
         setAdministrador(data);
+
       } catch (err) {
         console.error(err);
         setError("Erro ao carregar perfil do administrador.");
@@ -67,81 +67,51 @@ const AdministradorPerfil: React.FC = () => {
 
   return (
     <Container sx={{ mt: 4 }}>
-      <Card
-        sx={{
-          maxWidth: 600,
-          margin: "0 auto",
-          boxShadow: 5,
-          borderRadius: 3,
-          backgroundColor: "#f9fafb",
-        }}
-      >
+      <Card sx={{ maxWidth: 600, margin: "0 auto" }}>
         <CardContent>
-          <Typography variant="h5" gutterBottom sx={{ fontWeight: "bold", mb: 2 }}>
+          <Typography variant="h5" gutterBottom>
             Perfil do Administrador
           </Typography>
 
-          <Stack spacing={1} sx={{ mb: 2 }}>
-            <Typography><strong>Nome:</strong> {administrador.nome}</Typography>
-            <Typography><strong>Email:</strong> {administrador.email}</Typography>
-            <Typography><strong>Telefone:</strong> {administrador.telefone}</Typography>
-            <Typography><strong>CNPJ:</strong> {administrador.cnpj}</Typography>
-          </Stack>
+          <Typography><strong>Nome:</strong> {administrador.nome}</Typography>
+          <Typography><strong>Email:</strong> {administrador.email}</Typography>
+          <Typography><strong>Telefone:</strong> {administrador.telefone}</Typography>
+          <Typography><strong>CNPJ:</strong> {administrador.cnpj}</Typography>
 
           <Divider sx={{ my: 2 }} />
 
-          <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-            Recrutadores
-          </Typography>
-          <Box sx={{ mt: 1, mb: 2 }}>
+          <Typography variant="h6">Recrutadores</Typography>
+          <List dense>
             {administrador.adminRecrutadores.length > 0 ? (
-              <List dense>
-                {administrador.adminRecrutadores.map((r) => (
-                  <ListItem key={r.usuarioId}>
-                    <ListItemText primary={r.nome} />
-                  </ListItem>
-                ))}
-              </List>
+              administrador.adminRecrutadores.map((r) => (
+                <ListItem key={r.usuarioId}>
+                  <ListItemText primary={r.nome} />
+                </ListItem>
+              ))
             ) : (
-              <Typography variant="body2" color="text.secondary">
-                Nenhum recrutador vinculado.
-              </Typography>
+              <Typography variant="body2">Nenhum recrutador vinculado.</Typography>
             )}
-          </Box>
+          </List>
 
           <Divider sx={{ my: 2 }} />
 
-          <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-            Eventos
-          </Typography>
-          <Box sx={{ mt: 1, mb: 2 }}>
-            {eventos?.length ? (
-              <List dense>
-                {eventos.map((evento, index) => (
-                  <ListItem key={index}>
-                    <ListItemText
-                      primary={evento.eventoTitulo}
-                      secondary={
-                        evento.eventoData
-                          ? new Date(evento.eventoData).toLocaleString("pt-BR")
-                          : "Data não disponível"
-                      }
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            ) : (
-              <Typography variant="body2" color="text.secondary">
-                Nenhum evento disponível.
-              </Typography>
-            )}
-          </Box>
-
+          <Typography variant="h6">Eventos</Typography>
+          <List>
+            {eventos?.map((evento, index) => (
+              <ListItem key={index}>
+                <ListItemText
+                  primary={evento.eventoTitulo}
+                  secondary={
+                    evento.eventoData
+                      ? new Date(evento.eventoData).toLocaleString('pt-BR')
+                      : 'Data não disponível'
+                  }
+                />
+              </ListItem>
+            ))}
+          </List>
           <Divider sx={{ my: 2 }} />
-
-          <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-            Licensa
-          </Typography>
+          <Typography variant="h6">Licensa</Typography>
         </CardContent>
       </Card>
     </Container>

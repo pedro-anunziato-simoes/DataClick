@@ -6,10 +6,11 @@ import Sidebar from "../../../components/sideBar/Sidebar";
 const ListarCampoPage = () => {  
     return (
       <div>
-        <h1></h1>
+        <h1>Listando campos do formularios</h1>
         <AlterarCamposForms />
         <CriarCampo/>
         <Sidebar />
+        <Footer />
       </div>
     );
   };
