@@ -1,4 +1,5 @@
 import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
@@ -8,7 +9,13 @@ class ApiClient {
   String? _authToken;
   final String baseUrl = 'http://192.168.1.4:8080';
 
-  ApiClient(this._httpClient, this._prefs) {
+  ApiClient(
+    http.Client httpClient,
+    SharedPreferences sharedPreferences, {
+    required SharedPreferences prefs,
+    required this.baseUrl,
+  }) : _httpClient = httpClient,
+       _prefs = prefs {
     _loadToken();
   }
 

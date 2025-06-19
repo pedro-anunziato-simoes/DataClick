@@ -3,6 +3,7 @@ import '../api/models/formulario.dart';
 import '../api/services/formulario_service.dart';
 import '../api/services/campo_service.dart';
 import 'form_create_screen.dart';
+import 'fill_form_screen.dart';
 
 class FormsScreen extends StatefulWidget {
   static const String routeName = '/forms';
@@ -143,7 +144,7 @@ class _FormsScreenState extends State<FormsScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      formulario.titulo,
+                      formulario.formularioTitulo,
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -333,7 +334,7 @@ class _FormsScreenState extends State<FormsScreen> {
       builder:
           (context) => AlertDialog(
             title: const Text('Confirmar exclusão'),
-            content: Text('Excluir "${formulario.titulo}" permanentemente?'),
+            content: Text('Excluir "${formulario.formularioTitulo}" permanentemente?'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
@@ -384,7 +385,19 @@ class _FormsScreenState extends State<FormsScreen> {
     }
   }
 
-  void _mostrarDetalhesFormulario(Formulario formulario) {
+ void _mostrarDetalhesFormulario(Formulario formulario) {
+  if (!widget.isAdmin) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FillFormScreen(
+          formulario: formulario,
+          formularioService: widget.formularioService,
+          campoService: widget.campoService,
+        ),
+      ),
+    );
+  } else {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,

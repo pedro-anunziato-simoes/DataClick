@@ -1,14 +1,14 @@
 class Campo {
- final String titulo;
+  final String titulo;
   final String tipo;
   final dynamic resposta;
   final String campoId;
   final String? campoFormId;
 
   Campo({
-   required this.titulo,
+    required this.titulo,
     required this.tipo,
-    this.resposta, 
+    this.resposta,
     required this.campoId,
     this.campoFormId,
   });
@@ -17,10 +17,12 @@ class Campo {
     return Campo(
       titulo: json['campoTitulo'] ?? json['titulo'] ?? '',
       tipo: json['campoTipo'] ?? json['tipo'] ?? '',
-      resposta: Map<String, dynamic>.from(json['resposta'] ?? {}),
+      resposta:
+          json['resposta'] != null
+              ? Map<String, dynamic>.from(json['resposta'])
+              : null,
       campoId: json['campoId'] ?? '',
-      campoFormId: json["campoFormId"]?.toString(), 
-      
+      campoFormId: json["campoFormId"]?.toString(),
     );
   }
 
@@ -47,7 +49,7 @@ class Campo {
     String? tipo,
     dynamic? resposta,
     String? campoId,
-    String? campoFormId, 
+    String? campoFormId,
   }) {
     return Campo(
       titulo: titulo ?? this.titulo,

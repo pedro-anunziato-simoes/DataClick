@@ -102,7 +102,8 @@ class RecrutadorService {
     }
   }
 
-  Future<Recrutador> criarRecrutador({
+  Future<Recrutador> criarRecrutador(
+    RecrutadorCreateDTO recrutadorCreateDTO, {
     required String nome,
     required String email,
     required String telefone,

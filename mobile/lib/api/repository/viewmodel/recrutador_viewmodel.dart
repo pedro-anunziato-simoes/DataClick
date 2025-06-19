@@ -169,6 +169,7 @@ class RecrutadorViewModel extends ChangeNotifier {
     }
   }
 
+  /*
   Future<void> criarRecrutador({
     required String nome,
     required String senha,
@@ -196,7 +197,7 @@ class RecrutadorViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
-
+  */
   void limparEstado() {
     state = InitialState();
     recrutador = null;
