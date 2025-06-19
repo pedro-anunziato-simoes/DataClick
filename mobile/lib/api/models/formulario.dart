@@ -3,21 +3,21 @@ import 'campo.dart';
 
 class Formulario {
   final String id;
-  final String formularioTitulo;
-  final String formAdminId;
+  final String titulo;
+  final String adminId;
   final List<Campo> campos;
   final String? descricao;
   final DateTime? dataCriacao;
-  final String? formularioEventoId;
+  final String? eventoId;
 
   Formulario({
     required this.id,
-    required this.formularioTitulo,
-    required this.formAdminId,
+    required this.titulo,
+    required this.adminId,
     required this.campos,
     this.descricao,
     this.dataCriacao,
-    this.formularioEventoId,
+    this.eventoId,
   });
 
   factory Formulario.fromJson(Map<String, dynamic> json) {
@@ -45,9 +45,6 @@ class Formulario {
         id: json['id']?.toString() ?? json['formId']?.toString() ?? '',
         titulo: titulo,
         adminId:
-        id: json['id']?.toString() ?? '',
-        formularioTitulo: json['formularioTitulo']?.toString() ?? 'Sem título',
-        formAdminId:
             json['adminId']?.toString() ??
             json['formAdminId']?.toString() ??
             '',
@@ -60,14 +57,13 @@ class Formulario {
         eventoId:
             json['eventoId']?.toString() ??
             json['formularioEventoId']?.toString(),
-        formularioEventoId: json['eventoId']?.toString(),
       );
     } catch (e) {
       // debugPrint('Erro ao parsear Formulario: $e');
       return Formulario(
         id: '',
-        formularioTitulo: 'Erro ao carregar',
-        formAdminId: '',
+        titulo: 'Erro ao carregar',
+        adminId: '',
         campos: [],
       );
     }
@@ -75,18 +71,16 @@ class Formulario {
 
   Map<String, dynamic> toJson() => {
     'id': id,
-    'formularioTitulo': formularioTitulo,
-    'formAdminId': formAdminId,
+    'titulo': titulo,
+    'adminId': adminId,
     'campos': campos.map((e) => e.toJson()).toList(),
     if (descricao != null) 'descricao': descricao,
     if (dataCriacao != null) 'dataCriacao': dataCriacao!.toIso8601String(),
-    if (formularioEventoId != null) 'eventoId': formularioEventoId,
+    if (eventoId != null) 'eventoId': eventoId,
   };
 
   @override
   String toString() {
     return 'Formulario{id: $id, titulo: $titulo, adminId: $adminId, campos: ${campos.length}, descricao: $descricao}';
   }
-
-  copyWith({required String id, required String titulo}) {}
 }

@@ -169,12 +169,4 @@ class AdministradorService {
         return 'Erro ao $operation (${response.statusCode})';
     }
   }
-
-  listarAdministradores() {}
-
-  atualizarAdministrador(Administrador updatedAdmin) {}
-
-  alterarSenha(String s, String t) {}
-
-  login(String s, String t) {}
 }

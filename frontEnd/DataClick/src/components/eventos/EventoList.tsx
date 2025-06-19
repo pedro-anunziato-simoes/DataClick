@@ -12,7 +12,6 @@ import {
   Button,
   Snackbar,
   AlertColor,
-  Divider,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
@@ -73,10 +72,6 @@ const EventosList: React.FC = () => {
 
   return (
     <Box mt={4}>
-      <Typography variant="h4" align="center" gutterBottom>
-        Eventos
-      </Typography>
-
       <Typography variant="h5" gutterBottom>
         Lista de Eventos
       </Typography>
@@ -84,9 +79,9 @@ const EventosList: React.FC = () => {
       {eventos.length === 0 ? (
         <Alert severity="info">Nenhum evento encontrado.</Alert>
       ) : (
-        <Stack spacing={3}>
+        <Stack spacing={2}>
           {eventos.map((evento) => (
-            <Card key={evento.eventoId} variant="outlined" sx={{ borderRadius: 3, boxShadow: 3 }}>
+            <Card key={evento.eventoId} variant="outlined">
               <CardContent>
                 <Typography variant="h6">{evento.eventoTitulo}</Typography>
                 <Typography color="text.secondary" gutterBottom>
@@ -95,31 +90,26 @@ const EventosList: React.FC = () => {
                 <Typography variant="body2" paragraph>
                   {evento.eventoDescricao}
                 </Typography>
-                <Divider sx={{ my: 2 }} />
-                <Box display="flex" gap={2} flexWrap="wrap">
+                <Box display="flex" gap={2}>
                   <Button
                     variant="contained"
                     color="primary"
-                    size="small"
-                    sx={{ minWidth: 120 }}
                     onClick={() => navigate(`/formularios/${evento.eventoId}`)}
                   >
                     Formulários
                   </Button>
-                  <Button
-                    variant="outlined"
-                    color="secondary"
-                    size="small"
-                    sx={{ minWidth: 120, color: 'purple', borderColor: 'purple' }}
-                    onClick={() => navigate(`/visualizarLeads/${evento.eventoId}`)}
-                  >
-                    Visualizar Leads
-                  </Button>
+                  <Box mt={4} display="flex" justifyContent="center">
+                    <Button
+                      variant="outlined"
+                      color="secondary"
+                      onClick={() => navigate(`/visualizarLeads/${evento.eventoId}`)}
+                    >
+                      Visualizar leads do evento
+                    </Button>
+                  </Box>
                   <Button
                     variant="outlined"
                     color="error"
-                    size="small"
-                    sx={{ minWidth: 120 }}
                     onClick={() => handleDelete(evento.eventoId)}
                   >
                     Excluir
@@ -130,29 +120,15 @@ const EventosList: React.FC = () => {
           ))}
         </Stack>
       )}
-
       <Box mt={4} display="flex" justifyContent="center">
         <Button
-          variant="contained"
+          variant="outlined"
           color="secondary"
-          size="medium"
-          sx={{
-            backgroundColor: '#9c27b0',
-            color: 'white',
-            px: 4,
-            py: 1.5,
-            borderRadius: 2,
-            boxShadow: 3,
-            '&:hover': {
-              backgroundColor: '#7b1fa2',
-            },
-          }}
           onClick={() => navigate('/criarEventos')}
         >
           Criar Novo Evento
         </Button>
       </Box>
-
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}

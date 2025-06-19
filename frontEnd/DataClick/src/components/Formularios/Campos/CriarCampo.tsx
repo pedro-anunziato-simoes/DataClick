@@ -7,15 +7,19 @@ import {
   Select,
   InputLabel,
   FormControl,
-  Button,
-  Typography,
-  Paper,
-  Container
+  Button
 } from "@mui/material";
-import { useNavigate, useParams } from "react-router-dom";
+import {useNavigate, useParams } from "react-router-dom";
 import { CampoCreateDTO } from "../../../types/entityes/DTO/CampoCreateDTO";
 
-const tipos = ["TEXTO", "NUMERO", "DATA", "CHECKBOX", "RADIO", "EMAIL"];
+const tipos = [
+  "TEXTO",
+  "NUMERO",
+  "DATA",
+  "CHECKBOX",
+  "RADIO",
+  "EMAIL",
+];
 
 const CriarCampo = () => {
   const { formId } = useParams<{ formId: string }>();
@@ -48,72 +52,45 @@ const CriarCampo = () => {
       const campoService = CampoService();
       await campoService.adicionarCampo(formId || '', formData);
       alert("Campo adicionado com sucesso!");
-      navigate("/eventos");
+      navigate("/eventos")
     } catch (error) {
       console.error("Erro ao adicionar campo:", error);
-      alert("Erro ao adicionar campo: " + error);
+      alert("Erro ao adicionar campo." + error);
     }
   };
 
   return (
-    <Box
-      minHeight="100vh"
-      sx={{
-        background: "linear-gradient(to bottom, #b2dfdb, #4db6ac)",
-        py: 5,
-      }}
-    >
-      <Container maxWidth="sm">
-        <Paper elevation={4} sx={{ p: 4, borderRadius: 4 }}>
-          <Typography variant="h5" gutterBottom textAlign="center">
-            Adicionar Novo Campo
-          </Typography>
+    <Box component="form" onSubmit={handleSubmit} p={3}>
+      <TextField
+        label="Título"
+        value={formData.campoTituloDto}
+        onChange={(e) =>
+          setFormData({ ...formData, campoTituloDto: e.target.value })
+        }
+        fullWidth
+        variant="outlined"
+        margin="normal"
+      />
 
-          <Box component="form" onSubmit={handleSubmit} mt={3}>
-            <TextField
-              label="Título do Campo"
-              value={formData.campoTituloDto}
-              onChange={(e) =>
-                setFormData({ ...formData, campoTituloDto: e.target.value })
-              }
-              fullWidth
-              variant="outlined"
-              margin="normal"
-            />
+      <FormControl fullWidth margin="normal">
+        <InputLabel>Tipo</InputLabel>
+        <Select
+          value={formData.campoTipoDto}
+          onChange={handleTipoChange}
+          label="Tipo"
+        >
+          <MenuItem value="">Selecione o tipo</MenuItem>
+          {tipos.map((tipo) => (
+            <MenuItem key={tipo} value={tipo}>
+              {tipo}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
 
-            <FormControl fullWidth margin="normal">
-              <InputLabel>Tipo</InputLabel>
-              <Select
-                value={formData.campoTipoDto}
-                onChange={handleTipoChange}
-                label="Tipo"
-              >
-                <MenuItem value="">Selecione o tipo</MenuItem>
-                {tipos.map((tipo) => (
-                  <MenuItem key={tipo} value={tipo}>
-                    {tipo}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <Button
-              type="submit"
-              variant="contained"
-              fullWidth
-              sx={{
-                mt: 3,
-                py: 1.5,
-                fontWeight: "bold",
-                backgroundColor: "#1976d2",
-                ":hover": { backgroundColor: "#1565c0" },
-              }}
-            >
-              Adicionar Campo
-            </Button>
-          </Box>
-        </Paper>
-      </Container>
+      <Button type="submit" variant="contained" color="primary" fullWidth>
+        Adicionar Campo
+      </Button>
     </Box>
   );
 };

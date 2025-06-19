@@ -55,13 +55,13 @@ class UsuarioSimplificado {
 
   factory UsuarioSimplificado.fromJson(Map<String, dynamic> json) {
     return UsuarioSimplificado(
-      id: json["id"]?.toString() ?? json["usuarioId"]?.toString() ?? "",
-      nome: json["nome"]?.toString() ?? "",
+      id: json['id'] as String? ?? json['usuarioId'] as String? ?? '',
+      nome: json['nome'] as String? ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {"id": id, "nome": nome};
+    return {'id': id, 'nome': nome};
   }
 
   @override
