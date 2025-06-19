@@ -2,18 +2,18 @@ import React, { useState } from 'react';
 import {
   Box,
   Button,
+  Container,
   TextField,
+  Typography,
   Snackbar,
   Alert,
-  Paper,
-  Typography,
 } from '@mui/material';
 import { EventoService } from '../../api/EventoService';
 import { useNavigate } from 'react-router-dom';
-import Sidebar from '../sideBar/Sidebar'; // Sidebar incluída
+
 
 const CriarEvento: React.FC = () => {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [data, setData] = useState('');
@@ -25,6 +25,7 @@ const CriarEvento: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     try {
       await criarEvento({
         eventoTituloDto: titulo,
@@ -37,7 +38,7 @@ const CriarEvento: React.FC = () => {
       setTitulo('');
       setDescricao('');
       setData('');
-      navigate("/eventos");
+      navigate("/eventos")
     } catch (error) {
       setMensagem('Erro ao criar evento.');
       setErro(true);
@@ -48,80 +49,52 @@ const CriarEvento: React.FC = () => {
   };
 
   return (
-    <Box display="flex" height="100vh" overflow="hidden">
-      {/* Sidebar fixa à esquerda */}
-      <Sidebar />
+    <Container maxWidth="sm">
+      <Box component="form" onSubmit={handleSubmit} mt={4}>
+        <Typography variant="h4" gutterBottom>
+          Criar Evento
+        </Typography>
 
-      {/* Conteúdo centralizado no restante da tela */}
-      <Box
-        flex="1"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        sx={{
-          overflow: 'hidden',
-          padding: 2,
-        }}
-      >
-        <Paper
-          elevation={4}
-          sx={{
-            p: 4,
-            borderRadius: 2,
-            width: '100%',
-            maxWidth: 500,
-            maxHeight: '90vh',
-            overflowY: 'auto', // Se for absolutamente necessário, só o Paper rola
+        <TextField
+          label="Título"
+          value={titulo}
+          onChange={(e) => setTitulo(e.target.value)}
+          fullWidth
+          required
+          margin="normal"
+        />
+
+        <TextField
+          label="Descrição"
+          value={descricao}
+          onChange={(e) => setDescricao(e.target.value)}
+          fullWidth
+          required
+          margin="normal"
+          multiline
+          rows={4}
+        />
+
+        <TextField
+          label="Data"
+          type="date"
+          value={data}
+          onChange={(e) => setData(e.target.value)}
+          fullWidth
+          required
+          margin="normal"
+          InputLabelProps={{
+            shrink: true,
           }}
-        >
-          <Typography variant="h5" fontWeight="bold" mb={2} textAlign="center">
+        />
+
+        <Box mt={2}>
+          <Button type="submit" variant="contained" color="primary" fullWidth>
             Criar Evento
-          </Typography>
-
-          <Box component="form" onSubmit={handleSubmit}>
-            <TextField
-              label="Título"
-              value={titulo}
-              onChange={(e) => setTitulo(e.target.value)}
-              fullWidth
-              required
-              margin="normal"
-            />
-
-            <TextField
-              label="Descrição"
-              value={descricao}
-              onChange={(e) => setDescricao(e.target.value)}
-              fullWidth
-              required
-              margin="normal"
-              multiline
-              rows={4}
-            />
-
-            <TextField
-              label="Data"
-              type="date"
-              value={data}
-              onChange={(e) => setData(e.target.value)}
-              fullWidth
-              required
-              margin="normal"
-              InputLabelProps={{
-                shrink: true,
-              }}
-            />
-
-            <Box mt={2}>
-              <Button type="submit" variant="contained" color="primary" fullWidth>
-                Criar Evento
-              </Button>
-            </Box>
-          </Box>
-        </Paper>
+          </Button>
+        </Box>
       </Box>
 
-      {/* Feedback visual (toast) */}
       <Snackbar
         open={aberto}
         autoHideDuration={4000}
@@ -136,7 +109,7 @@ const CriarEvento: React.FC = () => {
           {mensagem}
         </Alert>
       </Snackbar>
-    </Box>
+    </Container>
   );
 };
 

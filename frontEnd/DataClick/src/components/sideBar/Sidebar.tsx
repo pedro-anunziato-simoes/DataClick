@@ -22,7 +22,7 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 
 const Sidebar = () => {
   const navigate = useNavigate();
-  const [collapsed, setCollapsed] = useState(true); // sempre começa minimizada
+  const [collapsed, setCollapsed] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem("token");

@@ -1,31 +1,36 @@
 class Campo {
-  final String titulo;
+ final String titulo;
   final String tipo;
-  final Map<String, dynamic>? resposta;
+  final dynamic resposta;
   final String campoId;
+  final String? campoFormId;
 
   Campo({
-    required this.titulo,
+   required this.titulo,
     required this.tipo,
-    required this.resposta,
+    this.resposta, 
     required this.campoId,
+    this.campoFormId,
   });
 
   factory Campo.fromJson(Map<String, dynamic> json) {
     return Campo(
       titulo: json['campoTitulo'] ?? json['titulo'] ?? '',
       tipo: json['campoTipo'] ?? json['tipo'] ?? '',
-      resposta: json['resposta'] != null ? Map<String, dynamic>.from(json['resposta']) : null,
+      resposta: Map<String, dynamic>.from(json['resposta'] ?? {}),
       campoId: json['campoId'] ?? '',
+      campoFormId: json["campoFormId"]?.toString(), 
+      
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'campoTitulo': titulo,
-      'campoTipo': tipo,
-      'resposta': resposta,
-      'campoId': campoId,
+      "campoTitulo": titulo,
+      "campoTipo": tipo,
+      "resposta": resposta,
+      "campoId": campoId,
+      if (campoFormId != null) "campoFormId": campoFormId,
     };
   }
 
@@ -40,8 +45,9 @@ class Campo {
   Campo copyWith({
     String? titulo,
     String? tipo,
-    Map<String, dynamic>? resposta,
+    dynamic? resposta,
     String? campoId,
+    String? campoFormId, 
   }) {
     return Campo(
       titulo: titulo ?? this.titulo,

@@ -102,8 +102,7 @@ class RecrutadorService {
     }
   }
 
-  Future<Recrutador> criarRecrutador(
-    RecrutadorCreateDTO recrutadorCreateDTO, {
+  Future<Recrutador> criarRecrutador({
     required String nome,
     required String email,
     required String telefone,
@@ -225,6 +224,30 @@ class RecrutadorService {
       rethrow;
     } catch (e) {
       throw ApiException('Erro ao alterar senha: ${e.toString()}', 0);
+    }
+  }
+
+  Future<Recrutador> getRecrutadorLogado() async {
+    try {
+      final response = await _apiClient.get(
+        '/recrutadores/info',
+        includeAuth: true,
+      );
+      if (response.statusCode == 200) {
+        return Recrutador.fromJson(json.decode(response.body));
+      } else {
+        throw ApiException(
+          _getErrorMessage(response, 'buscar recrutador logado'),
+          response.statusCode,
+        );
+      }
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(
+        'Erro ao buscar recrutador logado: ${e.toString()}',
+        0,
+      );
     }
   }
 

@@ -89,12 +89,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF26A69A),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Cadastro', style: TextStyle(color: Colors.white)),
-      ),
       body: SafeArea(
         child: GestureDetector(
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -103,17 +97,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 20),
+                const SizedBox(height: 40),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(20.0),
                   child: Image.asset(
                     'assets/images/Logo DataClick.jpg',
-                    width: 120,
-                    height: 120,
+                    width: 150,
+                    height: 150,
                     fit: BoxFit.cover,
                   ),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 40),
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white,

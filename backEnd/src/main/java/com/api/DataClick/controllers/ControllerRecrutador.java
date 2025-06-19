@@ -138,7 +138,7 @@ public class ControllerRecrutador {
     public ResponseEntity<EntityRecrutador> infoAdm(@AuthenticationPrincipal UserDetails userDetails) {
 
         if (userDetails.getAuthorities().stream()
-                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+                .noneMatch(a -> a.getAuthority().equals("ROLE_USER") || a.getAuthority().equals("ROLE_ADMIN"))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         Usuario usuarioLogado  = (Usuario) userDetails;

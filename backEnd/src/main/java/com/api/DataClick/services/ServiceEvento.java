@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Generated
@@ -33,7 +32,7 @@ public class ServiceEvento {
     RepositoryFormulario repositoryFormulario;
 
     public EntityEvento crirarEvento(EventoDTO dtoEvento, String adminId){
-        EntityEvento evento = new EntityEvento(adminId, dtoEvento.getEventoTituloDto(), dtoEvento.getEventoDescricaoDto(), dtoEvento.getEventoDataDto(), new ArrayList<>());
+        EntityEvento evento = new EntityEvento(adminId,dtoEvento.getEventoTituloDto(), dtoEvento.getEventoDescricaoDto(), dtoEvento.getEventoDataDto(),new ArrayList<>());
         repositoryEvento.save(evento);
         EntityAdministrador adm = repositoryAdministrador.findById(adminId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.EVENTO_NAO_ENCONTRADO));
         adm.getAdminEventos().add(evento);
@@ -45,29 +44,16 @@ public class ServiceEvento {
     }
 
     public List<EntityEvento> listarEventosPorAdmin(String adminId){
-        List<EntityEvento> eventos = repositoryEvento.findAllByEventoAdminId(adminId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.EVENTO_NAO_ENCONTRADO));
-        // Popula os formulários para cada evento
-        for (EntityEvento evento : eventos) {
-            populateFormularios(evento);
-        }
-        return eventos;
+       return repositoryEvento.findAllByEventoAdminId(adminId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.EVENTO_NAO_ENCONTRADO));
     }
 
     public List<EntityEvento> listarEventosProRec(String recrutadorId){
-        EntityRecrutador recrutador = repositoryRecrutador.findById(recrutadorId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.REC_NAO_ENCONTRADO));
-        List<EntityEvento> eventos = recrutador.getRecrutadorEventos();
-        // Popula os formulários para cada evento
-        for (EntityEvento evento : eventos) {
-            populateFormularios(evento);
-        }
-        return eventos;
+       EntityRecrutador recrutador = repositoryRecrutador.findById(recrutadorId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.REC_NAO_ENCONTRADO));
+        return recrutador.getRecrutadorEventos();
     }
 
     public EntityEvento buscarEventoById(String eventoId){
-        EntityEvento evento = repositoryEvento.findById(eventoId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.EVENTO_NAO_ENCONTRADO));
-        // Popula os formulários para o evento único
-        populateFormularios(evento);
-        return evento;
+        return repositoryEvento.findById(eventoId).orElseThrow(()-> new ExeptionNaoEncontrado(ExeceptionsMensage.EVENTO_NAO_ENCONTRADO));
     }
 
     public EntityEvento alterarEvento(String eventoId, EventoDTO dto){
@@ -88,15 +74,5 @@ public class ServiceEvento {
         admin.getAdminEventos().remove(evento);
         repositoryAdministrador.save(admin);
         repositoryEvento.delete(evento);
-    }
-    private void populateFormularios(EntityEvento evento) {
-        if (evento.getEventoFormularios() != null && !evento.getEventoFormularios().isEmpty()) {
-            List<EntityFormulario> populatedFormularios = new ArrayList<>();
-            for (EntityFormulario refFormulario : evento.getEventoFormularios()) {
-                Optional<EntityFormulario> fullFormulario = repositoryFormulario.findById(refFormulario.getFormId());
-                fullFormulario.ifPresent(populatedFormularios::add);
-            }
-            evento.setEventoFormularios(populatedFormularios);
-        }
     }
 }

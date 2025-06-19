@@ -16,6 +16,7 @@ import 'api/services/event_service.dart';
 import 'api/repository/viewmodel/forms_viewmodel.dart';
 import 'api/repository/viewmodel/auth_viewmodel.dart';
 import 'api/repository/viewmodel/recrutador_viewmodel.dart';
+import 'api/repository/viewmodel/administrador_viewmodel.dart';
 import 'api/repository/viewmodel/event_viewmodel.dart';
 import 'api/repository/forms_repository.dart';
 
@@ -24,9 +25,11 @@ import 'screens/home_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/forms_screen.dart';
 import 'screens/form_create_screen.dart';
-import 'screens/recrutadorregisterscreen.dart';
+import 'screens/recrutadorLogin.dart';
+import 'screens/recrutadordashscreen.dart';
 import 'screens/settings_screen.dart';
 import 'package:provider/single_child_widget.dart';
+import 'package:mobile/api/models/user.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,7 +53,7 @@ List<SingleChildWidget> _buildProviders(
     Provider<SharedPreferences>.value(value: sharedPreferences),
     Provider<http.Client>.value(value: httpClient),
     Provider<ApiClient>(
-      create: (context) => ApiClient(httpClient, sharedPreferences, baseUrl: 'http://localhost:8080', prefs: sharedPreferences),
+      create: (context) => ApiClient(httpClient, sharedPreferences),
     ),
     ProxyProvider<ApiClient, AuthService>(
       update: (_, apiClient, __) => AuthService(apiClient, sharedPreferences),
@@ -92,6 +95,12 @@ List<SingleChildWidget> _buildProviders(
           (context) => RecrutadorViewModel(context.read<RecrutadorService>()),
       update: (_, service, __) => RecrutadorViewModel(service),
     ),
+    ChangeNotifierProxyProvider<AdministradorService, AdministradorViewModel>(
+      create:
+          (context) =>
+              AdministradorViewModel(context.read<AdministradorService>()),
+      update: (_, service, __) => AdministradorViewModel(service),
+    ),
     ChangeNotifierProxyProvider<FormularioRepository, FormViewModel>(
       create: (context) => FormViewModel(context.read<FormularioRepository>()),
       update: (_, repo, __) => FormViewModel(repo),
@@ -126,19 +135,27 @@ class MyApp extends StatelessWidget {
         '/criar-evento': (context) => const CriarEventoScreen(),
         '/profile': (context) => const ProfileScreen(),
         '/settings': (context) => const SettingsScreen(),
-        '/recrutador/register': (context) => const RecrutadorRegisterScreen(),
-        '/forms':
-            (context) => FormsScreen(
-              formularioService: context.read<FormularioService>(),
-              campoService: context.read<CampoService>(),
-              isAdmin:
-                  context.read<AuthViewModel>().currentUser?.tipo == 'admin',
-              eventoId: '',
-            ),
+        '/forms': (context) {
+          final authViewModel = Provider.of<AuthViewModel>(
+            context,
+            listen: false,
+          );
+          return FormsScreen(
+            formularioService: context.read<FormularioService>(),
+            campoService: context.read<CampoService>(),
+            isAdmin: authViewModel.currentUser?.role == UserRole.admin,
+            eventoId: '',
+            adminId: authViewModel.currentUser?.usuarioId ?? '',
+          );
+        },
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/create-form') {
           final args = settings.arguments as Map<String, dynamic>?;
+          final authViewModel = Provider.of<AuthViewModel>(
+            context,
+            listen: false,
+          );
           return MaterialPageRoute(
             builder:
                 (context) => FormularioScreen(
@@ -146,12 +163,17 @@ class MyApp extends StatelessWidget {
                   formularioService: context.read<FormularioService>(),
                   campoService: context.read<CampoService>(),
                   eventoId: args?['eventoId'] ?? '',
+                  adminId: authViewModel.currentUser?.usuarioId ?? '',
                 ),
           );
         }
 
         if (settings.name == '/add-campo') {
           final args = settings.arguments as Map<String, dynamic>;
+          final authViewModel = Provider.of<AuthViewModel>(
+            context,
+            listen: false,
+          );
           return MaterialPageRoute(
             builder:
                 (context) => FormularioScreen(
@@ -160,12 +182,17 @@ class MyApp extends StatelessWidget {
                   formularioService: context.read<FormularioService>(),
                   isEditingCampo: false,
                   eventoId: args['eventoId'] ?? '',
+                  adminId: authViewModel.currentUser?.usuarioId ?? '',
                 ),
           );
         }
 
         if (settings.name == '/edit-campo') {
           final args = settings.arguments as Map<String, dynamic>;
+          final authViewModel = Provider.of<AuthViewModel>(
+            context,
+            listen: false,
+          );
           return MaterialPageRoute(
             builder:
                 (context) => FormularioScreen(
@@ -175,6 +202,7 @@ class MyApp extends StatelessWidget {
                   formularioService: context.read<FormularioService>(),
                   isEditingCampo: true,
                   eventoId: args['eventoId'] ?? '',
+                  adminId: authViewModel.currentUser?.usuarioId ?? '',
                 ),
           );
         }
