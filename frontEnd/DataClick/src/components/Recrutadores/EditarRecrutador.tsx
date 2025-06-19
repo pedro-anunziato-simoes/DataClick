@@ -1,10 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { TextField, Box, Typography, Paper, Button, CircularProgress } from "@mui/material";
+import {
+  TextField,
+  Box,
+  Typography,
+  Paper,
+  Button,
+  CircularProgress
+} from "@mui/material";
 import { EntityRecrutador } from "../../types/entityes/EntityRecrutador";
 import { RecrutadorService } from "../../api/RecrutadorService";
 import { RecrutadorUpdateDTO } from "../../types/entityes/DTO/RecrutadorUpdateDTO";
-
 const EditarRecrutador = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -56,7 +62,7 @@ const EditarRecrutador = () => {
   }
 
   return (
-    <Box p={4}>
+    <Box p={4} sx={{ fontFamily: "Roboto, Arial, sans-serif" }}>
       <Paper elevation={3} sx={{ p: 3 }}>
         <Typography variant="h5" gutterBottom>
           Editar Recrutador
